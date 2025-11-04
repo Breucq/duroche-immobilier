@@ -1,0 +1,32 @@
+{
+  "name": "duroche-immobilier-studio",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Interface d'administration pour Duroche Immobilier",
+  "main": "package.json",
+  "author": "Thomas Dubreucq",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "sanity dev",
+    "start": "sanity dev",
+    "build": "sanity build"
+  },
+  "keywords": [
+    "sanity"
+  ],
+  "dependencies": {
+    "@sanity/vision": "^3.45.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-is": "^18.2.0",
+    "sanity": "^3.45.0",
+    "styled-components": "^6.1.11"
+  },
+  "devDependencies": {
+    "@sanity/eslint-config-studio": "^4.0.0",
+    "@types/react": "^18.0.25",
+    "eslint": "^8.6.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.2.2"
+  }
+}
