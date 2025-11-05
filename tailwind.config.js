@@ -28,6 +28,9 @@ export default {
         'secondary': '#A5B4CB',
         'secondary-dark': '#8E9AAF',
         'border-color': '#E0E6ED',
+        orange: {
+          '500': '#f97316',
+          '600': '#ea580c',
       }
     }
   },
