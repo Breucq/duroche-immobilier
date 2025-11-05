@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { pageService } from '../services/pageService';
 import { footerSettingsService } from '../services/footerSettingsService';
 import type { FooterSettings, SiteSettings, Page } from '../types';
 import { propertyService } from '../services/propertyService';
@@ -13,23 +12,23 @@ const SocialIcon: React.FC<{ href: string, children: React.ReactNode, "aria-labe
 interface FooterProps {
     setCurrentPage: (page: string) => void;
     settings: SiteSettings;
+    dynamicPages: Page[];
 }
 
-const Footer: React.FC<FooterProps> = ({ setCurrentPage, settings }) => {
+const Footer: React.FC<FooterProps> = ({ setCurrentPage, settings, dynamicPages }) => {
     const [footerSettings, setFooterSettings] = useState<FooterSettings | null>(null);
-    const [footerPages, setFooterPages] = useState<Page[]>([]);
     const [popularSearches, setPopularSearches] = useState<{ type: string; city: string; label: string }[]>([]);
+    
+    const footerPages = dynamicPages.filter(p => p.showInFooter);
 
     useEffect(() => {
         const fetchFooterData = async () => {
-            const [fetchedSettings, fetchedPages, allProperties] = await Promise.all([
+            const [fetchedSettings, allProperties] = await Promise.all([
                 footerSettingsService.getSettings(),
-                pageService.getAll(),
                 propertyService.getAll(),
             ]);
             
             setFooterSettings(fetchedSettings);
-            setFooterPages(fetchedPages.filter(p => p.showInFooter));
 
             const uniqueSearches = new Set<string>();
             const activeProperties = allProperties.filter(p => !p.isHidden && p.status !== 'Vendu');

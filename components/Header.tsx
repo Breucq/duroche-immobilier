@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { pageService } from '../services/pageService';
+import React, { useState } from 'react';
 import type { SiteSettings, Page } from '../types';
 
 interface HeaderProps {
   setCurrentPage: (page: string) => void;
   favoriteIds: string[];
   settings: SiteSettings;
+  dynamicPages: Page[];
 }
 
 interface NavLink {
@@ -13,26 +13,18 @@ interface NavLink {
   path: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ setCurrentPage, favoriteIds, settings }) => {
+const Header: React.FC<HeaderProps> = ({ setCurrentPage, favoriteIds, settings, dynamicPages }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [navLinks, setNavLinks] = useState<NavLink[]>([]);
 
-  useEffect(() => {
-    const fetchNavPages = async () => {
-      const pages = await pageService.getAll();
-      const dynamicLinks = pages
-        .filter(p => p.showInHeader)
-        .map(p => ({ name: p.title, path: `/${p.slug.current}` }));
-      
-      const staticLinks: NavLink[] = [
-        { name: 'Accueil', path: '/' },
-        { name: 'Nos Biens', path: '/properties' },
-      ];
-      setNavLinks([...staticLinks, ...dynamicLinks]);
-    };
-
-    fetchNavPages();
-  }, []);
+  const dynamicLinks = dynamicPages
+    .filter(p => p.showInHeader)
+    .map(p => ({ name: p.title, path: `/${p.slug.current}` }));
+  
+  const staticLinks: NavLink[] = [
+    { name: 'Accueil', path: '/' },
+    { name: 'Nos Biens', path: '/properties' },
+  ];
+  const navLinks = [...staticLinks, ...dynamicLinks];
   
   const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, path: string) => {
       e.preventDefault();

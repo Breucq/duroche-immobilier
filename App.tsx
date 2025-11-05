@@ -316,9 +316,9 @@ const App: React.FC = () => {
     
     return (
         <div className="font-sans text-primary-text">
-            {settings && <Header setCurrentPage={setCurrentPage} favoriteIds={favoriteIds} settings={settings} />}
+            {settings && <Header setCurrentPage={setCurrentPage} favoriteIds={favoriteIds} settings={settings} dynamicPages={dynamicPages} />}
             <main>{renderPage()}</main>
-            {settings && <Footer setCurrentPage={setCurrentPage} settings={settings} />}
+            {settings && <Footer setCurrentPage={setCurrentPage} settings={settings} dynamicPages={dynamicPages} />}
         </div>
     );
 };
