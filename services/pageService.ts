@@ -4,7 +4,7 @@ import type { Page } from '../types';
 const pageFields = `
   _id,
   title,
-  "slug": slug.current,
+  slug,
   content,
   metaTitle,
   metaDescription,

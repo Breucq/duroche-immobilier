@@ -4,7 +4,7 @@ import type { Article } from '../types';
 const articleFields = `
   _id,
   title,
-  "slug": slug.current,
+  slug,
   author,
   date,
   "image": image.asset->,
