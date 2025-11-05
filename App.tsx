@@ -155,6 +155,7 @@ const App: React.FC = () => {
             window.history.pushState({ path }, '', path);
         }
         setCurrentPageInternal(path);
+        window.scrollTo(0, 0);
     };
 
     const FAVORITES_STORAGE_KEY = 'duroche_favorites';
@@ -203,7 +204,7 @@ const App: React.FC = () => {
                 const element = document.getElementById(id);
                 if (element) { element.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
              }, 100);
-        } else { window.scrollTo(0, 0); }
+        }
     }, [currentPage]);
     
     const path = currentPage;
@@ -273,10 +274,6 @@ const App: React.FC = () => {
     }, [path, settings, isLoading, dynamicPages]);
 
     const renderPage = () => {
-        if (isLoading) {
-            return <div className="text-center py-48">Chargement du site...</div>;
-        }
-
         const pageSlug = path.substring(1).split('?')[0];
         const dynamicPage = dynamicPages.find(p => p.slug.current === pageSlug);
 
@@ -298,6 +295,24 @@ const App: React.FC = () => {
                 return <HomePage setCurrentPage={setCurrentPage} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />;
         }
     };
+
+    if (isLoading) {
+        return <div className="bg-background min-h-screen flex items-center justify-center text-center py-48">Chargement du site...</div>;
+    }
+
+    if (settings?.maintenanceMode) {
+        return (
+            <div className="bg-background min-h-screen flex flex-col items-center justify-center text-center p-4 font-sans">
+                {settings?.logo && <img src={settings.logo} alt={settings.title} className="h-16 max-w-[250px] object-contain mb-8" />}
+                <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl mb-4">Site en maintenance</h1>
+                <p className="text-lg text-secondary-text max-w-xl mx-auto">
+                    Nous effectuons actuellement des mises à jour pour améliorer votre expérience.
+                    <br/>
+                    Le site sera de retour très prochainement. Merci de votre patience.
+                </p>
+            </div>
+        );
+    }
     
     return (
         <div className="font-sans text-primary-text">

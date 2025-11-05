@@ -30,5 +30,12 @@ export default defineType({
       title: 'Favicon',
       type: 'image',
     }),
+    defineField({
+      name: 'maintenanceMode',
+      title: 'Activer le mode maintenance',
+      description: 'Si activé, le site affichera une page de maintenance à tous les visiteurs.',
+      type: 'boolean',
+      initialValue: false,
+    }),
   ],
 })
