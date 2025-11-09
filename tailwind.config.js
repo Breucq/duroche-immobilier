@@ -24,13 +24,14 @@ export default {
         'primary-text': '#333D4B',
         'secondary-text': '#6B7A90',
         'accent': '#b68d3d',
-        'accent-dark': '#b68d3d',
+        'accent-dark': '#9e7a32',
         'secondary': '#A5B4CB',
         'secondary-dark': '#8E9AAF',
         'border-color': '#E0E6ED',
         orange: {
           '500': '#f97316',
           '600': '#ea580c',
+        },
       }
     }
   },
