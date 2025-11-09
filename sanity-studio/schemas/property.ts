@@ -36,6 +36,11 @@ export default defineType({
       name: 'images',
       title: 'Images Supplémentaires',
       type: 'array',
+      description:
+        "Vous pouvez glisser-déposer plusieurs images à la fois, ou en sélectionner plusieurs lors de l'upload.",
+      options: {
+        layout: 'grid',
+      },
       of: [{type: 'image', options: {hotspot: true}}],
       group: 'main',
     }),

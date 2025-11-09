@@ -1,0 +1,1089 @@
+[
+  {
+    "fields": [
+      {
+        "initialValue": "2025-11-09T23:04:06.868Z",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "publicationDate",
+        "type": "datetime",
+        "title": "Date de Publication"
+      },
+      {
+        "name": "reference",
+        "type": "string",
+        "title": "Référence"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "Image Principale"
+      },
+      {
+        "options": {
+          "layout": "grid"
+        },
+        "description": "Vous pouvez glisser-déposer plusieurs images à la fois, ou en sélectionner plusieurs lors de l'upload.",
+        "of": [
+          {
+            "options": {
+              "hotspot": true
+            },
+            "type": "image"
+          }
+        ],
+        "name": "images",
+        "type": "array",
+        "title": "Images Supplémentaires"
+      },
+      {
+        "options": {
+          "list": [
+            "Maison",
+            "Appartement",
+            "Terrain",
+            "Autre"
+          ]
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "valid",
+                "constraint": [
+                  "Maison",
+                  "Appartement",
+                  "Terrain",
+                  "Autre"
+                ]
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "type",
+        "type": "string",
+        "title": "Type de bien"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "price",
+        "type": "number",
+        "title": "Prix"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Ex: \"Caderousse, 84860\"",
+        "name": "location",
+        "type": "string",
+        "title": "Localisation"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "area",
+        "type": "number",
+        "title": "Surface (m²)"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "rooms",
+        "type": "number",
+        "title": "Nombre de pièces"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "bedrooms",
+        "type": "number",
+        "title": "Nombre de chambres"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "min",
+                "constraint": 0
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "bathrooms",
+        "type": "number",
+        "title": "Nombre de salles de bain"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "description",
+        "type": "text"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "virtualTourUrl",
+        "type": "url",
+        "title": "URL de la Visite Virtuelle"
+      },
+      {
+        "options": {
+          "list": [
+            "Disponible",
+            "Nouveautés",
+            "Sous offre",
+            "Vendu"
+          ],
+          "layout": "radio"
+        },
+        "initialValue": "Disponible",
+        "name": "status",
+        "type": "string",
+        "title": "Statut"
+      },
+      {
+        "initialValue": false,
+        "name": "isHidden",
+        "type": "boolean",
+        "title": "Cacher le bien du site public"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "name": "yearBuilt",
+            "type": "number",
+            "title": "Année de construction"
+          },
+          {
+            "options": {
+              "list": [
+                "À rénover",
+                "Bon état",
+                "Excellent état",
+                "Neuf"
+              ]
+            },
+            "name": "condition",
+            "type": "string",
+            "title": "État"
+          },
+          {
+            "options": {
+              "list": [
+                "Gaz",
+                "Électrique",
+                "Fioul",
+                "Pompe à chaleur",
+                "Aucun"
+              ]
+            },
+            "name": "heating",
+            "type": "string",
+            "title": "Chauffage"
+          },
+          {
+            "name": "levels",
+            "type": "number",
+            "title": "Nombre de niveaux"
+          },
+          {
+            "description": "Ex: \"Immédiate\", \"Loué\", \"À partir du JJ/MM/AAAA\"",
+            "name": "availability",
+            "type": "string",
+            "title": "Disponibilité"
+          }
+        ],
+        "name": "details",
+        "type": "object",
+        "title": "Détails du bien"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "options": {
+              "list": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G"
+              ]
+            },
+            "name": "class",
+            "type": "string",
+            "title": "Classe"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "title": "Valeur (kWh/m²/an)"
+          }
+        ],
+        "name": "dpe",
+        "type": "object",
+        "title": "DPE (Diagnostic de Performance Énergétique)"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "options": {
+              "list": [
+                "A",
+                "B",
+                "C",
+                "D",
+                "E",
+                "F",
+                "G"
+              ]
+            },
+            "name": "class",
+            "type": "string",
+            "title": "Classe"
+          },
+          {
+            "name": "value",
+            "type": "number",
+            "title": "Valeur (kgCO2/m²/an)"
+          }
+        ],
+        "name": "ges",
+        "type": "object",
+        "title": "GES (Gaz à Effet de Serre)"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "general",
+            "type": "array",
+            "title": "Général"
+          },
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "interior",
+            "type": "array",
+            "title": "Intérieur"
+          },
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "exterior",
+            "type": "array",
+            "title": "Extérieur"
+          },
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "equipment",
+            "type": "array",
+            "title": "Équipements"
+          },
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "commercial",
+            "type": "array",
+            "title": "Local Commercial"
+          },
+          {
+            "options": {
+              "layout": "tags"
+            },
+            "of": [
+              {
+                "type": "string"
+              }
+            ],
+            "name": "land",
+            "type": "array",
+            "title": "Terrain"
+          }
+        ],
+        "name": "characteristics",
+        "type": "object",
+        "title": "Caractéristiques"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "name": "propertyTax",
+            "type": "number",
+            "title": "Taxe foncière (€/an)"
+          },
+          {
+            "name": "condoFees",
+            "type": "number",
+            "title": "Charges de copropriété (€/mois)"
+          },
+          {
+            "description": "Ex: \"À la charge du vendeur\"",
+            "name": "agencyFees",
+            "type": "string",
+            "title": "Honoraires"
+          }
+        ],
+        "name": "financials",
+        "type": "object",
+        "title": "Informations Financières"
+      },
+      {
+        "options": {
+          "collapsible": true,
+          "collapsed": false
+        },
+        "fields": [
+          {
+            "initialValue": false,
+            "name": "isCoOwnership",
+            "type": "boolean",
+            "title": "Le bien est en copropriété"
+          },
+          {
+            "hidden": "conditional",
+            "name": "numberOfLots",
+            "type": "number",
+            "title": "Nombre de lots"
+          },
+          {
+            "options": {
+              "list": [
+                "Oui",
+                "Non",
+                "Non applicable"
+              ]
+            },
+            "hidden": "conditional",
+            "name": "proceedings",
+            "type": "string",
+            "title": "Procédure en cours"
+          }
+        ],
+        "name": "coOwnership",
+        "type": "object",
+        "title": "Copropriété"
+      },
+      {
+        "description": "Ex: \"Les informations sur les risques auxquels ce bien est exposé sont disponibles sur le site Géorisques : www.georisques.gouv.fr\"",
+        "name": "risks",
+        "type": "text",
+        "title": "Informations sur les risques"
+      }
+    ],
+    "name": "property",
+    "type": "document",
+    "title": "Biens Immobiliers"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Titre"
+      },
+      {
+        "options": {
+          "source": "title",
+          "maxLength": 96
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "Slug (URL)"
+      },
+      {
+        "initialValue": "Thomas Dubreucq",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "author",
+        "type": "string",
+        "title": "Auteur"
+      },
+      {
+        "initialValue": "2025-11-09",
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "date",
+        "type": "date",
+        "title": "Date de Publication"
+      },
+      {
+        "options": {
+          "hotspot": true
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "image",
+        "type": "image",
+        "title": "Image de Couverture"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              },
+              {
+                "flag": "max",
+                "constraint": 200
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "description": "Un court résumé de l'article pour la page de liste.",
+        "name": "summary",
+        "type": "text",
+        "title": "Résumé"
+      },
+      {
+        "description": "Contenu complet de l'article.",
+        "name": "content",
+        "type": "text",
+        "title": "Contenu"
+      }
+    ],
+    "name": "article",
+    "type": "document",
+    "title": "Articles de Blog"
+  },
+  {
+    "fields": [
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "title",
+        "type": "string",
+        "title": "Titre de la Page"
+      },
+      {
+        "options": {
+          "source": "title"
+        },
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "custom"
+              },
+              {
+                "flag": "presence",
+                "constraint": "required"
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "slug",
+        "type": "slug",
+        "title": "Slug (URL)"
+      },
+      {
+        "name": "content",
+        "type": "text",
+        "title": "Contenu de la Page"
+      },
+      {
+        "initialValue": false,
+        "name": "showInHeader",
+        "type": "boolean",
+        "title": "Afficher dans le menu principal (Header)"
+      },
+      {
+        "initialValue": true,
+        "name": "showInFooter",
+        "type": "boolean",
+        "title": "Afficher dans le pied de page (Footer)"
+      }
+    ],
+    "name": "page",
+    "type": "document",
+    "title": "Pages"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "Nom du Site"
+      },
+      {
+        "name": "description",
+        "type": "text",
+        "title": "Description par défaut (pour le SEO)"
+      },
+      {
+        "name": "logo",
+        "type": "image",
+        "title": "Logo (Header)"
+      },
+      {
+        "name": "footerLogo",
+        "type": "image",
+        "title": "Logo (Footer)"
+      },
+      {
+        "name": "favicon",
+        "type": "image"
+      },
+      {
+        "initialValue": false,
+        "description": "Si activé, le site affichera une page de maintenance à tous les visiteurs.",
+        "name": "maintenanceMode",
+        "type": "boolean",
+        "title": "Activer le mode maintenance"
+      }
+    ],
+    "name": "siteSettings",
+    "type": "document",
+    "title": "Paramètres du Site"
+  },
+  {
+    "fields": [
+      {
+        "name": "heroTitle",
+        "type": "string",
+        "title": "Titre du Hero"
+      },
+      {
+        "name": "heroSubtitle",
+        "type": "text",
+        "title": "Sous-titre du Hero"
+      },
+      {
+        "name": "heroButtonText",
+        "type": "string",
+        "title": "Texte du bouton du Hero"
+      },
+      {
+        "name": "heroBackgroundImage",
+        "type": "image",
+        "title": "Image de fond du Hero"
+      },
+      {
+        "name": "propertiesTitle",
+        "type": "string",
+        "title": "Titre de la section Biens"
+      },
+      {
+        "name": "propertiesSubtitle",
+        "type": "text",
+        "title": "Sous-titre de la section Biens"
+      },
+      {
+        "name": "servicesTitle",
+        "type": "string",
+        "title": "Titre de la section Services"
+      },
+      {
+        "name": "servicesSubtitle",
+        "type": "text",
+        "title": "Sous-titre de la section Services"
+      },
+      {
+        "of": [
+          {
+            "fields": [
+              {
+                "options": {
+                  "list": [
+                    {
+                      "title": "Clé (Achat)",
+                      "value": "KeyIcon"
+                    },
+                    {
+                      "title": "Boutique (Vente)",
+                      "value": "BuildingStorefrontIcon"
+                    },
+                    {
+                      "title": "Graphique (Invest.)",
+                      "value": "ChartBarIcon"
+                    }
+                  ]
+                },
+                "name": "icon",
+                "type": "string",
+                "title": "Icône"
+              },
+              {
+                "name": "title",
+                "type": "string",
+                "title": "Titre"
+              },
+              {
+                "name": "description",
+                "type": "text"
+              }
+            ],
+            "type": "object"
+          }
+        ],
+        "name": "services",
+        "type": "array",
+        "title": "Liste des Services"
+      },
+      {
+        "name": "zonesTitle",
+        "type": "string",
+        "title": "Titre de la section Zones"
+      },
+      {
+        "name": "zonesSubtitle",
+        "type": "text",
+        "title": "Sous-titre de la section Zones"
+      },
+      {
+        "name": "zones",
+        "type": "text",
+        "title": "Liste des Zones (une par ligne)"
+      },
+      {
+        "name": "contactTitle",
+        "type": "string",
+        "title": "Titre de la section Contact"
+      },
+      {
+        "name": "contactSubtitle",
+        "type": "text",
+        "title": "Sous-titre de la section Contact"
+      },
+      {
+        "name": "estimationTitle",
+        "type": "string",
+        "title": "Titre de la section Estimation"
+      },
+      {
+        "name": "estimationSubtitle",
+        "type": "text",
+        "title": "Sous-titre de la section Estimation"
+      },
+      {
+        "name": "estimationButtonText",
+        "type": "string",
+        "title": "Texte du bouton de la section Estimation"
+      },
+      {
+        "name": "estimationBackgroundImage",
+        "type": "image",
+        "title": "Image de fond de la section Estimation"
+      }
+    ],
+    "name": "homePageSettings",
+    "type": "document",
+    "title": "Paramètres de la Page d'Accueil"
+  },
+  {
+    "fields": [
+      {
+        "name": "description",
+        "type": "text",
+        "title": "Description courte"
+      },
+      {
+        "name": "email",
+        "type": "string",
+        "title": "E-mail de contact"
+      },
+      {
+        "name": "phone",
+        "type": "string",
+        "title": "Téléphone"
+      },
+      {
+        "name": "address",
+        "type": "text",
+        "title": "Adresse"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "facebookUrl",
+        "type": "url",
+        "title": "URL Facebook"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "linkedinUrl",
+        "type": "url",
+        "title": "URL LinkedIn"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "instagramUrl",
+        "type": "url",
+        "title": "URL Instagram"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "twitterUrl",
+        "type": "url",
+        "title": "URL Twitter/X"
+      },
+      {
+        "validation": [
+          {
+            "rules": [
+              {
+                "flag": "uri",
+                "constraint": {
+                  "options": {
+                    "scheme": [
+                      "/^http$/",
+                      "/^https$/"
+                    ],
+                    "allowRelative": false,
+                    "relativeOnly": false,
+                    "allowCredentials": false
+                  }
+                }
+              }
+            ],
+            "level": "error"
+          }
+        ],
+        "name": "youtubeUrl",
+        "type": "url",
+        "title": "URL YouTube"
+      },
+      {
+        "description": "Ex: 'Duroche Immobilier. Tous droits réservés.'",
+        "name": "copyright",
+        "type": "string",
+        "title": "Texte du Copyright"
+      },
+      {
+        "name": "professionalCardLogo",
+        "type": "image",
+        "title": "Logo de la carte professionnelle"
+      },
+      {
+        "name": "professionalCardNumber",
+        "type": "string",
+        "title": "Numéro de carte professionnelle"
+      }
+    ],
+    "name": "footerSettings",
+    "type": "document",
+    "title": "Paramètres du Pied de Page"
+  },
+  {
+    "fields": [
+      {
+        "name": "title",
+        "type": "string",
+        "title": "Titre de la Page"
+      },
+      {
+        "name": "subtitle",
+        "type": "text",
+        "title": "Sous-titre de la Page"
+      }
+    ],
+    "name": "estimationPageSettings",
+    "type": "document",
+    "title": "Paramètres de la Page Estimation"
+  }
+]
