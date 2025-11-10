@@ -34,6 +34,42 @@ const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, p
         fetchArticle();
     }, [slug]);
 
+    useEffect(() => {
+        const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
+            let element = document.querySelector<HTMLMetaElement>(`meta[${attr}='${key}']`);
+            if (!element) {
+                element = document.createElement('meta');
+                element.setAttribute(attr, key);
+                document.head.appendChild(element);
+            }
+            element.setAttribute('content', content || '');
+        };
+
+        if (article) {
+            const title = `${article.title} | Blog Duroche Immobilier`;
+            const description = article.summary;
+            const imageUrl = urlFor(article.image).width(1200).height(630).fit('crop').url();
+            const pageUrl = window.location.href;
+
+            document.title = title;
+            setMetaTag('name', 'description', description);
+
+            // Open Graph (Facebook, etc.)
+            setMetaTag('property', 'og:title', title);
+            setMetaTag('property', 'og:description', description);
+            setMetaTag('property', 'og:image', imageUrl);
+            setMetaTag('property', 'og:url', pageUrl);
+            setMetaTag('property', 'og:type', 'article');
+
+            // Twitter Card
+            setMetaTag('name', 'twitter:card', 'summary_large_image');
+            setMetaTag('name', 'twitter:title', title);
+            setMetaTag('name', 'twitter:description', description);
+            setMetaTag('name', 'twitter:image', imageUrl);
+        }
+    }, [article]);
+
+
     if (isLoading) {
         return <div className="py-48 text-center">Chargement de l'article...</div>;
     }
@@ -56,7 +92,7 @@ const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, p
         day: 'numeric',
     });
 
-    const imageUrl = urlFor(article.image).width(1200).height(600).url();
+    const imageUrl = urlFor(article.image).width(1200).height(600).auto('format').quality(80).url();
 
     return (
         <div className="bg-background py-24">

@@ -236,9 +236,13 @@ const App: React.FC = () => {
             keywords = dynamicPage.metaKeywords || keywords;
             updateStructuredData(null);
         } else if (path.startsWith('/properties/') && slug) {
-            // SEO for properties is now handled async on the detail page itself
+            title = `Chargement du bien... | ${settings.title}`;
+            description = `Chargement des informations pour le bien immobilier à vendre dans le Vaucluse.`;
+            updateStructuredData(null);
         } else if (path.startsWith('/blog/') && slug) {
-            // SEO for articles is now handled async on the detail page itself
+            title = `Chargement de l'article... | ${settings.title}`;
+            description = `Chargement de notre dernier article de blog sur l'immobilier dans le Vaucluse.`;
+            updateStructuredData(null);
         } else if (path.startsWith('/properties')) {
             title = `Nos Biens Immobiliers à Vendre - Vaucluse Nord | ${settings.title}`;
             description = 'Parcourez tous nos biens immobiliers à vendre : maisons, appartements, terrains à Orange, Caderousse, Piolenc et tout le Vaucluse Nord. Trouvez votre futur chez-vous.';

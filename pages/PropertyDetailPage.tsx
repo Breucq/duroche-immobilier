@@ -80,6 +80,41 @@ const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ setCurrentPage,
         fetchProperty();
     }, [id]);
 
+    useEffect(() => {
+        const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
+            let element = document.querySelector<HTMLMetaElement>(`meta[${attr}='${key}']`);
+            if (!element) {
+                element = document.createElement('meta');
+                element.setAttribute(attr, key);
+                document.head.appendChild(element);
+            }
+            element.setAttribute('content', content || '');
+        };
+        
+        if (property) {
+            const title = `${property.type} à ${property.location} | Duroche Immobilier`;
+            const description = property.description.substring(0, 160) + (property.description.length > 160 ? '...' : '');
+            const imageUrl = urlFor(property.image).width(1200).height(630).fit('crop').url();
+            const pageUrl = window.location.href;
+
+            document.title = title;
+            setMetaTag('name', 'description', description);
+
+            // Open Graph (Facebook, etc.)
+            setMetaTag('property', 'og:title', title);
+            setMetaTag('property', 'og:description', description);
+            setMetaTag('property', 'og:image', imageUrl);
+            setMetaTag('property', 'og:url', pageUrl);
+            setMetaTag('property', 'og:type', 'website');
+
+            // Twitter Card
+            setMetaTag('name', 'twitter:card', 'summary_large_image');
+            setMetaTag('name', 'twitter:title', title);
+            setMetaTag('name', 'twitter:description', description);
+            setMetaTag('name', 'twitter:image', imageUrl);
+        }
+    }, [property]);
+
     useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isLightboxOpen || !property || !property.images || property.images.length === 0) return; if (e.key === 'Escape') { closeLightbox(); } else if (e.key === 'ArrowRight') { showNextImage(); } else if (e.key === 'ArrowLeft') { showPrevImage(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isLightboxOpen, currentImageIndex, property]);
 
     if (isLoading) {
@@ -95,7 +130,7 @@ const PropertyDetailPage: React.FC<PropertyDetailPageProps> = ({ setCurrentPage,
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
     
     const allImages = [property.image, ...(property.images || [])].filter(Boolean);
-    const imageUrls = allImages.map(img => urlFor(img).url());
+    const imageUrls = allImages.map(img => urlFor(img).auto('format').quality(80).url());
     const otherImages = imageUrls.slice(1, 5);
 
     const openLightbox = (index: number) => { setCurrentImageIndex(index); setIsLightboxOpen(true); };
