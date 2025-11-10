@@ -307,7 +307,7 @@ const App: React.FC = () => {
     if (settings?.maintenanceMode) {
         return (
             <div className="bg-background min-h-screen flex flex-col items-center justify-center text-center p-4 font-sans">
-                {settings?.logo && <img src={settings.logo} alt={settings.title} className="h-16 max-w-[250px] object-contain mb-8" />}
+                {settings?.logo && <img src={settings.logo} alt={settings.title} className="h-24 max-w-[250px] object-contain mb-8" />}
                 <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl mb-4">Site en maintenance</h1>
                 <p className="text-lg text-secondary-text max-w-xl mx-auto">
                     Nous effectuons actuellement des mises à jour pour améliorer votre expérience.

@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ setCurrentPage, favoriteIds, settings, 
   
   const renderLogo = () => {
     if (settings.logo) {
-      return <img src={settings.logo} alt={settings.title} className="h-12 max-w-[220px] object-contain" />;
+      return <img src={settings.logo} alt={settings.title} className="h-14 max-w-[220px] object-contain" />;
     }
     const titleParts = settings.title.split(' ');
     const firstWord = titleParts[0] || '';
@@ -121,6 +121,21 @@ const Header: React.FC<HeaderProps> = ({ setCurrentPage, favoriteIds, settings, 
                   {link.name}
                 </a>
               ))}
+               <a
+                href="#"
+                onClick={(e) => handleNavClick(e, '/favorites')}
+                className="relative text-primary-text hover:text-accent px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center"
+                aria-label={`Voir les favoris (${favoriteIds.length})`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {favoriteIds.length > 0 && (
+                  <span className="absolute top-1 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                    {favoriteIds.length}
+                  </span>
+                )}
+              </a>
               <button 
                 onClick={handleContactClick}
                 className="ml-4 px-5 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-all"
@@ -129,7 +144,22 @@ const Header: React.FC<HeaderProps> = ({ setCurrentPage, favoriteIds, settings, 
               </button>
             </div>
           </div>
-          <div className="-mr-2 flex md:hidden">
+          <div className="-mr-2 flex items-center md:hidden">
+            <a
+                href="#"
+                onClick={(e) => handleNavClick(e, '/favorites')}
+                className="relative inline-flex items-center justify-center p-2 rounded-md text-primary-text hover:bg-background-alt focus:outline-none focus:ring-2 focus:ring-accent mr-2"
+                aria-label={`Voir les favoris (${favoriteIds.length})`}
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+                {favoriteIds.length > 0 && (
+                    <span className="absolute top-1 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                    {favoriteIds.length}
+                    </span>
+                )}
+            </a>
             <button
               onClick={() => setIsOpen(true)}
               type="button"
