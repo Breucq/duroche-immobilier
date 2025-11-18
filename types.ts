@@ -1,3 +1,4 @@
+
 /**
  * Représente un bien immobilier tel que retourné par Sanity.
  */
@@ -84,7 +85,9 @@ export interface Page {
     _id: string;
     slug: { current: string };
     title: string;
-    content: string; // Contenu HTML/Text
+    subtitle?: string;
+    coverImage?: SanityImage; // URL ou objet image
+    content: any; // Portable Text array
     metaTitle?: string;
     metaDescription?: string;
     metaKeywords?: string;
@@ -101,6 +104,7 @@ export interface SiteSettings {
     logo: string; // URL de l'image
     footerLogo: string; // URL de l'image
     favicon: string; // URL de l'image
+    maintenanceMode?: boolean;
 }
 
 /**

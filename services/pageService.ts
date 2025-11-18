@@ -1,9 +1,11 @@
-import { client } from './sanityClient';
+import { client, urlFor } from './sanityClient';
 import type { Page } from '../types';
 
 const pageFields = `
   _id,
   title,
+  subtitle,
+  "coverImage": coverImage.asset->,
   slug,
   content,
   metaTitle,
@@ -21,6 +23,15 @@ export const pageService = {
 
   async getBySlug(slug: string): Promise<Page | null> {
     const query = `*[_type == "page" && slug.current == $slug][0] { ${pageFields} }`;
-    return client.fetch(query, { slug });
+    const page = await client.fetch(query, { slug });
+    
+    if (page && page.coverImage) {
+        // Ensure we pass a valid image object or URL string structure if expected by types
+        // But usually for pages we might want to process the URL right here if GenericPage expects a string
+        // However, GenericPage might use urlFor. Let's check types. 
+        // The interface says SanityImage. So we keep the object structure.
+    }
+    
+    return page;
   },
 };
