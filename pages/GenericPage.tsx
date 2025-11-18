@@ -59,9 +59,6 @@ const GenericPage: React.FC<GenericPageProps> = ({ page }) => {
              )}
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                 <span className="inline-block py-1 px-3 rounded-full bg-accent/20 text-accent text-sm font-semibold mb-6 border border-accent/30 uppercase tracking-wider backdrop-blur-sm">
-                    Agence Duroche Immobilier
-                </span>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-heading text-white mb-6">
                     {page.title}
                 </h1>
