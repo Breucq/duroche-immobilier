@@ -1,15 +1,10 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
 import { alertService } from '../services/alertService';
 import PropertyCard from '../components/PropertyCard';
 import type { Property } from '../types';
-
-interface PropertiesListPageProps {
-    setCurrentPage: (page: string) => void;
-    path: string;
-    favoriteIds: string[];
-    toggleFavorite: (id: string) => void;
-}
 
 // --- ICONS ---
 const LocationIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> );
@@ -19,23 +14,22 @@ const BedroomsIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="htt
 const AreaIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg> );
 const CheckmarkIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> );
 
-// --- COMPOSANTS ---
 interface CustomCheckboxProps { id: string; name: string; label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ id, name, label, checked, onChange }) => { return ( <label htmlFor={id} className="flex items-center cursor-pointer group text-sm text-primary-text"> <input id={id} name={name} type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" /> <span className="w-5 h-5 rounded-lg border-2 border-border-color bg-white group-hover:border-accent peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-accent peer-checked:bg-accent peer-checked:border-accent transition-colors flex items-center justify-center flex-shrink-0"> <CheckmarkIcon className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" /> </span> <span className="ml-2.5">{label}</span> </label> ); };
 const CITIES = [ 'Caderousse', 'Orange', 'Piolenc', 'Courthézon', 'Jonquières', 'Sérignan-du-Comtat', 'Uchaux', 'Camaret-sur-Aigues', 'Lyon', 'Bordeaux', 'Nice', 'Marseille', 'Lille', 'Paris' ];
 const AlertModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (email: string) => void; criteriaSummary: string; }> = ({ isOpen, onClose, onSave, criteriaSummary }) => { const [email, setEmail] = useState(''); if (!isOpen) return null; const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(email); }; return ( <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-white rounded-xl shadow-xl p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}> <h2 className="text-2xl font-bold font-heading text-primary-text mb-4">Créer une Alerte</h2> <p className="text-secondary-text mb-2">Soyez notifié(e) par e-mail dès qu'un bien correspondant à vos critères est disponible.</p> <div className="bg-background-alt p-3 rounded-lg text-sm text-secondary-text mb-6"> <strong>Critères :</strong> {criteriaSummary || "Tous les biens"} </div> <form onSubmit={handleSubmit}> <label htmlFor="alert-email" className="block text-sm font-medium text-primary-text">Votre adresse e-mail</label> <input id="alert-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="exemple@email.com" className="mt-1 py-2 px-3 block w-full bg-white shadow-sm border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent" /> <div className="mt-6 flex justify-end space-x-3"> <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 hover:bg-gray-300">Annuler</button> <button type="submit" className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-dark">Créer l'alerte</button> </div> </form> </div> </div> ); };
 
+const PropertiesListPage: React.FC = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const { data: properties = [], isLoading } = useQuery({
+        queryKey: ['activeProperties'],
+        queryFn: propertyService.getActive
+    });
 
-const PropertiesListPage: React.FC<PropertiesListPageProps> = ({ setCurrentPage, path, favoriteIds, toggleFavorite }) => {
-    const [properties, setProperties] = useState<Property[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const getFiltersFromPath = (currentPath: string) => { const query = currentPath.split('?')[1]; const params = new URLSearchParams(query); return { searchTerm: params.get('location') || '', propertyType: params.get('type') || 'all', maxPrice: params.get('price') || '' }; };
-    const initialFilters = useMemo(() => getFiltersFromPath(path), [path]);
-    
-    const [searchTerm, setSearchTerm] = useState(initialFilters.searchTerm);
-    const [propertyType, setPropertyType] = useState(initialFilters.propertyType);
-    const [maxPrice, setMaxPrice] = useState(initialFilters.maxPrice);
+    // Local state for filters
+    const [searchTerm, setSearchTerm] = useState(searchParams.get('location') || '');
+    const [propertyType, setPropertyType] = useState(searchParams.get('type') || 'all');
+    const [maxPrice, setMaxPrice] = useState(searchParams.get('price') || '');
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
     const [showMoreFilters, setShowMoreFilters] = useState(false);
@@ -45,25 +39,26 @@ const PropertiesListPage: React.FC<PropertiesListPageProps> = ({ setCurrentPage,
     const [sortBy, setSortBy] = useState('date_desc');
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     
-    useEffect(() => {
-        const fetchProperties = async () => {
-            setIsLoading(true);
-            try {
-                const props = await propertyService.getActive();
-                setProperties(props);
-            } catch (error) {
-                console.error("Failed to fetch properties:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchProperties();
-    }, []);
-
-    useEffect(() => { setSearchTerm(initialFilters.searchTerm); setPropertyType(initialFilters.propertyType); setMaxPrice(initialFilters.maxPrice); }, [initialFilters]);
     const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = e.target; setAmenities(prev => ({ ...prev, [name]: checked })); };
-    const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => { const value = e.target.value; setSearchTerm(value); if (value.length > 0) { const filteredCities = CITIES.filter(city => city.toLowerCase().startsWith(value.toLowerCase())); setSuggestions(filteredCities); setIsSuggestionsVisible(true); } else { setSuggestions([]); setIsSuggestionsVisible(false); } };
-    const handleSuggestionClick = (city: string) => { setSearchTerm(city); setSuggestions([]); setIsSuggestionsVisible(false); };
+    const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+        const value = e.target.value; 
+        setSearchTerm(value);
+        // Update URL params
+        const newParams = new URLSearchParams(searchParams);
+        if(value) newParams.set('location', value); else newParams.delete('location');
+        setSearchParams(newParams);
+
+        if (value.length > 0) { const filteredCities = CITIES.filter(city => city.toLowerCase().startsWith(value.toLowerCase())); setSuggestions(filteredCities); setIsSuggestionsVisible(true); } else { setSuggestions([]); setIsSuggestionsVisible(false); } 
+    };
+    const handleSuggestionClick = (city: string) => { 
+        setSearchTerm(city); 
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('location', city);
+        setSearchParams(newParams);
+        setSuggestions([]); 
+        setIsSuggestionsVisible(false); 
+    };
+
     const filteredProperties = useMemo(() => {
         let results = properties.filter(p => {
             const matchesSearch = p.location.toLowerCase().includes(searchTerm.toLowerCase());
@@ -99,7 +94,7 @@ const PropertiesListPage: React.FC<PropertiesListPageProps> = ({ setCurrentPage,
                 <header className="text-center pt-8 mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Nos Biens Immobiliers à Vendre</h1>
                     <p className="mt-4 text-lg text-secondary-text max-w-2xl mx-auto">Trouvez la propriété qui correspond parfaitement à vos attentes dans le Vaucluse Nord.</p>
-                     <a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('/nos-biens-vendus'); }} className="mt-4 inline-block text-sm font-medium text-accent hover:text-accent-dark transition-colors"> Voir nos biens récemment vendus &rarr; </a>
+                     <Link to="/nos-biens-vendus" className="mt-4 inline-block text-sm font-medium text-accent hover:text-accent-dark transition-colors"> Voir nos biens récemment vendus &rarr; </Link>
                 </header>
                 
                 <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl mb-12 border border-border-color/50">
@@ -140,7 +135,7 @@ const PropertiesListPage: React.FC<PropertiesListPageProps> = ({ setCurrentPage,
                 ) : filteredProperties.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredProperties.map((property) => (
-                            <PropertyCard key={property._id} property={property} setCurrentPage={setCurrentPage} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
+                            <PropertyCard key={property._id} property={property} />
                         ))}
                     </div>
                 ) : (

@@ -1,4 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 
 interface ContactFormProps {
     isPage?: boolean;
@@ -7,18 +10,52 @@ interface ContactFormProps {
     subtitle?: string;
 }
 
-/**
- * Composant de formulaire de contact.
- * Peut être utilisé comme une section sur une page ou comme le contenu principal
- * d'une page de contact dédiée.
- * Pré-remplit le message si une référence de bien est fournie.
- */
+const contactSchema = z.object({
+  name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères'),
+  email: z.string().email('Adresse e-mail invalide'),
+  phone: z.string().min(10, 'Le numéro de téléphone doit contenir au moins 10 chiffres'),
+  message: z.string().min(10, 'Le message doit contenir au moins 10 caractères'),
+});
+
+type ContactFormData = z.infer<typeof contactSchema>;
+
 const ContactForm: React.FC<ContactFormProps> = ({ isPage = false, reference, title, subtitle }) => {
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
     const defaultMessage = reference 
         ? `Bonjour,\n\nJe suis intéressé(e) par le bien portant la référence : ${reference}.\nPourriez-vous me recontacter à ce sujet ?\n\nCordialement,`
         : '';
 
-    const inputBaseClass = "py-3 px-4 block w-full bg-white shadow-sm border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent";
+    const { register, handleSubmit, formState: { errors }, reset } = useForm<ContactFormData>({
+        resolver: zodResolver(contactSchema),
+        defaultValues: {
+            message: defaultMessage
+        }
+    });
+
+    const onSubmit = async (data: ContactFormData) => {
+        setIsSubmitting(true);
+        setError(null);
+        
+        try {
+            // Simulation d'envoi (remplacez par votre endpoint réel)
+            // await fetch('https://formspree.io/f/VOTRE_ENDPOINT', { ... })
+            await new Promise(resolve => setTimeout(resolve, 1000)); 
+            
+            console.log("Form Data:", data);
+            setIsSuccess(true);
+            reset();
+        } catch (err) {
+            setError("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const inputBaseClass = "py-3 px-4 block w-full bg-white shadow-sm border border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent";
+    const errorClass = "mt-1 text-sm text-red-600";
 
   return (
     <section id="contact" className={`py-24 ${!isPage ? 'bg-background-alt' : ''}`}>
@@ -35,68 +72,78 @@ const ContactForm: React.FC<ContactFormProps> = ({ isPage = false, reference, ti
                 </div>
             )}
           <div className="bg-white p-8 rounded-xl shadow-lg border border-border-color/50">
-            <form action="https://formspree.io/f/VOTRE_ENDPOINT_UNIQUE" method="POST" className="space-y-6">
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-primary-text">Nom & Prénom</label>
-                <div className="mt-1">
-                  <input
-                    type="text"
-                    name="name"
-                    id="name"
-                    autoComplete="name"
-                    required
-                    className={inputBaseClass}
-                  />
+            {isSuccess ? (
+                <div className="text-center py-12">
+                    <svg className="mx-auto h-12 w-12 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    <h3 className="mt-2 text-xl font-medium text-gray-900">Message envoyé !</h3>
+                    <p className="mt-1 text-gray-500">Nous vous recontacterons dans les plus brefs délais.</p>
+                    <button onClick={() => setIsSuccess(false)} className="mt-6 text-accent hover:text-accent-dark font-medium">Envoyer un autre message</button>
                 </div>
-              </div>
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium text-primary-text">E-mail</label>
-                <div className="mt-1">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className={inputBaseClass}
-                  />
+            ) : (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {error && <div className="p-4 bg-red-50 text-red-700 rounded-md">{error}</div>}
+                
+                <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-primary-text">Nom & Prénom</label>
+                    <div className="mt-1">
+                    <input
+                        {...register('name')}
+                        type="text"
+                        id="name"
+                        className={inputBaseClass}
+                    />
+                    {errors.name && <p className={errorClass}>{errors.name.message}</p>}
+                    </div>
                 </div>
-              </div>
-               <div>
-                <label htmlFor="phone" className="block text-sm font-medium text-primary-text">Téléphone</label>
-                <div className="mt-1">
-                  <input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    autoComplete="tel"
-                    required
-                    className={inputBaseClass}
-                  />
+                <div>
+                    <label htmlFor="email" className="block text-sm font-medium text-primary-text">E-mail</label>
+                    <div className="mt-1">
+                    <input
+                        {...register('email')}
+                        type="email"
+                        id="email"
+                        className={inputBaseClass}
+                    />
+                    {errors.email && <p className={errorClass}>{errors.email.message}</p>}
+                    </div>
                 </div>
-              </div>
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium text-primary-text">Message</label>
-                <div className="mt-1">
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={6}
-                    defaultValue={defaultMessage}
-                    required
-                    className={inputBaseClass}
-                  ></textarea>
+                <div>
+                    <label htmlFor="phone" className="block text-sm font-medium text-primary-text">Téléphone</label>
+                    <div className="mt-1">
+                    <input
+                        {...register('phone')}
+                        type="tel"
+                        id="phone"
+                        className={inputBaseClass}
+                    />
+                    {errors.phone && <p className={errorClass}>{errors.phone.message}</p>}
+                    </div>
                 </div>
-              </div>
-              <div>
-                <button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"
-                >
-                  Envoyer
-                </button>
-              </div>
-            </form>
+                <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-primary-text">Message</label>
+                    <div className="mt-1">
+                    <textarea
+                        {...register('message')}
+                        id="message"
+                        rows={6}
+                        className={inputBaseClass}
+                    ></textarea>
+                    {errors.message && <p className={errorClass}>{errors.message.message}</p>}
+                    </div>
+                </div>
+                <div>
+                    <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`w-full inline-flex items-center justify-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors ${isSubmitting ? 'opacity-70 cursor-not-allowed' : ''}`}
+                    >
+                    {isSubmitting ? 'Envoi en cours...' : 'Envoyer'}
+                    </button>
+                </div>
+                </form>
+            )}
           </div>
         </div>
       </div>

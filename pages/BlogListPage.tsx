@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { articleService } from '../services/articleService';
 import { Article } from '../types';
 import ArticleCard from '../components/ArticleCard';
 
-interface BlogListPageProps {
-    setCurrentPage: (page: string) => void;
-}
-
-const BlogListPage: React.FC<BlogListPageProps> = ({ setCurrentPage }) => {
+const BlogListPage: React.FC = () => {
     const [articles, setArticles] = useState<Article[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const navigate = useNavigate();
+    const setCurrentPage = (page: string) => navigate(page);
 
     useEffect(() => {
         const fetchArticles = async () => {

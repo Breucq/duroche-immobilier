@@ -16,7 +16,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, setCurrentPage }) =>
   });
 
   const detailPath = `/blog/${article.slug.current}`;
-  const imageUrl = urlFor(article.image).width(400).height(300).url();
+  const imageUrl = urlFor(article.image).width(400).height(300).auto('format').quality(80).url();
 
   return (
     <div 

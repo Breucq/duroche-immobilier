@@ -1,15 +1,14 @@
 import React, { useState, useRef } from 'react';
+import { Link } from 'react-router-dom';
+import { useFavorites } from '../context/FavoritesContext';
 import type { Property } from '../types';
 import { urlFor } from '../services/sanityClient';
+import ImageWithSkeleton from './ImageWithSkeleton';
 
 interface PropertyCardProps {
   property: Property;
-  setCurrentPage: (page: string) => void;
-  favoriteIds: string[];
-  toggleFavorite: (id: string) => void;
 }
 
-// --- Icônes locales pour la performance ---
 const IconRooms = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
@@ -50,14 +49,15 @@ const DPEBadge: React.FC<{ classification: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | '
     );
 };
 
-const PropertyCard: React.FC<PropertyCardProps> = ({ property, setCurrentPage, favoriteIds, toggleFavorite }) => {
+const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
+  const { favoriteIds, toggleFavorite } = useFavorites();
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
 
   const detailPath = `/properties/${property._id}`;
-  
   const isFavorite = favoriteIds.includes(property._id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
+      e.preventDefault(); // Prevents navigation when clicking the heart
       e.stopPropagation();
       toggleFavorite(property._id);
   };
@@ -68,54 +68,31 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, setCurrentPage, f
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(600).height(450).url());
+    .map(img => urlFor(img).width(600).height(450).auto('format').quality(80).url());
   
   const hasMultipleImages = imageUrls.length > 1;
-
-  const [translateX, setTranslateX] = useState(0);
-  const [isSwiping, setIsSwiping] = useState(false);
-  const touchStartRef = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleNextClick = (e: React.MouseEvent) => { e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
-  const handlePrevClick = (e: React.MouseEvent) => { e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
-  const handleTouchStart = (e: React.TouchEvent) => { e.stopPropagation(); touchStartRef.current = e.touches[0].clientX; setIsSwiping(true); };
-  const handleTouchMove = (e: React.TouchEvent) => { e.stopPropagation(); if (touchStartRef.current === null) return; const currentX = e.touches[0].clientX; const deltaX = currentX - touchStartRef.current; setTranslateX(deltaX); };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-      e.stopPropagation();
-      setIsSwiping(false);
-      const containerWidth = containerRef.current?.offsetWidth;
-      if (!containerWidth) return;
-      const SWIPE_THRESHOLD = containerWidth / 4;
-      if (translateX < -SWIPE_THRESHOLD && currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } 
-      else if (translateX > SWIPE_THRESHOLD && currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); }
-      setTranslateX(0); 
-      touchStartRef.current = null;
-  }
+  const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
+  const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
 
   return (
-    <div 
-      onClick={() => setCurrentPage(detailPath)}
-      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col cursor-pointer border border-border-color/50"
-      role="button"
-      tabIndex={0}
-      onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && setCurrentPage(detailPath)}
+    <Link 
+      to={detailPath}
+      className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir les détails pour ${property.type} à ${property.location}`}
     >
       <div 
         ref={containerRef}
         className="relative overflow-hidden h-56"
-        onTouchStart={hasMultipleImages ? handleTouchStart : undefined}
-        onTouchMove={hasMultipleImages ? handleTouchMove : undefined}
-        onTouchEnd={hasMultipleImages ? handleTouchEnd : undefined}
       >
         <div
-            className="flex h-full"
-            style={{ transform: `translateX(calc(-${currentImageIndex * 100}% + ${translateX}px))`, transition: isSwiping ? 'none' : 'transform 0.3s ease-in-out' }}
+            className="flex h-full transition-transform duration-300 ease-in-out"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
             {imageUrls.map((imgUrl, index) => (
                 <div key={index} className="w-full h-full flex-shrink-0">
-                    <img className="w-full h-full object-cover" src={imgUrl} alt={`Vue ${index + 1} pour ${property.type} à ${property.location}`} loading="lazy" />
+                    <ImageWithSkeleton src={imgUrl} alt={`Vue ${index + 1}`} className="w-full h-full" />
                 </div>
             ))}
         </div>
@@ -123,12 +100,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, setCurrentPage, f
         {hasMultipleImages && (
             <>
                 {currentImageIndex > 0 && (
-                    <button onClick={handlePrevClick} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none focus:ring-2 focus:ring-accent backdrop-blur-sm z-10" aria-label="Image précédente">
+                    <button onClick={handlePrevClick} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 )}
                 {currentImageIndex < imageUrls.length - 1 && (
-                    <button onClick={handleNextClick} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none focus:ring-2 focus:ring-accent backdrop-blur-sm z-10" aria-label="Image suivante">
+                    <button onClick={handleNextClick} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 )}
@@ -154,7 +131,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property, setCurrentPage, f
             {property.area > 0 && <span title="Surface" className="flex items-center gap-1.5"><IconArea className="w-4 h-4 text-secondary"/> {property.area} m²</span>}
         </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

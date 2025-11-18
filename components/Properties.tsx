@@ -5,14 +5,12 @@ import type { Property } from '../types';
 interface PropertiesProps {
     isHomePage?: boolean;
     setCurrentPage: (page: string) => void;
-    favoriteIds: string[];
-    toggleFavorite: (id: string) => void;
     title?: string;
     subtitle?: string;
     properties: Property[];
 }
 
-const Properties: React.FC<PropertiesProps> = ({ isHomePage = false, setCurrentPage, favoriteIds, toggleFavorite, title, subtitle, properties }) => {
+const Properties: React.FC<PropertiesProps> = ({ isHomePage = false, setCurrentPage, title, subtitle, properties }) => {
   const propertiesToShow = isHomePage ? properties.slice(0, 6) : properties;
   
   const sectionTitle = title || (isHomePage ? "Nos Biens à la Vente" : "Tous Nos Biens");
@@ -33,7 +31,7 @@ const Properties: React.FC<PropertiesProps> = ({ isHomePage = false, setCurrentP
         {propertiesToShow.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {propertiesToShow.map((property) => (
-              <PropertyCard key={property._id} property={property} setCurrentPage={setCurrentPage} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
+              <PropertyCard key={property._id} property={property} />
             ))}
           </div>
         ) : (

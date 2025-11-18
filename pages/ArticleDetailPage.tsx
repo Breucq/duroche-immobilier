@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
 import { articleService } from '../services/articleService';
 import ShareButtons from '../components/ShareButtons';
 import type { Article } from '../types';
 import { urlFor } from '../services/sanityClient';
 
-interface ArticleDetailPageProps {
-    setCurrentPage: (page: string) => void;
-    path: string;
-}
+const ArticleDetailPage: React.FC = () => {
+    const { slug } = useParams<{ slug: string }>();
+    const navigate = useNavigate();
+    const { pathname: path } = useLocation();
+    const setCurrentPage = (page: string) => navigate(page);
 
-const getSlugFromPath = (path: string): string | undefined => path.split('/')[2];
-
-const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, path }) => {
-    const slug = getSlugFromPath(path);
     const [article, setArticle] = useState<Article | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -47,8 +45,8 @@ const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, p
 
         if (article) {
             const title = `${article.title} | Blog Duroche Immobilier`;
-            const description = article.summary;
-            const imageUrl = urlFor(article.image).width(1200).height(630).fit('crop').url();
+            const description = article.summary || '';
+            const imageUrl = article.image ? urlFor(article.image).width(1200).height(630).fit('crop').url() : '';
             const pageUrl = window.location.href;
 
             document.title = title;
@@ -92,7 +90,7 @@ const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, p
         day: 'numeric',
     });
 
-    const imageUrl = urlFor(article.image).width(1200).height(600).auto('format').quality(80).url();
+    const imageUrl = article.image ? urlFor(article.image).width(1200).height(600).auto('format').quality(80).url() : '';
 
     return (
         <div className="bg-background py-24">
@@ -114,11 +112,13 @@ const ArticleDetailPage: React.FC<ArticleDetailPageProps> = ({ setCurrentPage, p
                         className="flex flex-col items-center mb-10"
                     />
 
-                    <img
-                        src={imageUrl}
-                        alt={`Image de couverture pour ${article.title}`}
-                        className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-lg mb-12"
-                    />
+                    {imageUrl && (
+                        <img
+                            src={imageUrl}
+                            alt={`Image de couverture pour ${article.title}`}
+                            className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-lg mb-12"
+                        />
+                    )}
                     <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed whitespace-pre-line">
                         {article.content}
                     </div>
