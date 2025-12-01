@@ -136,7 +136,7 @@ const Layout: React.FC = () => {
             keywords = dynamicPage.metaKeywords || keywords;
             updateStructuredData(null);
         } else if (pathname === '/') {
-             updateStructuredData({ "@context": "https://schema.org", "@type": "RealEstateAgent", "name": settings.title, "description": settings.description, "url": "https://duroche.fr", "logo": settings.logo, "telephone": "+33600000000", "email": "contact@duroche.fr", "areaServed": "Vaucluse Nord" });
+             updateStructuredData({ "@context": "https://schema.org", "@type": "RealEstateAgent", "name": settings.title, "description": settings.description, "url": "https://duroche.fr", "logo": settings.logo, "telephone": "+33756874788", "email": "contact@duroche.fr", "areaServed": "Vaucluse Nord" });
         } else if (pathname.startsWith('/properties')) {
              title = `Nos Biens | ${settings.title}`;
              description = "Découvrez nos biens immobiliers à vendre dans le Vaucluse Nord.";
