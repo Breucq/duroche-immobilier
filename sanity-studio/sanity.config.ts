@@ -2,6 +2,7 @@ import {defineConfig} from 'sanity'
 import {deskTool} from 'sanity/desk'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
+import ImportTool from './components/ImportTool'
 
 // Helper function to create singleton document structure
 const singletonListItem = (S: any, typeName: string, title: string) =>
@@ -37,6 +38,17 @@ export default defineConfig({
     }),
     visionTool(),
   ],
+
+  tools: (prev) => {
+    return [
+      ...prev,
+      {
+        name: 'import-tool',
+        title: 'Importer un bien',
+        component: ImportTool,
+      },
+    ]
+  },
 
   schema: {
     types: schemaTypes,

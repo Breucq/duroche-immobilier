@@ -11,7 +11,6 @@ import BlogListPage from './pages/BlogListPage';
 import ArticleDetailPage from './pages/ArticleDetailPage';
 import EstimationPage from './pages/EstimationPage';
 import GenericPage from './pages/GenericPage';
-import ImportPage from './pages/admin/ImportPage'; // Import de la page
 import { settingsService } from './services/settingsService';
 import { pageService } from './services/pageService';
 import { propertyService } from './services/propertyService';
@@ -196,9 +195,6 @@ const App: React.FC = () => {
                 <Route path="contact" element={<ContactPage />} />
                 <Route path="contact/:reference" element={<ContactPage />} />
                 <Route path="estimation" element={<EstimationPage />} />
-                
-                {/* Route Admin Import */}
-                <Route path="admin/import" element={<ImportPage />} />
 
                 {/* Route catch-all pour les pages dynamiques */}
                 <Route path=":slug" element={<GenericPageWrapper />} />
