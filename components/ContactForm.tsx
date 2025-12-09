@@ -40,13 +40,31 @@ const ContactForm: React.FC<ContactFormProps> = ({ isPage = false, reference, ti
         setError(null);
         
         try {
-            // Simulation d'envoi (remplacez par votre endpoint réel)
-            // await fetch('https://formspree.io/f/VOTRE_ENDPOINT', { ... })
-            await new Promise(resolve => setTimeout(resolve, 1000)); 
-            
-            console.log("Form Data:", data);
-            setIsSuccess(true);
-            reset();
+            // Envoi réel vers Formspree
+            const response = await fetch('https://formspree.io/f/xqagvbqp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    ...data,
+                    // Ajout dynamique de l'objet pour savoir de quel bien il s'agit
+                    _subject: reference 
+                        ? `Contact pour le bien réf: ${reference} - de ${data.name}` 
+                        : `Nouveau message de contact de ${data.name}`
+                })
+            });
+
+            if (response.ok) {
+                console.log("Form Data sent successfully");
+                setIsSuccess(true);
+                reset();
+            } else {
+                // Tenter de lire le message d'erreur si disponible
+                const result = await response.json().catch(() => ({}));
+                console.error("Erreur Formspree", result);
+                throw new Error('Erreur lors de l\'envoi');
+            }
         } catch (err) {
             setError("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
         } finally {

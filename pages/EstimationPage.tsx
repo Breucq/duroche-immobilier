@@ -40,7 +40,7 @@ const EstimationPage: React.FC = () => {
                 </div>
                 
                 <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg border border-border-color/50">
-                     <form action="https://formspree.io/f/VOTRE_ENDPOINT_UNIQUE" method="POST" className="space-y-6">
+                     <form action="https://formspree.io/f/xzzklgrv" method="POST" className="space-y-6">
                         <input type="hidden" name="_subject" value="Nouvelle demande d'estimation" />
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label htmlFor="name" className="block text-sm font-medium text-primary-text mb-1">Nom & Prénom</label><div className="relative"><UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="text" id="name" name="name" placeholder="ex: Jean Dupont" className={`${inputBaseClass} pl-10`} required /></div></div>
