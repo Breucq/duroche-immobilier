@@ -53,9 +53,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
 
-  // Use reference if available and not empty for prettier URLs, otherwise fallback to ID
-  const linkIdentifier = (property.reference && property.reference.trim() !== '') 
-      ? encodeURIComponent(property.reference) 
+  // SÉCURITÉ : On utilise la référence SEULEMENT si elle est "propre" (alphanumérique, tirets, underscores).
+  // Si elle contient des espaces ou caractères spéciaux qui pourraient casser l'URL ou le routing, on utilise l'ID.
+  // Cela garantit que le lien est toujours valide.
+  const hasCleanReference = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
+  
+  const linkIdentifier = hasCleanReference
+      ? property.reference 
       : property._id;
   
   const detailPath = `/properties/${linkIdentifier}`;

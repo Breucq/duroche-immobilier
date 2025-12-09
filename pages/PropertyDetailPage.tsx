@@ -76,12 +76,18 @@ const PropertyDetailPage: React.FC = () => {
             if (!reference) { setIsLoading(false); return; }
             setIsLoading(true);
             try {
-                // Utilisation de getByReference pour supporter les deux formats
-                const prop = await propertyService.getByReference(decodeURIComponent(reference));
+                // Décodage de l'URL pour gérer les espaces ou caractères spéciaux éventuels
+                const decodedRef = decodeURIComponent(reference);
+                console.log("Fetching property with ref:", decodedRef);
+
+                const prop = await propertyService.getByReference(decodedRef);
                 setProperty(prop);
+                
                 if (prop) {
                     const similar = await propertyService.getSimilar(prop);
                     setSimilarProperties(similar);
+                } else {
+                    console.warn("Property not found for ref:", decodedRef);
                 }
             } catch (error) {
                 console.error("Failed to fetch property details:", error);
@@ -127,8 +133,10 @@ const PropertyDetailPage: React.FC = () => {
     const statusConfig = { Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-200 text-yellow-800 font-semibold' }, 'Sous offre': { text: 'Sous offre', className: 'bg-blue-100 text-blue-800 font-semibold' }, Vendu: { text: 'Vendu', className: 'bg-red-100 text-red-800 font-semibold' }, };
     const statusInfo = property.status && property.status !== 'Disponible' ? statusConfig[property.status as keyof typeof statusConfig] : null;
     
-    // Correction ici : Si la référence est vide, on utilise l'ID pour le lien contact
-    const contactIdentifier = (property.reference && property.reference.trim() !== '') ? property.reference : property._id;
+    // SÉCURITÉ : Même logique que PropertyCard, on n'utilise la référence que si elle est propre.
+    // Sinon on utilise l'ID pour le lien de contact.
+    const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
+    const contactIdentifier = hasCleanRef ? property.reference : property._id;
     const contactPath = `/contact/${contactIdentifier}`;
     
     const scrollbarHideStyle = `.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`;

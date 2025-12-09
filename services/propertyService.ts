@@ -49,6 +49,16 @@ export const propertyService = {
     return client.fetch(query, { id });
   },
 
+  /**
+   * Récupère un bien par sa référence OU son ID.
+   * Cette méthode est sécurisée : elle cherche une correspondance exacte soit avec le champ 'reference',
+   * soit avec le champ système '_id'.
+   */
+  async getByReference(refOrId: string): Promise<Property | null> {
+    const query = `*[_type == "property" && (reference == $ref || _id == $ref)][0] { ${propertyFields} }`;
+    return client.fetch(query, { ref: refOrId });
+  },
+
   async getByIds(ids: string[]): Promise<Property[]> {
     const query = `*[_type == "property" && _id in $ids] { ${propertyFields} }`;
     return client.fetch(query, { ids });
@@ -68,5 +78,23 @@ export const propertyService = {
     ]);
     
     return { sameLocation, sameType };
+  },
+
+  /**
+   * Récupère la liste unique des villes où des biens sont actifs.
+   */
+  async getUniqueLocations(): Promise<string[]> {
+      const query = `*[_type == "property" && isHidden != true && status != "Vendu"].location`;
+      const locations: string[] = await client.fetch(query);
+      
+      // Extraction et déduplication des villes (ex: "Orange, 84100" -> "Orange")
+      const uniqueCities = new Set<string>();
+      locations.forEach(loc => {
+          if (loc) {
+              const city = loc.split(',')[0].trim();
+              if (city) uniqueCities.add(city);
+          }
+      });
+      return Array.from(uniqueCities).sort();
   }
 };
