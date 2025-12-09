@@ -10,11 +10,12 @@ export const settingsService = {
     const settings = await client.fetch(query);
 
     // Build full image URLs from Sanity image objects
+    // Fix: Increased width to 1200px to ensure sharpness on Retina/High-DPI screens
     return {
       ...settings,
-      logo: settings.logo ? urlFor(settings.logo).width(400).url() : '',
-      footerLogo: settings.footerLogo ? urlFor(settings.footerLogo).width(400).url() : '',
-      favicon: settings.favicon ? urlFor(settings.favicon).width(64).url() : '',
+      logo: settings.logo ? urlFor(settings.logo).width(1200).url() : '',
+      footerLogo: settings.footerLogo ? urlFor(settings.footerLogo).width(1200).url() : '',
+      favicon: settings.favicon ? urlFor(settings.favicon).width(128).url() : '',
     };
   },
 };

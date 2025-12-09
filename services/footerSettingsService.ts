@@ -10,7 +10,7 @@ export const footerSettingsService = {
     
     return {
       ...settings,
-      professionalCardLogo: settings.professionalCardLogo ? urlFor(settings.professionalCardLogo).width(200).url() : '',
+      professionalCardLogo: settings.professionalCardLogo ? urlFor(settings.professionalCardLogo).width(600).url() : '',
     };
   },
 };
