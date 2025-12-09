@@ -9,7 +9,9 @@ const articleFields = `
   date,
   "image": image.asset->,
   summary,
-  content
+  format,
+  content,
+  contentHtml
 `;
 
 export const articleService = {

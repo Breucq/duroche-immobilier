@@ -76,7 +76,9 @@ export interface Article {
   date: string;
   image: SanityImage;
   summary: string;
-  content: string; // Ou type Portable Text si utilisé
+  format?: 'richText' | 'html';
+  content: any; // Portable Text array si richText
+  contentHtml?: string; // String HTML brut si html
 }
 
 /**
