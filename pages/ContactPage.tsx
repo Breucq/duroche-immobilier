@@ -1,11 +1,11 @@
 import React from 'react';
+import { useParams } from 'react-router-dom';
 import ContactForm from '../components/ContactForm';
 
-interface ContactPageProps {
-    reference?: string;
-}
+const ContactPage: React.FC = () => {
+    // Récupération de la référence depuis l'URL (ex: /contact/REF-123)
+    const { reference } = useParams<{ reference: string }>();
 
-const ContactPage: React.FC<ContactPageProps> = ({ reference }) => {
     return (
         <div className="bg-background min-h-screen">
              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">

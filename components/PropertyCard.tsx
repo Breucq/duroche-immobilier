@@ -53,8 +53,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
 
-  // Use reference if available for prettier URLs, otherwise fallback to ID
-  const linkIdentifier = property.reference ? encodeURIComponent(property.reference) : property._id;
+  // Use reference if available and not empty for prettier URLs, otherwise fallback to ID
+  const linkIdentifier = (property.reference && property.reference.trim() !== '') 
+      ? encodeURIComponent(property.reference) 
+      : property._id;
+  
   const detailPath = `/properties/${linkIdentifier}`;
   
   const isFavorite = favoriteIds.includes(property._id);

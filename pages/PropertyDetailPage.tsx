@@ -126,7 +126,11 @@ const PropertyDetailPage: React.FC = () => {
     const formattedPricePerSqM = pricePerSqM > 0 ? `${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(pricePerSqM)}/m²` : '';
     const statusConfig = { Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-200 text-yellow-800 font-semibold' }, 'Sous offre': { text: 'Sous offre', className: 'bg-blue-100 text-blue-800 font-semibold' }, Vendu: { text: 'Vendu', className: 'bg-red-100 text-red-800 font-semibold' }, };
     const statusInfo = property.status && property.status !== 'Disponible' ? statusConfig[property.status as keyof typeof statusConfig] : null;
-    const contactPath = property.reference ? `/contact/${property.reference}` : '/contact';
+    
+    // Correction ici : Si la référence est vide, on utilise l'ID pour le lien contact
+    const contactIdentifier = (property.reference && property.reference.trim() !== '') ? property.reference : property._id;
+    const contactPath = `/contact/${contactIdentifier}`;
+    
     const scrollbarHideStyle = `.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`;
 
     return (
