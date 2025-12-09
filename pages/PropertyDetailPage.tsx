@@ -58,7 +58,8 @@ const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({tit
 
 
 const PropertyDetailPage: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+    // On récupère "reference" depuis l'URL (qui peut être un ID ou une référence)
+    const { reference } = useParams<{ reference: string }>();
     const navigate = useNavigate();
     const { pathname: path } = useLocation();
     const { favoriteIds, toggleFavorite } = useFavorites();
@@ -72,10 +73,11 @@ const PropertyDetailPage: React.FC = () => {
 
     useEffect(() => {
         const fetchProperty = async () => {
-            if (!id) { setIsLoading(false); return; }
+            if (!reference) { setIsLoading(false); return; }
             setIsLoading(true);
             try {
-                const prop = await propertyService.getById(id);
+                // Utilisation de getByReference pour supporter les deux formats
+                const prop = await propertyService.getByReference(decodeURIComponent(reference));
                 setProperty(prop);
                 if (prop) {
                     const similar = await propertyService.getSimilar(prop);
@@ -88,7 +90,7 @@ const PropertyDetailPage: React.FC = () => {
             }
         };
         fetchProperty();
-    }, [id]);
+    }, [reference]);
 
     useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isLightboxOpen || !property || !property.images || property.images.length === 0) return; if (e.key === 'Escape') { closeLightbox(); } else if (e.key === 'ArrowRight') { showNextImage(); } else if (e.key === 'ArrowLeft') { showPrevImage(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isLightboxOpen, currentImageIndex, property]);
 

@@ -1,5 +1,3 @@
-import {serviceIconOptions} from '../../components/ServiceIcons'
-
 export default {
   name: 'homePageSettings',
   title: "Paramètres de la Page d'Accueil",
@@ -53,7 +51,12 @@ export default {
         {
           type: 'object',
           fields: [
-            {name: 'icon', type: 'string', title: 'Icône', options: {list: serviceIconOptions.map(o => ({title: o.label, value: o.value}))}},
+            {
+                name: 'icon', 
+                type: 'image', 
+                title: 'Icône / Image',
+                description: "Uploadez une icône (SVG recommandé) ou une image pour illustrer ce service."
+            },
             {name: 'title', type: 'string', title: 'Titre'},
             {name: 'description', type: 'text', title: 'Description'},
           ],

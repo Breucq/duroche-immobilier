@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { propertyService } from '../services/propertyService';
 
 interface SearchBarProps {
   setCurrentPage: (page: string) => void;
@@ -6,12 +8,17 @@ interface SearchBarProps {
 
 /**
  * Barre de recherche de biens immobiliers.
- * Permet de filtrer par type de bien et par localisation.
- * La soumission redirige vers la page de liste des biens avec les filtres en paramètres d'URL.
+ * Permet de filtrer par type de bien et par localisation (liste déroulante dynamique).
  */
 const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
   const [type, setType] = useState('Maison');
   const [location, setLocation] = useState('');
+
+  // Récupération dynamique des villes disponibles
+  const { data: availableLocations } = useQuery({
+      queryKey: ['availableLocations'],
+      queryFn: propertyService.getUniqueLocations
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +32,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
   
   const inputGroupClass = "relative flex items-center w-full";
   const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none";
-  const inputClass = "w-full pl-10 pr-3 py-2 text-primary-text bg-background-alt/50 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors";
+  const inputClass = "w-full pl-10 pr-3 py-2 text-primary-text bg-background-alt/50 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
 
   return (
     <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl">
@@ -53,7 +60,21 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            <input type="text" name="location" id="location" placeholder="Localisation" className={inputClass} value={location} onChange={e => setLocation(e.target.value)} />
+            <select 
+                id="location" 
+                name="location" 
+                className={inputClass} 
+                value={location} 
+                onChange={e => setLocation(e.target.value)}
+            >
+                <option value="">Toutes les villes</option>
+                {availableLocations?.map(city => (
+                    <option key={city} value={city}>{city}</option>
+                ))}
+            </select>
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+            </div>
           </div>
         </div>
         

@@ -16,7 +16,6 @@ const CheckmarkIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg fill="non
 
 interface CustomCheckboxProps { id: string; name: string; label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ id, name, label, checked, onChange }) => { return ( <label htmlFor={id} className="flex items-center cursor-pointer group text-sm text-primary-text"> <input id={id} name={name} type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" /> <span className="w-5 h-5 rounded-lg border-2 border-border-color bg-white group-hover:border-accent peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-accent peer-checked:bg-accent peer-checked:border-accent transition-colors flex items-center justify-center flex-shrink-0"> <CheckmarkIcon className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" /> </span> <span className="ml-2.5">{label}</span> </label> ); };
-const CITIES = [ 'Caderousse', 'Orange', 'Piolenc', 'Courthézon', 'Jonquières', 'Sérignan-du-Comtat', 'Uchaux', 'Camaret-sur-Aigues', 'Lyon', 'Bordeaux', 'Nice', 'Marseille', 'Lille', 'Paris' ];
 const AlertModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (email: string) => void; criteriaSummary: string; }> = ({ isOpen, onClose, onSave, criteriaSummary }) => { const [email, setEmail] = useState(''); if (!isOpen) return null; const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(email); }; return ( <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-white rounded-xl shadow-xl p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}> <h2 className="text-2xl font-bold font-heading text-primary-text mb-4">Créer une Alerte</h2> <p className="text-secondary-text mb-2">Soyez notifié(e) par e-mail dès qu'un bien correspondant à vos critères est disponible.</p> <div className="bg-background-alt p-3 rounded-lg text-sm text-secondary-text mb-6"> <strong>Critères :</strong> {criteriaSummary || "Tous les biens"} </div> <form onSubmit={handleSubmit}> <label htmlFor="alert-email" className="block text-sm font-medium text-primary-text">Votre adresse e-mail</label> <input id="alert-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="exemple@email.com" className="mt-1 py-2 px-3 block w-full bg-white shadow-sm border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent" /> <div className="mt-6 flex justify-end space-x-3"> <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 hover:bg-gray-300">Annuler</button> <button type="submit" className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-dark">Créer l'alerte</button> </div> </form> </div> </div> ); };
 
 const PropertiesListPage: React.FC = () => {
@@ -25,13 +24,16 @@ const PropertiesListPage: React.FC = () => {
         queryKey: ['activeProperties'],
         queryFn: propertyService.getActive
     });
+    
+    const { data: availableLocations } = useQuery({
+        queryKey: ['availableLocations'],
+        queryFn: propertyService.getUniqueLocations
+    });
 
     // Local state for filters
-    const [searchTerm, setSearchTerm] = useState(searchParams.get('location') || '');
+    const [locationFilter, setLocationFilter] = useState(searchParams.get('location') || '');
     const [propertyType, setPropertyType] = useState(searchParams.get('type') || 'all');
     const [maxPrice, setMaxPrice] = useState(searchParams.get('price') || '');
-    const [suggestions, setSuggestions] = useState<string[]>([]);
-    const [isSuggestionsVisible, setIsSuggestionsVisible] = useState(false);
     const [showMoreFilters, setShowMoreFilters] = useState(false);
     const [bedrooms, setBedrooms] = useState('all');
     const [minArea, setMinArea] = useState('');
@@ -40,28 +42,19 @@ const PropertiesListPage: React.FC = () => {
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     
     const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = e.target; setAmenities(prev => ({ ...prev, [name]: checked })); };
-    const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+    const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => { 
         const value = e.target.value; 
-        setSearchTerm(value);
+        setLocationFilter(value);
         // Update URL params
         const newParams = new URLSearchParams(searchParams);
         if(value) newParams.set('location', value); else newParams.delete('location');
         setSearchParams(newParams);
-
-        if (value.length > 0) { const filteredCities = CITIES.filter(city => city.toLowerCase().startsWith(value.toLowerCase())); setSuggestions(filteredCities); setIsSuggestionsVisible(true); } else { setSuggestions([]); setIsSuggestionsVisible(false); } 
-    };
-    const handleSuggestionClick = (city: string) => { 
-        setSearchTerm(city); 
-        const newParams = new URLSearchParams(searchParams);
-        newParams.set('location', city);
-        setSearchParams(newParams);
-        setSuggestions([]); 
-        setIsSuggestionsVisible(false); 
     };
 
     const filteredProperties = useMemo(() => {
         let results = properties.filter(p => {
-            const matchesSearch = p.location.toLowerCase().includes(searchTerm.toLowerCase());
+            // Correspondance floue pour la recherche via la barre de recherche globale, ou exacte si sélection liste
+            const matchesSearch = locationFilter === '' || p.location.toLowerCase().includes(locationFilter.toLowerCase());
             const matchesType = propertyType === 'all' || p.type === propertyType;
             const matchesPrice = maxPrice === '' || p.price <= Number(maxPrice);
             const matchesBedrooms = (() => { if (bedrooms === 'all') return true; const minBeds = parseInt(bedrooms); if (bedrooms.endsWith('+')) { return p.bedrooms >= minBeds; } return p.bedrooms === minBeds; })();
@@ -79,13 +72,13 @@ const PropertiesListPage: React.FC = () => {
             case 'price_desc': return results.sort((a, b) => b.price - a.price);
             case 'date_desc': default: return results.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
         }
-    }, [properties, searchTerm, propertyType, maxPrice, bedrooms, minArea, amenities, sortBy]);
+    }, [properties, locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities, sortBy]);
     
-    const handleSaveAlert = (email: string) => { const criteria = { searchTerm, propertyType, maxPrice, bedrooms, minArea, amenities }; alertService.add(email, criteria); alert(`Alerte créée avec succès pour l'adresse ${email} !`); setIsAlertModalOpen(false); };
-    const getCriteriaSummary = () => { const parts = []; if (propertyType !== 'all') parts.push(propertyType); if (searchTerm) parts.push(`à ${searchTerm}`); if (maxPrice) parts.push(`jusqu'à ${maxPrice}€`); if (bedrooms !== 'all') parts.push(`${bedrooms.replace('+', ' et plus')} ch.`); Object.entries(amenities).filter(([, val]) => val).forEach(([key]) => parts.push(key)); return parts.join(', '); };
+    const handleSaveAlert = (email: string) => { const criteria = { searchTerm: locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities }; alertService.add(email, criteria); alert(`Alerte créée avec succès pour l'adresse ${email} !`); setIsAlertModalOpen(false); };
+    const getCriteriaSummary = () => { const parts = []; if (propertyType !== 'all') parts.push(propertyType); if (locationFilter) parts.push(`à ${locationFilter}`); if (maxPrice) parts.push(`jusqu'à ${maxPrice}€`); if (bedrooms !== 'all') parts.push(`${bedrooms.replace('+', ' et plus')} ch.`); Object.entries(amenities).filter(([, val]) => val).forEach(([key]) => parts.push(key)); return parts.join(', '); };
     const inputGroupClass = "relative flex items-center w-full";
     const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none";
-    const inputClass = "w-full pl-10 pr-3 py-3 text-primary-text bg-background-alt border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors";
+    const inputClass = "w-full pl-10 pr-3 py-3 text-primary-text bg-background-alt border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
 
     return (
         <div className="bg-background min-h-screen">
@@ -103,9 +96,22 @@ const PropertiesListPage: React.FC = () => {
                             <label htmlFor="search" className="block text-sm font-medium text-primary-text mb-1">Ville / Localisation</label>
                             <div className={inputGroupClass}>
                                 <LocationIcon className={iconClass} />
-                                <input type="text" name="search" id="search" placeholder="Caderousse, Lyon..." value={searchTerm} onChange={handleLocationChange} onFocus={() => { if (searchTerm) setIsSuggestionsVisible(true); }} onBlur={() => { setTimeout(() => setIsSuggestionsVisible(false), 150); }} autoComplete="off" className={inputClass} />
+                                <select 
+                                    id="search" 
+                                    name="search" 
+                                    className={inputClass} 
+                                    value={locationFilter} 
+                                    onChange={handleLocationChange}
+                                >
+                                    <option value="">Toutes les villes</option>
+                                    {availableLocations?.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
+                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
                             </div>
-                             {isSuggestionsVisible && suggestions.length > 0 && ( <ul className="absolute z-10 w-full bg-white border border-border-color rounded-lg mt-1 shadow-lg max-h-60 overflow-auto"> {suggestions.map(city => ( <li key={city} className="px-4 py-2 cursor-pointer hover:bg-background-alt text-primary-text" onMouseDown={() => handleSuggestionClick(city)}> {city} </li> ))} </ul> )}
                         </div>
                         <div> <label htmlFor="property-type" className="block text-sm font-medium text-primary-text mb-1">Type de bien</label> <div className={inputGroupClass}> <PropertyTypeIcon className={iconClass} /> <select id="property-type" name="property-type" value={propertyType} onChange={e => setPropertyType(e.target.value)} className={inputClass}><option value="all">Tous</option><option value="Maison">Maison</option><option value="Appartement">Appartement</option><option value="Terrain">Terrain</option><option value="Autre">Autre</option></select> </div> </div>
                          <div> <label htmlFor="price" className="block text-sm font-medium text-primary-text mb-1">Budget Max.</label> <div className={inputGroupClass}> <PriceIcon className={iconClass} /> <input type="number" name="price" id="price" placeholder="ex: 500000" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className={inputClass} /> </div> </div>

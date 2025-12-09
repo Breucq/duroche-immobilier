@@ -1,4 +1,5 @@
 
+
 /**
  * Représente un bien immobilier tel que retourné par Sanity.
  */
@@ -108,12 +109,16 @@ export interface SiteSettings {
 }
 
 /**
- * Représente un service dans les paramètres de la page d'accueil (Sanity).
+ * Type pour les icônes de service disponibles.
  */
 export type ServiceIcon = 'KeyIcon' | 'BuildingStorefrontIcon' | 'ChartBarIcon';
+
+/**
+ * Représente un service dans les paramètres de la page d'accueil (Sanity).
+ */
 export interface Service {
   _key: string;
-  icon: ServiceIcon;
+  icon: SanityImage; // Changé de string (enum) à SanityImage pour upload personnalisé
   title: string;
   description: string;
 }

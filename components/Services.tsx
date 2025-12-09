@@ -1,18 +1,28 @@
 import React from 'react';
 import type { Service } from '../types';
-import { ServiceIconComponent } from './ServiceIcons';
+import { urlFor } from '../services/sanityClient';
 
 /**
  * Composant carte pour afficher un service individuel.
  * @param {{ service: Service }} props - Le service à afficher.
  */
-const ServiceCard: React.FC<{ service: Service }> = ({ service }) => (
-  <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center border border-border-color/50">
-    <div className="mb-4"><ServiceIconComponent iconName={service.icon} /></div>
-    <h3 className="text-xl font-bold font-heading text-primary-text mb-2">{service.title}</h3>
-    <p className="text-secondary-text">{service.description}</p>
-  </div>
-);
+const ServiceCard: React.FC<{ service: Service }> = ({ service }) => {
+  const iconUrl = service.icon ? urlFor(service.icon).width(64).height(64).url() : null;
+
+  return (
+    <div className="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg transition-shadow duration-300 flex flex-col items-center text-center border border-border-color/50">
+      <div className="mb-4 h-16 w-16 flex items-center justify-center">
+        {iconUrl ? (
+            <img src={iconUrl} alt={service.title} className="max-w-full max-h-full object-contain" />
+        ) : (
+            <div className="w-12 h-12 bg-gray-100 rounded-full"></div>
+        )}
+      </div>
+      <h3 className="text-xl font-bold font-heading text-primary-text mb-2">{service.title}</h3>
+      <p className="text-secondary-text">{service.description}</p>
+    </div>
+  );
+};
 
 interface ServicesProps {
     title: string;

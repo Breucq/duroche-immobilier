@@ -192,7 +192,8 @@ const App: React.FC = () => {
             <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
                 <Route path="properties" element={<PropertiesListPage />} />
-                <Route path="properties/:id" element={<PropertyDetailPage />} />
+                {/* Utilisation de :reference au lieu de :id pour l'URL courte */}
+                <Route path="properties/:reference" element={<PropertyDetailPage />} />
                 <Route path="nos-biens-vendus" element={<SoldPropertiesListPage />} />
                 <Route path="favorites" element={<FavoritesPage />} />
                 <Route path="blog" element={<BlogListPage />} />
