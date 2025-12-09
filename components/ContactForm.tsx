@@ -44,7 +44,8 @@ const ContactForm: React.FC<ContactFormProps> = ({ isPage = false, reference, ti
             const response = await fetch('https://formspree.io/f/xqagvbqp', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json' // Crucial pour que Formspree réponde correctement en JSON
                 },
                 body: JSON.stringify({
                     ...data,
@@ -63,10 +64,14 @@ const ContactForm: React.FC<ContactFormProps> = ({ isPage = false, reference, ti
                 // Tenter de lire le message d'erreur si disponible
                 const result = await response.json().catch(() => ({}));
                 console.error("Erreur Formspree", result);
+                if (result.error) {
+                    throw new Error(result.error);
+                }
                 throw new Error('Erreur lors de l\'envoi');
             }
         } catch (err) {
-            setError("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+            console.error(err);
+            setError("Une erreur est survenue lors de l'envoi. Veuillez vérifier votre connexion ou réessayer plus tard.");
         } finally {
             setIsSubmitting(false);
         }

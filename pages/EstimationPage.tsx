@@ -41,7 +41,9 @@ const EstimationPage: React.FC = () => {
                 
                 <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-xl shadow-lg border border-border-color/50">
                      <form action="https://formspree.io/f/xzzklgrv" method="POST" className="space-y-6">
-                        <input type="hidden" name="_subject" value="Nouvelle demande d'estimation" />
+                        {/* Ajout de champs cachés pour configurer le mail Formspree */}
+                        <input type="hidden" name="_subject" value="Nouvelle demande d'estimation (Site Web)" />
+                        
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div><label htmlFor="name" className="block text-sm font-medium text-primary-text mb-1">Nom & Prénom</label><div className="relative"><UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="text" id="name" name="name" placeholder="ex: Jean Dupont" className={`${inputBaseClass} pl-10`} required /></div></div>
                              <div><label htmlFor="email" className="block text-sm font-medium text-primary-text mb-1">Email</label><div className="relative"><MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="email" id="email" name="email" placeholder="ex: jean.dupont@email.com" className={`${inputBaseClass} pl-10`} required /></div></div>
@@ -51,8 +53,8 @@ const EstimationPage: React.FC = () => {
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                              <div><label htmlFor="address" className="block text-sm font-medium text-primary-text mb-1">Adresse du bien</label><div className="relative"><LocationIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="text" id="address" name="address" placeholder="ex: 123 Rue de la République" className={`${inputBaseClass} pl-10`} required /></div></div>
                             <div><label htmlFor="city" className="block text-sm font-medium text-primary-text mb-1">Ville</label><div className="relative"><BuildingIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="text" id="city" name="city" placeholder="ex: Orange" className={`${inputBaseClass} pl-10`} required /></div></div>
-                            <div><label htmlFor="area" className="block text-sm font-medium text-primary-text mb-1">Surface (m²)</label><div className="relative"><AreaIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="number" id="area" name="Surface (en m²)" placeholder="ex: 120" className={`${inputBaseClass} pl-10`} /></div></div>
-                             <div><label htmlFor="bedrooms" className="block text-sm font-medium text-primary-text mb-1">Nombre de chambres</label><div className="relative"><BedroomsIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="number" id="bedrooms" name="Nombre de chambres" placeholder="ex: 3" className={`${inputBaseClass} pl-10`} /></div></div>
+                            <div><label htmlFor="area" className="block text-sm font-medium text-primary-text mb-1">Surface (m²)</label><div className="relative"><AreaIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="number" id="area" name="surface" placeholder="ex: 120" className={`${inputBaseClass} pl-10`} /></div></div>
+                             <div><label htmlFor="bedrooms" className="block text-sm font-medium text-primary-text mb-1">Nombre de chambres</label><div className="relative"><BedroomsIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-secondary pointer-events-none" /><input type="number" id="bedrooms" name="bedrooms" placeholder="ex: 3" className={`${inputBaseClass} pl-10`} /></div></div>
                          </div>
                         <div className="pt-4"><button type="submit" className={buttonClass}>Demander une estimation</button></div>
                     </form>
