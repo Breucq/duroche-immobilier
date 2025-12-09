@@ -4,7 +4,7 @@ import * as cheerio from 'cheerio';
 export default async function handler(request, response) {
   // Configuration CORS pour autoriser les requêtes venant de Sanity Studio
   response.setHeader('Access-Control-Allow-Credentials', true);
-  response.setHeader('Access-Control-Allow-Origin', '*'); // Pour la prod, remplacez '*' par votre URL Sanity (ex: https://duroche-immobilier.sanity.studio)
+  response.setHeader('Access-Control-Allow-Origin', '*'); 
   response.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
   response.setHeader(
     'Access-Control-Allow-Headers',

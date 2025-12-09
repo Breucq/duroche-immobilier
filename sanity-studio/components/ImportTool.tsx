@@ -21,9 +21,10 @@ export default function ImportTool() {
     setSuccessId('')
 
     try {
-      // Détermine l'URL de l'API en fonction de l'environnement (Local vs Prod)
-      const isDev = window.location.hostname === 'localhost';
-      const apiBase = isDev ? 'http://localhost:3000' : 'https://duroche.fr';
+      // Important : On utilise l'URL de production Vercel directe.
+      // Cela permet à l'outil de fonctionner même en local (localhost) car Vite ne sert pas les fonctions /api par défaut.
+      // Remplacez 'duroche-immobilier.vercel.app' par votre URL Vercel réelle si elle diffère.
+      const apiBase = 'https://duroche-immobilier.vercel.app';
       const apiUrl = `${apiBase}/api/scrape?url=${encodeURIComponent(url)}`;
       
       const response = await fetch(apiUrl)
