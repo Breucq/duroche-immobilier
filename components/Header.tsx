@@ -38,7 +38,7 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
   };
 
   const MobileMenu: React.FC = () => (
-    <div className="fixed inset-0 z-40 bg-background transition-opacity duration-300" id="mobile-menu">
+    <div className="fixed inset-0 z-50 bg-white transition-opacity duration-300" id="mobile-menu">
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8 border-b border-border-color">
           <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center">
@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
             </svg>
           </button>
         </div>
-        <div className="flex-grow px-4 pt-8 pb-4 space-y-4 text-center">
+        <div className="flex-grow px-4 pt-8 pb-4 space-y-4 text-center overflow-y-auto">
           {navLinks.map((link) => (
             <Link
               key={link.name}
