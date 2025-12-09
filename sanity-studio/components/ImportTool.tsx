@@ -21,19 +21,23 @@ export default function ImportTool() {
     setSuccessId('')
 
     try {
-      // On utilise l'API de production pour le scraping
-      // Si vous êtes en local, assurez-vous que cette URL est accessible ou utilisez localhost:3000
-      const apiUrl = `https://duroche.fr/api/scrape?url=${encodeURIComponent(url)}`
+      // Détermine l'URL de l'API en fonction de l'environnement (Local vs Prod)
+      const isDev = window.location.hostname === 'localhost';
+      const apiBase = isDev ? 'http://localhost:3000' : 'https://duroche.fr';
+      const apiUrl = `${apiBase}/api/scrape?url=${encodeURIComponent(url)}`;
+      
       const response = await fetch(apiUrl)
       
       if (!response.ok) {
-        throw new Error('Erreur lors de l\'analyse')
+        throw new Error('Erreur lors de l\'analyse (API)')
       }
       
       const result = await response.json()
+      if (result.error) throw new Error(result.error)
+      
       setData(result)
-    } catch (err) {
-      setError("Impossible d'analyser cette URL. Vérifiez qu'elle est correcte.")
+    } catch (err: any) {
+      setError(err.message || "Impossible d'analyser cette URL. Vérifiez qu'elle est correcte.")
       console.error(err)
     } finally {
       setIsLoading(false)
@@ -42,7 +46,7 @@ export default function ImportTool() {
 
   const uploadImage = async (imageUrl: string) => {
     try {
-      // Note: Cela peut échouer si l'image source a des protections CORS strictes
+      // Note: Peut nécessiter un proxy si CORS bloque l'image source
       const response = await fetch(imageUrl)
       const blob = await response.blob()
       const asset = await client.assets.upload('image', blob)
@@ -70,7 +74,7 @@ export default function ImportTool() {
         mainImage = await uploadImage(data.images[0])
       }
 
-      // 2. Upload des images supplémentaires (max 5 pour l'exemple pour ne pas être trop long)
+      // 2. Upload des images supplémentaires (limité à 5 pour performance)
       const additionalImages = []
       if (data.images && data.images.length > 1) {
         const otherImages = data.images.slice(1, 6)
@@ -83,10 +87,8 @@ export default function ImportTool() {
       // 3. Création du document
       const doc = {
         _type: 'property',
-        title: data.title, // Sanity n'utilise pas title par défaut dans votre schema mais location/price
-        // Mapping des champs selon votre schema property.ts
+        // Mapping des champs
         type: data.type || 'Maison',
-        status: 'Disponible',
         price: data.price,
         location: data.location || 'Vaucluse',
         area: data.surface,
@@ -95,9 +97,15 @@ export default function ImportTool() {
         description: data.description,
         reference: data.reference || nanoid(6).toUpperCase(),
         publicationDate: new Date().toISOString(),
+        status: 'Disponible',
+        isHidden: true, // Créé en caché par sécurité
         image: mainImage,
         images: additionalImages,
-        isHidden: true // On le crée caché par sécurité
+        // Initialisation des objets vides pour éviter les erreurs
+        details: {
+            condition: 'Bon état',
+            heating: 'Électrique'
+        }
       }
 
       const createdDoc = await client.create(doc)
@@ -116,7 +124,7 @@ export default function ImportTool() {
       <Card padding={4} radius={2} shadow={1} tone="transparent">
         <Stack space={4}>
           <Heading as="h2" size={3}>Importer un bien via URL</Heading>
-          <Text size={2} muted>Copiez l'URL d'une annonce (Groupement Immo, etc.) pour créer automatiquement un brouillon dans Sanity.</Text>
+          <Text size={2} muted>Copiez l'URL d'une annonce partenaire pour importer les données automatiquement.</Text>
           
           <Grid columns={[1, 1, 12]} gap={2}>
             <Box columnStart={[1, 1, 1]} columnEnd={[1, 1, 10]}>
@@ -128,7 +136,7 @@ export default function ImportTool() {
             </Box>
             <Box columnStart={[1, 1, 10]} columnEnd={[1, 1, 13]}>
               <Button 
-                text={isLoading ? "Analyse..." : "Analyser"} 
+                text={isLoading ? "..." : "Analyser"} 
                 tone="primary" 
                 onClick={handleAnalyze} 
                 disabled={isLoading || !url}
@@ -146,14 +154,14 @@ export default function ImportTool() {
           {successId && (
             <Card padding={4} radius={2} shadow={1} tone="positive">
               <Stack space={3}>
-                <Heading size={1}>Bien créé avec succès !</Heading>
-                <Text>Le bien a été ajouté en mode "caché". Vous pouvez maintenant le vérifier et le publier.</Text>
-                {/* Le lien dépend de votre structure d'URL Sanity, c'est une estimation */}
+                <Heading size={1}>Bien importé !</Heading>
+                <Text>Le bien a été ajouté à votre liste en mode "Caché".</Text>
                 <Button 
-                  as="a" 
-                  href={`/structure/property;${successId}`} 
-                  text="Ouvrir le bien" 
-                  tone="primary" 
+                    as="a"
+                    // Lien générique vers la liste, car l'ID direct dépend de la structure d'URL du studio
+                    href="/structure/property"
+                    text="Voir la liste des biens"
+                    tone="primary"
                 />
               </Stack>
             </Card>
@@ -172,42 +180,41 @@ export default function ImportTool() {
                 
                 <Grid columns={2} gap={4}>
                    <Stack space={2}>
-                     <Label>Titre détecté</Label>
-                     <Text weight="bold">{data.title}</Text>
+                     <Label>Type / Ville</Label>
+                     <Text weight="bold">{data.type} à {data.location}</Text>
                    </Stack>
                    <Stack space={2}>
                      <Label>Prix</Label>
                      <Text weight="bold">{new Intl.NumberFormat('fr-FR', {style: 'currency', currency: 'EUR'}).format(data.price)}</Text>
                    </Stack>
                    <Stack space={2}>
-                     <Label>Localisation</Label>
-                     <Text>{data.location}</Text>
+                     <Label>Surface</Label>
+                     <Text>{data.surface} m²</Text>
                    </Stack>
                    <Stack space={2}>
-                     <Label>Surface / Chambres</Label>
-                     <Text>{data.surface} m² / {data.bedrooms} ch.</Text>
+                     <Label>Pièces / Chambres</Label>
+                     <Text>{data.rooms} p. / {data.bedrooms} ch.</Text>
                    </Stack>
                 </Grid>
 
                 <Stack space={2}>
-                  <Label>Description</Label>
-                  <Card padding={3} border radius={2} style={{maxHeight: '150px', overflowY: 'auto'}}>
+                  <Label>Description extraite</Label>
+                  <Card padding={3} border radius={2} style={{maxHeight: '100px', overflowY: 'auto'}}>
                     <Text size={1}>{data.description}</Text>
                   </Card>
                 </Stack>
 
                 <Stack space={2}>
-                  <Label>Images détectées ({data.images.length})</Label>
-                  <Grid columns={4} gap={2}>
-                    {data.images.slice(0, 4).map((img: string, i: number) => (
-                      <img key={i} src={img} style={{width: '100%', height: '80px', objectFit: 'cover', borderRadius: '4px'}} />
+                  <Label>Images trouvées ({data.images.length})</Label>
+                  <Grid columns={5} gap={2}>
+                    {data.images.slice(0, 5).map((img: string, i: number) => (
+                      <img key={i} src={img} style={{width: '100%', height: '60px', objectFit: 'cover', borderRadius: '4px'}} />
                     ))}
                   </Grid>
-                  {data.images.length > 4 && <Text size={1} muted>+ {data.images.length - 4} autres images...</Text>}
                 </Stack>
 
                 <Button 
-                  text={isCreating ? "Création en cours..." : "Créer le bien dans Sanity"} 
+                  text={isCreating ? "Importation en cours..." : "Confirmer l'import"} 
                   tone="positive" 
                   size={3}
                   onClick={handleCreate}
