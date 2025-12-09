@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Article } from '../types';
 import { urlFor } from '../services/sanityClient';
+import ImageWithSkeleton from './ImageWithSkeleton';
 
 interface ArticleCardProps {
   article: Article;
@@ -27,8 +28,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, setCurrentPage }) =>
       onKeyPress={(e) => (e.key === 'Enter' || e.key === ' ') && setCurrentPage(detailPath)}
       aria-label={`Lire l'article : ${article.title}`}
     >
-      <div className="relative">
-        <img className="w-full h-56 object-cover" src={imageUrl} alt={`Image de couverture pour l'article : ${article.title}`} loading="lazy" />
+      <div className="relative h-56">
+        <ImageWithSkeleton className="w-full h-full" src={imageUrl} alt={`Image de couverture pour l'article : ${article.title}`} />
       </div>
       <div className="p-6 flex flex-col flex-grow">
         <h2 className="text-xl font-bold font-heading text-primary-text mb-2 leading-tight">

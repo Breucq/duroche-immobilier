@@ -40,6 +40,7 @@ const FavoritesPage: React.FC = () => {
             <Helmet>
                 <title>Mes Favoris | Duroche Immobilier</title>
                 <meta name="description" content="Retrouvez vos biens immobiliers favoris." />
+                <link rel="canonical" href={window.location.href} />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
@@ -75,6 +76,7 @@ const SoldPropertiesListPage: React.FC = () => {
             <Helmet>
                 <title>Nos Références - Biens Vendus | Duroche Immobilier</title>
                 <meta name="description" content="Découvrez une sélection de biens que nous avons récemment vendus dans le Vaucluse Nord." />
+                <link rel="canonical" href={window.location.href} />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
@@ -168,6 +170,7 @@ const Layout: React.FC = () => {
                     <meta property="og:type" content="website" />
                     <meta property="og:site_name" content={settings.title} />
                     <meta property="og:locale" content="fr_FR" />
+                    <link rel="canonical" href={window.location.href} />
                     {structuredData && (
                         <script type="application/ld+json">
                             {JSON.stringify(structuredData)}
