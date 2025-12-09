@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
 import type { SiteSettings, Page } from '../types';
@@ -37,44 +38,47 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
     );
   };
 
-  const MobileMenu: React.FC = () => (
-    <div className="fixed inset-0 z-50 bg-white transition-opacity duration-300" id="mobile-menu">
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8 border-b border-border-color">
-          <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center">
-            {renderLogo()}
-          </Link>
-          <button
-            onClick={() => setIsOpen(false)}
-            className="inline-flex items-center justify-center p-2 rounded-md text-primary-text hover:bg-background-alt focus:outline-none focus:ring-2 focus:ring-accent"
-          >
-            <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <div className="flex-grow px-4 pt-8 pb-4 space-y-4 text-center overflow-y-auto">
-          {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              to={link.path}
-              onClick={() => setIsOpen(false)}
-              className="text-primary-text hover:text-accent block py-3 rounded-md text-2xl font-heading font-medium transition-colors"
-            >
-              {link.name}
+  const MobileMenu: React.FC = () => {
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] bg-white transition-opacity duration-300" id="mobile-menu">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8 border-b border-border-color">
+            <Link to="/" onClick={() => setIsOpen(false)} className="flex items-center">
+              {renderLogo()}
             </Link>
-          ))}
-          <Link 
-            to="/contact"
-            onClick={() => setIsOpen(false)}
-            className="w-full mt-8 inline-block px-5 py-3 border border-transparent text-lg font-medium rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark transition-colors"
-          >
-            Contact
-          </Link>
+            <button
+              onClick={() => setIsOpen(false)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-primary-text hover:bg-background-alt focus:outline-none focus:ring-2 focus:ring-accent"
+            >
+              <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div className="flex-grow px-4 pt-8 pb-4 space-y-4 text-center overflow-y-auto">
+            {navLinks.map((link) => (
+              <Link
+                key={link.name}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
+                className="text-primary-text hover:text-accent block py-3 rounded-md text-2xl font-heading font-medium transition-colors"
+              >
+                {link.name}
+              </Link>
+            ))}
+            <Link 
+              to="/contact"
+              onClick={() => setIsOpen(false)}
+              className="w-full mt-8 inline-block px-5 py-3 border border-transparent text-lg font-medium rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark transition-colors"
+            >
+              Contact
+            </Link>
+          </div>
         </div>
-      </div>
-    </div>
-  );
+      </div>,
+      document.body
+    );
+  };
 
   return (
     <header className="bg-background/80 backdrop-blur-md sticky top-0 z-30 border-b border-border-color/75">
