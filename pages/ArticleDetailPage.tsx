@@ -1,136 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation, useParams } from 'react-router-dom';
-import { articleService } from '../services/articleService';
-import ShareButtons from '../components/ShareButtons';
-import type { Article } from '../types';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { PortableText, PortableTextComponents } from '@portabletext/react';
+import { Helmet } from 'react-helmet-async';
+import type { Page } from '../types';
 import { urlFor } from '../services/sanityClient';
 
-const ArticleDetailPage: React.FC = () => {
-    const { slug } = useParams<{ slug: string }>();
-    const navigate = useNavigate();
-    const { pathname: path } = useLocation();
-    const setCurrentPage = (page: string) => navigate(page);
+interface GenericPageProps {
+  page: Page;
+}
 
-    const [article, setArticle] = useState<Article | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+const GenericPage: React.FC<GenericPageProps> = ({ page }) => {
+  
+  const coverImageUrl = page.coverImage 
+    ? urlFor(page.coverImage).width(1920).height(600).fit('crop').url() 
+    : null;
 
-    useEffect(() => {
-        const fetchArticle = async () => {
-            if (!slug) {
-                setIsLoading(false);
-                return;
-            }
-            try {
-                const fetchedArticle = await articleService.getBySlug(slug);
-                setArticle(fetchedArticle);
-            } catch (error) {
-                console.error("Failed to fetch article:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchArticle();
-    }, [slug]);
+  const components: PortableTextComponents = {
+    block: {
+      normal: ({ children }) => <p className="mb-4 leading-relaxed text-secondary-text">{children}</p>,
+      h1: ({ children }) => <h1 className="text-3xl font-bold font-heading text-primary-text mt-10 mb-4">{children}</h1>,
+      h2: ({ children }) => <h2 className="text-2xl font-bold font-heading text-primary-text mt-8 mb-4 border-b border-border-color pb-2">{children}</h2>,
+      h3: ({ children }) => <h3 className="text-xl font-bold font-heading text-primary-text mt-6 mb-3">{children}</h3>,
+      h4: ({ children }) => <h4 className="text-lg font-bold font-heading text-primary-text mt-4 mb-2">{children}</h4>,
+      blockquote: ({ children }) => <blockquote className="border-l-4 border-accent pl-4 italic my-6 text-primary-text bg-background-alt py-2 pr-2 rounded-r">{children}</blockquote>,
+    },
+    list: {
+      bullet: ({ children }) => <ul className="list-disc pl-6 mb-6 space-y-2 text-secondary-text marker:text-accent">{children}</ul>,
+      number: ({ children }) => <ol className="list-decimal pl-6 mb-6 space-y-2 text-secondary-text marker:font-bold">{children}</ol>,
+    },
+    marks: {
+        strong: ({ children }) => <strong className="font-bold text-primary-text">{children}</strong>,
+        link: ({ value, children }) => {
+            const target = (value?.href || '').startsWith('http') ? '_blank' : undefined;
+            return (
+                <a href={value?.href} target={target} rel={target === '_blank' ? 'noopener noreferrer' : undefined} className="text-accent hover:text-accent-dark underline decoration-accent/30 hover:decoration-accent transition-colors">
+                    {children}
+                </a>
+            );
+        },
+    },
+  };
 
-    useEffect(() => {
-        const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
-            let element = document.querySelector<HTMLMetaElement>(`meta[${attr}='${key}']`);
-            if (!element) {
-                element = document.createElement('meta');
-                element.setAttribute(attr, key);
-                document.head.appendChild(element);
-            }
-            element.setAttribute('content', content || '');
-        };
+  const seoTitle = page.metaTitle || `${page.title} | Duroche Immobilier`;
+  const seoDescription = page.metaDescription || page.subtitle || '';
+  const shareImageUrl = page.coverImage ? urlFor(page.coverImage).width(1200).height(630).fit('crop').url() : '';
 
-        if (article) {
-            const title = `${article.title} | Blog Duroche Immobilier`;
-            const description = article.summary || '';
-            const imageUrl = article.image ? urlFor(article.image).width(1200).height(630).fit('crop').url() : '';
-            const pageUrl = window.location.href;
+  return (
+    <div className="bg-background min-h-screen">
+        <Helmet>
+            <title>{seoTitle}</title>
+            {seoDescription && <meta name="description" content={seoDescription} />}
+            {page.metaKeywords && <meta name="keywords" content={page.metaKeywords} />}
+            
+            <meta property="og:title" content={seoTitle} />
+            <meta property="og:description" content={seoDescription} />
+            {shareImageUrl && <meta property="og:image" content={shareImageUrl} />}
+            
+            <meta name="twitter:title" content={seoTitle} />
+            <meta name="twitter:description" content={seoDescription} />
+            {shareImageUrl && <meta name="twitter:image" content={shareImageUrl} />}
+        </Helmet>
 
-            document.title = title;
-            setMetaTag('name', 'description', description);
-
-            // Open Graph (Facebook, etc.)
-            setMetaTag('property', 'og:title', title);
-            setMetaTag('property', 'og:description', description);
-            setMetaTag('property', 'og:image', imageUrl);
-            setMetaTag('property', 'og:url', pageUrl);
-            setMetaTag('property', 'og:type', 'article');
-
-            // Twitter Card
-            setMetaTag('name', 'twitter:card', 'summary_large_image');
-            setMetaTag('name', 'twitter:title', title);
-            setMetaTag('name', 'twitter:description', description);
-            setMetaTag('name', 'twitter:image', imageUrl);
-        }
-    }, [article]);
-
-
-    if (isLoading) {
-        return <div className="py-48 text-center">Chargement de l'article...</div>;
-    }
-
-    if (!article) {
-        return (
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center min-h-screen flex flex-col justify-center items-center">
-                <h1 className="text-3xl font-bold font-heading text-primary-text">Article non trouvé</h1>
-                <p className="mt-4 text-secondary-text">L'article que vous cherchez n'existe pas ou a été retiré.</p>
-                <button onClick={() => setCurrentPage('/blog')} className="mt-8 inline-block px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark">
-                    Retour au blog
-                </button>
-            </div>
-        );
-    }
-
-    const formattedDate = new Date(article.date).toLocaleDateString('fr-FR', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
-
-    const imageUrl = article.image ? urlFor(article.image).width(1200).height(600).auto('format').quality(80).url() : '';
-
-    return (
-        <div className="bg-background py-24">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">
-                <article>
-                    <header className="mb-8 pt-8 text-center">
-                        <h1 className="text-4xl md:text-5xl font-bold font-heading text-primary-text mb-4 leading-tight">
-                            {article.title}
-                        </h1>
-                        <p className="text-secondary-text">
-                            Publié par <strong>{article.author}</strong> le {formattedDate}
-                        </p>
-                    </header>
-
-                    <ShareButtons
-                        shareUrl={`https://duroche.fr${path}`}
-                        title={article.title}
-                        heading="Partager cet article"
-                        className="flex flex-col items-center mb-10"
+        {/* Header de la page */}
+        <div className="relative bg-primary-text py-20 sm:py-28 overflow-hidden">
+             {coverImageUrl && (
+                 <>
+                    <div 
+                        className="absolute inset-0 bg-cover bg-center z-0" 
+                        style={{ backgroundImage: `url('${coverImageUrl}')` }}
                     />
+                    <div className="absolute inset-0 bg-black/60 z-0 backdrop-blur-[2px]"></div>
+                 </>
+             )}
+             
+             {!coverImageUrl && (
+                <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px]"></div>
+             )}
 
-                    {imageUrl && (
-                        <img
-                            src={imageUrl}
-                            alt={`Image de couverture pour ${article.title}`}
-                            className="w-full h-auto max-h-[500px] object-cover rounded-lg shadow-lg mb-12"
-                        />
-                    )}
-                    <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed whitespace-pre-line">
-                        {article.content}
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-heading text-white mb-6">
+                    {page.title}
+                </h1>
+                {page.subtitle && (
+                    <p className="text-lg sm:text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-light">
+                        {page.subtitle}
+                    </p>
+                )}
+                {!page.subtitle && <div className="h-1 w-20 bg-accent mx-auto rounded-full"></div>}
+            </div>
+        </div>
+
+        {/* Contenu principal */}
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-24 relative z-20">
+            <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12 lg:p-16 max-w-4xl mx-auto border border-border-color/40">
+                
+                <div className="prose prose-lg prose-slate max-w-none mx-auto">
+                     {/* Rendu du Portable Text */}
+                     {Array.isArray(page.content) ? (
+                        <PortableText value={page.content} components={components} />
+                     ) : (
+                        /* Fallback pour l'ancien contenu texte simple si présent */
+                        <div className="whitespace-pre-line text-secondary-text leading-loose">
+                            {typeof page.content === 'string' ? page.content : ''}
+                        </div>
+                     )}
+                </div>
+
+                {/* Bloc Contact en bas de contenu */}
+                <div className="mt-16 pt-10 border-t border-border-color flex flex-col md:flex-row items-center justify-between gap-6 bg-background-alt p-6 rounded-xl">
+                    <div className="text-center md:text-left">
+                        <h3 className="text-xl font-bold text-primary-text font-heading">Une question ?</h3>
+                        <p className="text-secondary-text mt-1">Notre équipe est à votre disposition pour y répondre.</p>
                     </div>
-                </article>
-                <div className="text-center mt-12">
-                     <button onClick={() => setCurrentPage('/blog')} className="inline-block px-6 py-3 border border-accent text-base font-medium rounded-lg text-accent bg-transparent hover:bg-accent/10">
-                        &larr; Retour à la liste des articles
-                    </button>
+                    <Link 
+                        to="/contact" 
+                        className="inline-flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark transition-colors shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+                    >
+                        Contactez-nous
+                    </Link>
                 </div>
             </div>
         </div>
-    );
+    </div>
+  );
 };
 
-export default ArticleDetailPage;
+export default GenericPage;

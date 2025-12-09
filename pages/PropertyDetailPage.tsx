@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { propertyService } from '../services/propertyService';
 import DPEChart from '../components/DPEChart';
 import CharacteristicIcon from '../components/CharacteristicIcon';
@@ -89,41 +90,6 @@ const PropertyDetailPage: React.FC = () => {
         fetchProperty();
     }, [id]);
 
-    useEffect(() => {
-        const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
-            let element = document.querySelector<HTMLMetaElement>(`meta[${attr}='${key}']`);
-            if (!element) {
-                element = document.createElement('meta');
-                element.setAttribute(attr, key);
-                document.head.appendChild(element);
-            }
-            element.setAttribute('content', content || '');
-        };
-        
-        if (property) {
-            const title = `${property.type} à ${property.location} | Duroche Immobilier`;
-            const description = (property.description || '').substring(0, 160) + ((property.description || '').length > 160 ? '...' : '');
-            const imageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').url() : '';
-            const pageUrl = window.location.href;
-
-            document.title = title;
-            setMetaTag('name', 'description', description);
-
-            // Open Graph (Facebook, etc.)
-            setMetaTag('property', 'og:title', title);
-            setMetaTag('property', 'og:description', description);
-            setMetaTag('property', 'og:image', imageUrl);
-            setMetaTag('property', 'og:url', pageUrl);
-            setMetaTag('property', 'og:type', 'website');
-
-            // Twitter Card
-            setMetaTag('name', 'twitter:card', 'summary_large_image');
-            setMetaTag('name', 'twitter:title', title);
-            setMetaTag('name', 'twitter:description', description);
-            setMetaTag('name', 'twitter:image', imageUrl);
-        }
-    }, [property]);
-
     useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isLightboxOpen || !property || !property.images || property.images.length === 0) return; if (e.key === 'Escape') { closeLightbox(); } else if (e.key === 'ArrowRight') { showNextImage(); } else if (e.key === 'ArrowLeft') { showPrevImage(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isLightboxOpen, currentImageIndex, property]);
 
     if (isLoading) {
@@ -134,6 +100,13 @@ const PropertyDetailPage: React.FC = () => {
         return ( <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center min-h-screen flex flex-col justify-center items-center"> <h1 className="text-3xl font-bold font-heading text-primary-text">Bien non trouvé</h1> <p className="mt-4 text-secondary-text">Le bien que vous cherchez n'existe pas ou a été retiré.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-8 inline-block px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark"> Retour à la liste des biens </button> </div> );
     }
     
+    // SEO Data Calculation
+    const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
+    const seoTitle = `${property.type} à ${property.location} - ${property.area}m² - ${formattedPrice} | Duroche Immobilier`;
+    const seoDescription = `${property.type} à vendre à ${property.location}. ${property.rooms} pièces, ${property.bedrooms} chambres, ${property.area}m². Prix: ${formattedPrice}. Découvrez ce bien d'exception.`;
+    const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').url() : '';
+    const pageUrl = window.location.href;
+
     const isFavorite = favoriteIds.includes(property._id);
     const city = property.location.split(',')[0].trim();
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
@@ -146,7 +119,7 @@ const PropertyDetailPage: React.FC = () => {
     const closeLightbox = () => setIsLightboxOpen(false);
     const showNextImage = () => setCurrentImageIndex(prev => (prev + 1) % imageUrls.length);
     const showPrevImage = () => setCurrentImageIndex(prev => (prev - 1 + imageUrls.length) % imageUrls.length);
-    const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
+    
     const pricePerSqM = property.area > 0 ? property.price / property.area : 0;
     const formattedPricePerSqM = pricePerSqM > 0 ? `${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(pricePerSqM)}/m²` : '';
     const statusConfig = { Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-200 text-yellow-800 font-semibold' }, 'Sous offre': { text: 'Sous offre', className: 'bg-blue-100 text-blue-800 font-semibold' }, Vendu: { text: 'Vendu', className: 'bg-red-100 text-red-800 font-semibold' }, };
@@ -156,6 +129,25 @@ const PropertyDetailPage: React.FC = () => {
 
     return (
         <div className="bg-background">
+            <Helmet>
+                <title>{seoTitle}</title>
+                <meta name="description" content={seoDescription} />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content={pageUrl} />
+                <meta property="og:title" content={seoTitle} />
+                <meta property="og:description" content={seoDescription} />
+                <meta property="og:image" content={shareImageUrl} />
+                
+                {/* Twitter */}
+                <meta property="twitter:card" content="summary_large_image" />
+                <meta property="twitter:url" content={pageUrl} />
+                <meta property="twitter:title" content={seoTitle} />
+                <meta property="twitter:description" content={seoDescription} />
+                <meta property="twitter:image" content={shareImageUrl} />
+            </Helmet>
+
             <style>{scrollbarHideStyle}</style>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24">
                 {/* Header, Gallery, Content... */}

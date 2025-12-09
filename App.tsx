@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import HomePage from './pages/HomePage';
@@ -17,23 +18,6 @@ import { propertyService } from './services/propertyService';
 import PropertyCard from './components/PropertyCard';
 import { useFavorites } from './context/FavoritesContext';
 import type { Property } from './types';
-
-const updateStructuredData = (data: object | null) => {
-    const script = document.getElementById('structured-data');
-    if (script) {
-        script.innerHTML = data ? JSON.stringify(data, null, 2) : '';
-    }
-};
-
-const setMetaTag = (attr: 'name' | 'property', key: string, content: string) => {
-    let element = document.querySelector<HTMLMetaElement>(`meta[${attr}='${key}']`);
-    if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attr, key);
-        document.head.appendChild(element);
-    }
-    element.setAttribute('content', content || '');
-};
 
 const FavoritesPage: React.FC = () => {
     const { favoriteIds } = useFavorites();
@@ -53,6 +37,10 @@ const FavoritesPage: React.FC = () => {
 
     return (
         <div className="bg-background min-h-screen">
+            <Helmet>
+                <title>Mes Favoris | Duroche Immobilier</title>
+                <meta name="description" content="Retrouvez vos biens immobiliers favoris." />
+            </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Mes Biens Favoris</h1>
@@ -84,6 +72,10 @@ const SoldPropertiesListPage: React.FC = () => {
 
     return (
         <div className="bg-background min-h-screen">
+            <Helmet>
+                <title>Nos Références - Biens Vendus | Duroche Immobilier</title>
+                <meta name="description" content="Découvrez une sélection de biens que nous avons récemment vendus dans le Vaucluse Nord." />
+            </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Nos Références - Biens Vendus</h1>
@@ -117,46 +109,6 @@ const Layout: React.FC = () => {
         window.scrollTo(0, 0);
     }, [pathname]);
 
-    // SEO Management
-    useEffect(() => {
-        if (!settings || !dynamicPages) return;
-        
-        const metaKeywords = document.getElementById('meta-keywords') as HTMLMetaElement;
-        
-        let title = settings.title;
-        let description = settings.description;
-        let keywords = 'immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse';
-
-        const pageSlug = pathname.substring(1).split('?')[0];
-        const dynamicPage = dynamicPages.find(p => p.slug.current === pageSlug);
-
-        if (dynamicPage) {
-            title = dynamicPage.metaTitle || `${dynamicPage.title} | ${settings.title}`;
-            description = dynamicPage.metaDescription || description;
-            keywords = dynamicPage.metaKeywords || keywords;
-            updateStructuredData(null);
-        } else if (pathname === '/') {
-             updateStructuredData({ "@context": "https://schema.org", "@type": "RealEstateAgent", "name": settings.title, "description": settings.description, "url": "https://duroche.fr", "logo": settings.logo, "telephone": "+33756874788", "email": "contact@duroche.fr", "areaServed": "Vaucluse Nord" });
-        } else if (pathname.startsWith('/properties')) {
-             title = `Nos Biens | ${settings.title}`;
-             description = "Découvrez nos biens immobiliers à vendre dans le Vaucluse Nord.";
-        }
-
-        document.title = title;
-        setMetaTag('name', 'description', description);
-        if (metaKeywords) metaKeywords.content = keywords;
-        
-        // Favicon
-        let favicon = document.querySelector<HTMLLinkElement>("link[rel*='icon']");
-        if (!favicon) {
-            favicon = document.createElement('link');
-            favicon.rel = 'icon';
-            document.getElementsByTagName('head')[0].appendChild(favicon);
-        }
-        if (settings.favicon) favicon.href = settings.favicon;
-
-    }, [pathname, settings, dynamicPages]);
-
     if (settingsLoading || pagesLoading) return <div className="bg-background min-h-screen flex items-center justify-center">Chargement...</div>;
 
     if (settings?.maintenanceMode) {
@@ -169,8 +121,61 @@ const Layout: React.FC = () => {
         );
     }
 
+    // Default SEO data
+    const defaultTitle = settings?.title || 'Duroche Immobilier';
+    const defaultDescription = settings?.description || 'Agence immobilière experte du Vaucluse Nord.';
+    const defaultKeywords = 'immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse';
+    
+    // Determine dynamic page SEO if applicable (for pages handled via :slug that aren't specialized routes)
+    // Note: specialized pages like PropertyDetailPage handle their own SEO overriding these defaults.
+    const pageSlug = pathname.substring(1).split('?')[0];
+    const dynamicPage = dynamicPages?.find(p => p.slug.current === pageSlug);
+    
+    let title = defaultTitle;
+    let description = defaultDescription;
+    let keywords = defaultKeywords;
+    let structuredData = null;
+
+    if (dynamicPage) {
+        title = dynamicPage.metaTitle || `${dynamicPage.title} | ${settings?.title}`;
+        description = dynamicPage.metaDescription || description;
+        keywords = dynamicPage.metaKeywords || keywords;
+    } else if (pathname === '/') {
+        structuredData = { 
+            "@context": "https://schema.org", 
+            "@type": "RealEstateAgent", 
+            "name": settings?.title, 
+            "description": settings?.description, 
+            "url": "https://duroche.fr", 
+            "logo": settings?.logo, 
+            "telephone": "+33756874788", 
+            "email": "contact@duroche.fr", 
+            "areaServed": "Vaucluse Nord" 
+        };
+    } else if (pathname.startsWith('/properties')) {
+         title = `Nos Biens | ${settings?.title}`;
+         description = "Découvrez nos biens immobiliers à vendre dans le Vaucluse Nord. Maisons, appartements, terrains...";
+    }
+
     return (
         <div className="font-sans text-primary-text flex flex-col min-h-screen">
+             {settings && (
+                <Helmet>
+                    <title>{title}</title>
+                    <meta name="description" content={description} />
+                    <meta name="keywords" content={keywords} />
+                    {settings.favicon && <link rel="icon" href={settings.favicon} />}
+                    <meta property="og:type" content="website" />
+                    <meta property="og:site_name" content={settings.title} />
+                    <meta property="og:locale" content="fr_FR" />
+                    {structuredData && (
+                        <script type="application/ld+json">
+                            {JSON.stringify(structuredData)}
+                        </script>
+                    )}
+                </Helmet>
+            )}
+            
             {settings && <Header settings={settings} dynamicPages={dynamicPages || []} />}
             <main className="flex-grow">
                 <Outlet />
