@@ -42,7 +42,7 @@ const PropertiesListPage: React.FC = () => {
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     
     const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = e.target; setAmenities(prev => ({ ...prev, [name]: checked })); };
-    const handleLocationChange = (e: React.ChangeEvent<HTMLSelectElement>) => { 
+    const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
         const value = e.target.value; 
         setLocationFilter(value);
         // Update URL params
@@ -96,21 +96,22 @@ const PropertiesListPage: React.FC = () => {
                             <label htmlFor="search" className="block text-sm font-medium text-primary-text mb-1">Ville / Localisation</label>
                             <div className={inputGroupClass}>
                                 <LocationIcon className={iconClass} />
-                                <select 
+                                <input 
+                                    type="text"
                                     id="search" 
                                     name="search" 
+                                    list="locations-list"
                                     className={inputClass} 
                                     value={locationFilter} 
                                     onChange={handleLocationChange}
-                                >
-                                    <option value="">Toutes les villes</option>
+                                    placeholder="Ville (ex: Orange)"
+                                    autoComplete="off"
+                                />
+                                <datalist id="locations-list">
                                     {availableLocations?.map(city => (
-                                        <option key={city} value={city}>{city}</option>
+                                        <option key={city} value={city} />
                                     ))}
-                                </select>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-secondary">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
-                                </div>
+                                </datalist>
                             </div>
                         </div>
                         <div> <label htmlFor="property-type" className="block text-sm font-medium text-primary-text mb-1">Type de bien</label> <div className={inputGroupClass}> <PropertyTypeIcon className={iconClass} /> <select id="property-type" name="property-type" value={propertyType} onChange={e => setPropertyType(e.target.value)} className={inputClass}><option value="all">Tous</option><option value="Maison">Maison</option><option value="Appartement">Appartement</option><option value="Terrain">Terrain</option><option value="Autre">Autre</option></select> </div> </div>
