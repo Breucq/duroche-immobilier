@@ -110,15 +110,40 @@ const PropertyDetailPage: React.FC = () => {
         return ( <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center min-h-screen flex flex-col justify-center items-center"> <h1 className="text-3xl font-bold font-heading text-primary-text">Bien non trouvé</h1> <p className="mt-4 text-secondary-text">Le bien que vous cherchez n'existe pas ou a été retiré.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-8 inline-block px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark"> Retour à la liste des biens </button> </div> );
     }
     
-    // SEO Data Calculation
+    // SEO Data Calculation - CUSTOM LOGIC FOR SOCIAL SHARING
     const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
-    const seoTitle = `${property.type} à ${property.location} - ${property.area}m² - ${formattedPrice} | Duroche Immobilier`;
-    const seoDescription = `${property.type} à vendre à ${property.location}. ${property.rooms} pièces, ${property.bedrooms} chambres, ${property.area}m². Prix: ${formattedPrice}. Découvrez ce bien d'exception.`;
+    const city = property.location.split(',')[0].trim();
+    
+    // 1. Calcul des atouts majeurs (Piscine, Jardin, Garage)
+    const keyAmenities: string[] = [];
+    const allCharacteristics = [
+        ...(property.characteristics?.exterior || []),
+        ...(property.characteristics?.general || []),
+        ...(property.characteristics?.land || [])
+    ];
+    
+    if (allCharacteristics.some(c => c.toLowerCase().includes('piscine'))) keyAmenities.push('Piscine');
+    if (allCharacteristics.some(c => c.toLowerCase().includes('jardin'))) keyAmenities.push('Jardin');
+    if (allCharacteristics.some(c => c.toLowerCase().includes('garage'))) keyAmenities.push('Garage');
+    
+    // Formatage des atouts avec des tirets
+    const amenitiesString = keyAmenities.length > 0 ? ` - ${keyAmenities.join(' - ')}` : '';
+    
+    // 2. Format du Titre: "Type à Ville - Surface - Chambres - Atouts"
+    // Ex: "Maison à Orange - 120m² - 3 chambres - Piscine"
+    const seoTitle = `${property.type} à ${city}${property.area ? ` - ${property.area}m²` : ''}${property.bedrooms ? ` - ${property.bedrooms} chambres` : ''}${amenitiesString}`;
+    
+    // 3. Format de la Description: Début de la description (tronqué ~160 chars)
+    // On nettoie les sauts de ligne pour l'aperçu
+    const cleanDescription = property.description ? property.description.replace(/\s+/g, ' ').trim() : '';
+    const seoDescription = cleanDescription.length > 160 
+        ? cleanDescription.substring(0, 157) + '...' 
+        : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
+
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').url() : '';
     const pageUrl = window.location.href;
 
     const isFavorite = favoriteIds.includes(property._id);
-    const city = property.location.split(',')[0].trim();
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
     
     const allImages = [property.image, ...(property.images || [])].filter(Boolean);
@@ -146,7 +171,7 @@ const PropertyDetailPage: React.FC = () => {
     return (
         <div className="bg-background relative">
             <Helmet>
-                <title>{seoTitle}</title>
+                <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
                 
                 {/* Open Graph / Facebook */}
