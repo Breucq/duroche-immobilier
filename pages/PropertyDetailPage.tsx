@@ -55,9 +55,9 @@ const PropertySlider: React.FC<PropertySliderProps> = ({ title, properties, seeA
 };
 
 
-const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={`${className} print:break-inside-avoid print:mb-8`}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2">{title}</h2> <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed">{children}</div> </div> );
-const KeyFeature: React.FC<{ icon: React.ReactNode, label: string, value: string | number }> = ({ icon, label, value }) => ( <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-sm border border-border-color/80 print:border-gray-300"> <div className="text-accent mb-2 print:text-black">{icon}</div> <p className="text-xl sm:text-2xl font-bold font-heading text-primary-text">{value}</p> <p className="text-sm text-secondary-text">{label}</p> </div> );
-const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({title, items}) => { if (!items || items.length === 0) return null; return ( <div> <h4 className="text-md font-semibold text-primary-text mb-3">{title}</h4> <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-secondary-text"> {items.map((char, index) => ( <li key={index} className="flex items-center"> <CharacteristicIcon characteristic={char} className="w-5 h-5 text-accent mr-3 flex-shrink-0 print:text-black" /> <span>{char}</span> </li> ))} </ul> </div> ); };
+const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={`${className} print:break-inside-avoid print:mb-6`}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2 print:text-xl print:mb-2 print:border-b">{title}</h2> <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed print:text-sm print:text-black print:leading-normal">{children}</div> </div> );
+const KeyFeature: React.FC<{ icon: React.ReactNode, label: string, value: string | number }> = ({ icon, label, value }) => ( <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-sm border border-border-color/80 print:border-gray-200 print:p-2 print:shadow-none"> <div className="text-accent mb-2 print:text-black print:mb-1 print:scale-75">{icon}</div> <p className="text-xl sm:text-2xl font-bold font-heading text-primary-text print:text-lg">{value}</p> <p className="text-sm text-secondary-text print:text-xs">{label}</p> </div> );
+const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({title, items}) => { if (!items || items.length === 0) return null; return ( <div> <h4 className="text-md font-semibold text-primary-text mb-3 print:mb-1 print:text-sm">{title}</h4> <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-secondary-text print:grid-cols-2 print:gap-y-1 print:text-xs"> {items.map((char, index) => ( <li key={index} className="flex items-center"> <CharacteristicIcon characteristic={char} className="w-5 h-5 text-accent mr-3 flex-shrink-0 print:text-black print:w-3 print:h-3 print:mr-1" /> <span>{char}</span> </li> ))} </ul> </div> ); };
 
 
 const PropertyDetailPage: React.FC = () => {
@@ -178,18 +178,32 @@ const PropertyDetailPage: React.FC = () => {
             <style>{scrollbarHideStyle}</style>
             
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16 print:py-0 print:pt-4">
-                 <div className="mb-8">
+                 
+                 {/* HEADER IMPRESSION : Spécifique pour le papier */}
+                 <div className="hidden print:flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                    <div>
+                        <h1 className="text-2xl font-bold uppercase tracking-wider">Duroche Immobilier</h1>
+                        <p className="text-sm">Votre agence experte du Vaucluse Nord</p>
+                    </div>
+                    <div className="text-right">
+                        <h2 className="text-xl font-bold">{property.type} - {property.location}</h2>
+                        <p className="text-2xl font-bold text-black">{formattedPrice}</p>
+                        {property.reference && <p className="text-xs text-gray-600">Réf: {property.reference}</p>}
+                    </div>
+                 </div>
+
+                 <div className="mb-8 print:hidden">
                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-y-4">
                          <div>
                              <div className="flex flex-wrap items-center gap-2 mb-2">
-                                 <span className="inline-block bg-accent/10 text-accent text-sm font-semibold px-3 py-1.5 rounded-full print:bg-transparent print:text-black print:border print:border-gray-300 print:px-0 print:py-0">{property.type}</span>
+                                 <span className="inline-block bg-accent/10 text-accent text-sm font-semibold px-3 py-1.5 rounded-full print:hidden">{property.type}</span>
                                  {statusInfo && <span className={`inline-block text-sm px-3 py-1.5 rounded-full ${statusInfo.className} print:hidden`}>{statusInfo.text}</span>}
                              </div>
-                             <h1 className="text-4xl md:text-5xl font-bold font-heading text-primary-text print:text-3xl">{property.type} à {property.location}</h1>
-                             {property.reference && <p className="text-sm text-secondary-text mt-1">Référence : {property.reference}</p>}
+                             <h1 className="text-4xl md:text-5xl font-bold font-heading text-primary-text print:hidden">{property.type} à {property.location}</h1>
+                             {property.reference && <p className="text-sm text-secondary-text mt-1 print:hidden">Référence : {property.reference}</p>}
                          </div>
-                         <div className="text-left sm:text-right flex-shrink-0">
-                             <p className="text-3xl md:text-4xl font-bold font-heading text-accent print:text-black">{formattedPrice}</p>
+                         <div className="text-left sm:text-right flex-shrink-0 print:hidden">
+                             <p className="text-3xl md:text-4xl font-bold font-heading text-accent">{formattedPrice}</p>
                              {formattedPricePerSqM && <p className="text-lg text-secondary-text mt-1">{formattedPricePerSqM}</p>}
                          </div>
                      </div>
@@ -230,24 +244,42 @@ const PropertyDetailPage: React.FC = () => {
                             ))} 
                         </div> 
                         
-                        {/* Image unique pour l'impression */}
-                        <div className="hidden print:block mb-8">
-                            <img src={imageUrls[0]} alt="Vue principale" className="w-full h-auto rounded-lg max-h-[400px] object-cover" />
+                        {/* Image unique pour l'impression (prend toute la largeur) */}
+                        <div className="hidden print:block mb-8 w-full">
+                            <img src={imageUrls[0]} alt="Vue principale" className="w-full h-96 object-cover rounded-lg" />
                         </div>
                     </> 
                 )}
 
+                 {/* LAYOUT PRINCIPAL : Flex en web, mais on va gérer l'impression différemment */}
                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 mt-12 print:block"> 
-                    <div className="lg:col-span-3 space-y-12 print:space-y-6"> 
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4"> {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} </div> 
+                    
+                    {/* Colonne Gauche (Infos principales) - A l'impression, prend tout l'espace ou split */}
+                    <div className="lg:col-span-3 space-y-12 print:space-y-0"> 
+                        
+                        {/* Barre de stats (Chambres/Surface etc) */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-4 print:mb-8"> 
+                            {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} 
+                            {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} 
+                            {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} 
+                            {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} 
+                        </div> 
+                        
                         {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
                         
-                        <Section title="Description"><p className="whitespace-pre-line">{property.description}</p></Section> 
-                        
-                        {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} 
+                        {/* Wrapper spécial impression 2 colonnes */}
+                        <div className="print:grid print:grid-cols-2 print:gap-8">
+                            <div className="print:col-span-1">
+                                <Section title="Description"><p className="whitespace-pre-line text-justify">{property.description}</p></Section> 
+                            </div>
+                            <div className="print:col-span-1 print:space-y-4">
+                                {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6 print:space-y-4"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} 
+                                {(property.dpe || property.ges) && <Section title="Performances"> <div className="space-y-4 print:space-y-2"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} 
+                            </div>
+                        </div>
+
                         {property.financials && <Section title="Informations financières"> <ul className="list-none p-0 space-y-2"> <li><strong>Prix :</strong> {formattedPrice}</li> <li><strong>Honoraires :</strong> {property.financials.agencyFees}</li> {property.financials.propertyTax && <li><strong>Taxe Foncière :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.propertyTax)} / an</li>} {property.financials.condoFees && <li><strong>Charges de copropriété :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.condoFees)} / mois</li>} </ul> </Section>} 
                         {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} 
-                        {(property.dpe || property.ges) && <Section title="Performances énergétiques"> <div className="space-y-4"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} 
                         {property.risks && <Section title="Les risques sur ce bien"><p>{property.risks}</p></Section>} 
                         
                         {/* Masqué à l'impression */}
@@ -258,21 +290,25 @@ const PropertyDetailPage: React.FC = () => {
                     
                     <div className="lg:col-span-2"> 
                         {/* Sidebar "Contact Card" - Uniquement Sticky sur Desktop (lg), Relative sur Mobile */}
-                        <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80 print:border-none print:shadow-none print:p-0 print:mt-8"> 
+                        <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80 print:border-t-2 print:border-black print:rounded-none print:shadow-none print:p-4 print:mt-auto print:bg-gray-50"> 
                             <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 print:hidden" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> 
-                            <div className="pb-6 border-b border-border-color"> 
+                            <div className="pb-6 border-b border-border-color print:hidden"> 
                                 <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> 
                                 <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> 
                             </div> 
                             
-                            {/* Affichage conditionnel pour l'impression */}
-                            <div className="hidden print:block mt-6">
-                                <h3 className="text-xl font-heading font-semibold text-primary-text mb-2">Contact Agence</h3>
-                                <p><strong>Duroche Immobilier</strong></p>
-                                <p>123 Rue de la République, 84100 Orange</p>
-                                <p>Tél: 07 56 87 47 88</p>
-                                <p>Email: contact@duroche.fr</p>
-                                <p className="mt-4 text-sm text-gray-500">Référence du bien : {property.reference}</p>
+                            {/* Affichage conditionnel pour l'impression (Pied de page flyer) */}
+                            <div className="hidden print:flex justify-between items-center">
+                                <div>
+                                    <h3 className="text-lg font-bold uppercase mb-1">Contactez-nous</h3>
+                                    <p className="font-bold text-lg">Thomas DUBREUCQ & Sylvie ROCHE</p>
+                                    <p>Tél: 07 56 87 47 88</p>
+                                    <p>Email: contact@duroche.fr</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm text-gray-500">Duroche Immobilier</p>
+                                    <p className="text-xs">www.duroche.fr</p>
+                                </div>
                             </div>
 
                             {/* Contenu Interactif (Masqué à l'impression) */}
@@ -282,7 +318,7 @@ const PropertyDetailPage: React.FC = () => {
                                     <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> 
                                     <button 
                                         onClick={() => window.print()}
-                                        className="flex items-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors"
+                                        className="flex items-center justify-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors w-full mx-auto"
                                     >
                                         <PrinterIcon className="w-5 h-5" />
                                         <span className="underline">Imprimer la fiche</span>

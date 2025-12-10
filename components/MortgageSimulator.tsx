@@ -76,26 +76,22 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                     </div>
 
                     <div>
-                        <div className="flex justify-between items-baseline mb-1">
+                        <div className="flex justify-between items-baseline mb-3">
                             <label className="text-sm font-medium text-secondary-text">Votre apport</label>
                             <span className="text-sm font-bold text-primary-text">{formatCurrency(contribution)}</span>
                         </div>
-                        <div className="relative">
-                            <input 
-                                type="number" 
-                                value={contribution} 
-                                onChange={(e) => setContribution(Number(e.target.value))}
-                                className="w-full px-4 py-2 border border-border-color rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none"
-                            />
-                            <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-text">€</span>
-                        </div>
+                        {/* Champ numérique supprimé, seul le slider reste */}
                         <input 
                             type="range" 
                             min="0" 
                             max={amount} 
                             step="1000" 
                             value={contribution} 
-                            onChange={(e) => setContribution(Number(e.target.value))} 
+                            onChange={(e) => {
+                                const val = Number(e.target.value);
+                                // S'assure que l'apport ne dépasse pas le montant
+                                setContribution(val > amount ? amount : val);
+                            }} 
                             className={sliderClass} 
                         />
                     </div>

@@ -5,7 +5,7 @@
 /* Styles pour l'impression de la fiche bien */
 @media print {
   @page {
-    margin: 1.5cm;
+    margin: 1cm; /* Marges réduites pour maximiser l'espace */
     size: A4;
   }
   
@@ -22,6 +22,7 @@
   body {
     background-color: white !important;
     color: black !important;
+    font-size: 11pt; /* Taille de police optimale pour la lecture papier */
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
@@ -31,12 +32,11 @@
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
+    width: 100% !important;
   }
 
-  /* Force la grille à devenir une liste verticale pour éviter les colonnes étroites */
-  .grid {
-    display: block !important;
-  }
+  /* Note: J'ai retiré le "display: block" forcé sur les grids pour permettre 
+     une mise en page en 2 colonnes sur le papier */
 
   /* Forcer l'affichage des images de fond ou couleurs */
   * {
@@ -45,8 +45,13 @@
   }
   
   /* Éviter de couper les sections au milieu */
-  section, .card {
+  section, .card, li, p {
     break-inside: avoid;
+  }
+
+  /* Masquer les scrollbars */
+  ::-webkit-scrollbar {
+    display: none;
   }
 }
 
