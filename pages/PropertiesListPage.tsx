@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
-import { alertService } from '../services/alertService';
 import PropertyCard from '../components/PropertyCard';
 import type { Property } from '../types';
 
@@ -16,7 +15,44 @@ const CheckmarkIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg fill="non
 
 interface CustomCheckboxProps { id: string; name: string; label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }
 const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ id, name, label, checked, onChange }) => { return ( <label htmlFor={id} className="flex items-center cursor-pointer group text-sm text-primary-text"> <input id={id} name={name} type="checkbox" checked={checked} onChange={onChange} className="sr-only peer" /> <span className="w-5 h-5 rounded-lg border-2 border-border-color bg-white group-hover:border-accent peer-focus-visible:ring-2 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-accent peer-checked:bg-accent peer-checked:border-accent transition-colors flex items-center justify-center flex-shrink-0"> <CheckmarkIcon className="w-3 h-3 text-white opacity-0 peer-checked:opacity-100 transition-opacity" /> </span> <span className="ml-2.5">{label}</span> </label> ); };
-const AlertModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (email: string) => void; criteriaSummary: string; }> = ({ isOpen, onClose, onSave, criteriaSummary }) => { const [email, setEmail] = useState(''); if (!isOpen) return null; const handleSubmit = (e: React.FormEvent) => { e.preventDefault(); onSave(email); }; return ( <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}> <div className="bg-white rounded-xl shadow-xl p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}> <h2 className="text-2xl font-bold font-heading text-primary-text mb-4">Créer une Alerte</h2> <p className="text-secondary-text mb-2">Soyez notifié(e) par e-mail dès qu'un bien correspondant à vos critères est disponible.</p> <div className="bg-background-alt p-3 rounded-lg text-sm text-secondary-text mb-6"> <strong>Critères :</strong> {criteriaSummary || "Tous les biens"} </div> <form onSubmit={handleSubmit}> <label htmlFor="alert-email" className="block text-sm font-medium text-primary-text">Votre adresse e-mail</label> <input id="alert-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="exemple@email.com" className="mt-1 py-2 px-3 block w-full bg-white shadow-sm border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent" /> <div className="mt-6 flex justify-end space-x-3"> <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 hover:bg-gray-300">Annuler</button> <button type="submit" className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-dark">Créer l'alerte</button> </div> </form> </div> </div> ); };
+
+const AlertModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (email: string) => Promise<boolean>; criteriaSummary: string; }> = ({ isOpen, onClose, onSave, criteriaSummary }) => { 
+    const [email, setEmail] = useState(''); 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    
+    if (!isOpen) return null; 
+    
+    const handleSubmit = async (e: React.FormEvent) => { 
+        e.preventDefault(); 
+        setIsSubmitting(true);
+        const success = await onSave(email);
+        setIsSubmitting(false);
+        if(success) {
+            setEmail('');
+            onClose();
+        }
+    }; 
+    
+    return ( 
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" onClick={onClose}> 
+            <div className="bg-white rounded-xl shadow-xl p-8 max-w-lg w-full" onClick={e => e.stopPropagation()}> 
+                <h2 className="text-2xl font-bold font-heading text-primary-text mb-4">Créer une Alerte</h2> 
+                <p className="text-secondary-text mb-2">Laissez-nous vos critères. Nous vous contacterons dès qu'un bien correspondant est disponible.</p> 
+                <div className="bg-background-alt p-3 rounded-lg text-sm text-secondary-text mb-6"> <strong>Vos critères :</strong> {criteriaSummary || "Tous les biens"} </div> 
+                <form onSubmit={handleSubmit}> 
+                    <label htmlFor="alert-email" className="block text-sm font-medium text-primary-text">Votre adresse e-mail</label> 
+                    <input id="alert-email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="exemple@email.com" className="mt-1 py-2 px-3 block w-full bg-white shadow-sm border-border-color rounded-lg focus:ring-1 focus:ring-accent focus:border-accent" /> 
+                    <div className="mt-6 flex justify-end space-x-3"> 
+                        <button type="button" onClick={onClose} disabled={isSubmitting} className="px-4 py-2 text-sm font-medium rounded-lg bg-gray-200 hover:bg-gray-300">Annuler</button> 
+                        <button type="submit" disabled={isSubmitting} className="px-4 py-2 text-sm font-medium rounded-lg text-white bg-accent hover:bg-accent-dark disabled:opacity-50">
+                            {isSubmitting ? 'Envoi...' : 'M\'alerter'}
+                        </button> 
+                    </div> 
+                </form> 
+            </div> 
+        </div> 
+    ); 
+};
 
 const PropertiesListPage: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
@@ -74,8 +110,50 @@ const PropertiesListPage: React.FC = () => {
         }
     }, [properties, locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities, sortBy]);
     
-    const handleSaveAlert = (email: string) => { const criteria = { searchTerm: locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities }; alertService.add(email, criteria); alert(`Alerte créée avec succès pour l'adresse ${email} !`); setIsAlertModalOpen(false); };
-    const getCriteriaSummary = () => { const parts = []; if (propertyType !== 'all') parts.push(propertyType); if (locationFilter) parts.push(`à ${locationFilter}`); if (maxPrice) parts.push(`jusqu'à ${maxPrice}€`); if (bedrooms !== 'all') parts.push(`${bedrooms.replace('+', ' et plus')} ch.`); Object.entries(amenities).filter(([, val]) => val).forEach(([key]) => parts.push(key)); return parts.join(', '); };
+    const getCriteriaSummary = () => { 
+        const parts = []; 
+        if (propertyType !== 'all') parts.push(propertyType); 
+        if (locationFilter) parts.push(`à ${locationFilter}`); 
+        if (maxPrice) parts.push(`Budget max: ${maxPrice}€`); 
+        if (minArea) parts.push(`Surface min: ${minArea}m²`); 
+        if (bedrooms !== 'all') parts.push(`${bedrooms.replace('+', ' et plus')} ch.`); 
+        Object.entries(amenities).filter(([, val]) => val).forEach(([key]) => parts.push(key)); 
+        return parts.join(', '); 
+    };
+
+    const handleSaveAlert = async (email: string) => { 
+        const summary = getCriteriaSummary();
+        const alertData = {
+            email: email,
+            message: `Nouvelle alerte recherche créée par un utilisateur.\n\nCritères :\n${summary || "Aucun critère spécifique (tout le catalogue)"}\n\nEmail du prospect : ${email}`,
+            _subject: `Nouvelle Alerte Recherche : ${propertyType === 'all' ? 'Bien immobilier' : propertyType} ${locationFilter ? `à ${locationFilter}` : ''}`
+        };
+
+        try {
+            const response = await fetch('https://formspree.io/f/xqagvbqp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(alertData)
+            });
+
+            if (response.ok) {
+                alert(`Demande d'alerte bien reçue ! Nous vous recontacterons si un bien correspondant rentre en catalogue.`); 
+                setIsAlertModalOpen(false);
+                return true;
+            } else {
+                alert("Une erreur est survenue lors de l'envoi de votre alerte.");
+                return false;
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Erreur de connexion. Veuillez réessayer.");
+            return false;
+        }
+    };
+
     const inputGroupClass = "relative flex items-center w-full";
     const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none";
     const inputClass = "w-full pl-10 pr-3 py-3 text-primary-text bg-background-alt border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
