@@ -140,7 +140,8 @@ const PropertyDetailPage: React.FC = () => {
         ? cleanDescription.substring(0, 157) + '...' 
         : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
 
-    const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').url() : '';
+    // FIX: Force JPG format for Facebook compatibility
+    const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
     const pageUrl = window.location.href;
 
     const isFavorite = favoriteIds.includes(property._id);
