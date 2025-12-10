@@ -130,19 +130,27 @@ const PropertyDetailPage: React.FC = () => {
     const amenitiesString = keyAmenities.length > 0 ? ` - ${keyAmenities.join(' - ')}` : '';
     
     // 2. Format du Titre: "Type à Ville - Surface - Chambres - Atouts"
-    // Ex: "Maison à Orange - 120m² - 3 chambres - Piscine"
     const seoTitle = `${property.type} à ${city}${property.area ? ` - ${property.area}m²` : ''}${property.bedrooms ? ` - ${property.bedrooms} chambres` : ''}${amenitiesString}`;
     
     // 3. Format de la Description: Début de la description (tronqué ~160 chars)
-    // On nettoie les sauts de ligne pour l'aperçu
     const cleanDescription = property.description ? property.description.replace(/\s+/g, ' ').trim() : '';
     const seoDescription = cleanDescription.length > 160 
         ? cleanDescription.substring(0, 157) + '...' 
         : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
 
-    // FIX: Force JPG format for Facebook compatibility
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
-    const pageUrl = window.location.href;
+    
+    // --- SMART SHARE LINK ---
+    // Au lieu de l'URL directe, on génère un lien vers notre API proxy de partage.
+    // L'identifiant (ID ou Référence) est passé en paramètre.
+    const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
+    const shareRef = hasCleanRef ? property.reference : property._id;
+    
+    // URL optimisée pour le partage Facebook
+    const smartShareUrl = `https://www.duroche.fr/api/share?ref=${shareRef}`;
+
+    // URL canonique pour Google (on garde l'URL "propre" pour le référencement)
+    const canonicalUrl = window.location.href;
 
     const isFavorite = favoriteIds.includes(property._id);
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
@@ -161,9 +169,6 @@ const PropertyDetailPage: React.FC = () => {
     const statusConfig = { Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-200 text-yellow-800 font-semibold' }, 'Sous offre': { text: 'Sous offre', className: 'bg-blue-100 text-blue-800 font-semibold' }, Vendu: { text: 'Vendu', className: 'bg-red-100 text-red-800 font-semibold' }, };
     const statusInfo = property.status && property.status !== 'Disponible' ? statusConfig[property.status as keyof typeof statusConfig] : null;
     
-    // SÉCURITÉ : Même logique que PropertyCard, on n'utilise la référence que si elle est propre.
-    // Sinon on utilise l'ID pour le lien de contact.
-    const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
     const contactIdentifier = hasCleanRef ? property.reference : property._id;
     const contactPath = `/contact/${contactIdentifier}`;
     
@@ -174,21 +179,24 @@ const PropertyDetailPage: React.FC = () => {
             <Helmet>
                 <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
+                <link rel="canonical" href={canonicalUrl} />
                 
-                {/* Open Graph / Facebook */}
+                {/* 
+                   Note : Les balises meta Open Graph ci-dessous sont utiles si l'utilisateur copie le lien 
+                   depuis la barre d'adresse, mais Facebook risque de les ignorer sans Prerender.io.
+                   Le bouton "Partager" utilisera lui l'URL "smartShareUrl" qui fonctionne à 100%.
+                */}
                 <meta property="og:type" content="website" />
-                <meta property="og:url" content={pageUrl} />
+                <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
                 
-                {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:url" content={pageUrl} />
+                <meta property="twitter:url" content={canonicalUrl} />
                 <meta property="twitter:title" content={seoTitle} />
                 <meta property="twitter:description" content={seoDescription} />
                 <meta property="twitter:image" content={shareImageUrl} />
-                <link rel="canonical" href={window.location.href} />
             </Helmet>
 
             <style>{scrollbarHideStyle}</style>
@@ -231,7 +239,7 @@ const PropertyDetailPage: React.FC = () => {
                 )}
                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 mt-12"> <div className="lg:col-span-3 space-y-12"> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} </div> {property.virtualTourUrl && <div className="text-center"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} <Section title="Description"><p className="whitespace-pre-line">{property.description}</p></Section> {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} {property.financials && <Section title="Informations financières"> <ul className="list-none p-0 space-y-2"> <li><strong>Prix :</strong> {formattedPrice}</li> <li><strong>Honoraires :</strong> {property.financials.agencyFees}</li> {property.financials.propertyTax && <li><strong>Taxe Foncière :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.propertyTax)} / an</li>} {property.financials.condoFees && <li><strong>Charges de copropriété :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.condoFees)} / mois</li>} </ul> </Section>} {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} {(property.dpe || property.ges) && <Section title="Performances énergétiques"> <div className="space-y-4"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} {property.risks && <Section title="Les risques sur ce bien"><p>{property.risks}</p></Section>} <MortgageSimulator price={property.price} /> </div> <div className="lg:col-span-2"> 
                     {/* Sidebar "Contact Card" - Uniquement Sticky sur Desktop (lg), Relative sur Mobile pour éviter l'overlap */}
-                    <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80"> <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> <div className="pb-6 border-b border-border-color"> <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> </div> {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} <div className="my-6"> <ShareButtons shareUrl={`https://duroche.fr${path}`} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> </div> </div> </div> </div>
+                    <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80"> <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> <div className="pb-6 border-b border-border-color"> <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> </div> {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} <div className="my-6"> <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> </div> </div> </div> </div>
             </div>
 
             {/* BARRE FIXE MOBILE : Uniquement visible sur mobile (lg:hidden) */}
