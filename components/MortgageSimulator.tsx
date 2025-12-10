@@ -9,7 +9,7 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
     const [amount, setAmount] = useState(price);
     const [contribution, setContribution] = useState(0);
     const [duration, setDuration] = useState(25);
-    const [rate, setRate] = useState(3.8);
+    const [rate, setRate] = useState(3.24);
     const [monthlyPayment, setMonthlyPayment] = useState(0);
 
     const formatCurrency = (val: number) => 
@@ -64,15 +64,6 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-text">€</span>
                         </div>
-                        <input 
-                            type="range" 
-                            min="50000" 
-                            max="2000000" 
-                            step="1000" 
-                            value={amount} 
-                            onChange={(e) => setAmount(Number(e.target.value))} 
-                            className={sliderClass} 
-                        />
                     </div>
 
                     <div>
@@ -80,7 +71,7 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                             <label className="text-sm font-medium text-secondary-text">Votre apport</label>
                             <span className="text-sm font-bold text-primary-text">{formatCurrency(contribution)}</span>
                         </div>
-                        {/* Slider Apport de 0 à Montant du bien */}
+                        {/* Slider conservé uniquement pour l'apport */}
                         <input 
                             type="range" 
                             min="0" 
@@ -109,36 +100,18 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                                 </select>
                                 <span className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-xs">▼</span>
                             </div>
-                            <input 
-                                type="range" 
-                                min="7" 
-                                max="30" 
-                                step="1" 
-                                value={duration} 
-                                onChange={(e) => setDuration(Number(e.target.value))} 
-                                className={sliderClass} 
-                            />
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-secondary-text mb-1">Taux (%)</label>
                             <div className="relative">
                                 <input 
                                     type="number" 
-                                    step="0.05"
+                                    step="0.01"
                                     value={rate} 
                                     onChange={(e) => setRate(Number(e.target.value))}
                                     className="w-full px-4 py-2 border border-border-color rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none"
                                 />
                             </div>
-                             <input 
-                                type="range" 
-                                min="0" 
-                                max="10" 
-                                step="0.05" 
-                                value={rate} 
-                                onChange={(e) => setRate(Number(e.target.value))} 
-                                className={sliderClass} 
-                            />
                         </div>
                     </div>
                 </div>
