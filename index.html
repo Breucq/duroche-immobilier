@@ -8,13 +8,19 @@
     <meta name="author" content="Duroche Immobilier">
     <meta name="robots" content="index, follow">
     <title>Duroche Immobilier</title>
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','GTM-K6PN27ND');</script>
-    <!-- End Google Tag Manager -->
+    
+    <!-- Google Analytics 4 (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      // La configuration initiale est gérée par le composant React pour éviter les doublons
+      // gtag('config', 'G-V83SQRDZET'); 
+    </script>
+    <!-- End Google Analytics -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
@@ -28,10 +34,6 @@
     <meta name="twitter:card" content="summary_large_image" />
 </head>
   <body class="bg-background antialiased">
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K6PN27ND"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
     <noscript>Vous devez activer JavaScript pour exécuter cette application.</noscript>
     <div id="root"></div>
     <script type="application/ld+json" id="structured-data"></script>

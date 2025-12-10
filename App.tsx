@@ -17,6 +17,7 @@ import { pageService } from './services/pageService';
 import { propertyService } from './services/propertyService';
 import PropertyCard from './components/PropertyCard';
 import { useFavorites } from './context/FavoritesContext';
+import GoogleAnalyticsTracker from './components/GoogleAnalyticsTracker';
 import type { Property } from './types';
 
 const FavoritesPage: React.FC = () => {
@@ -161,6 +162,9 @@ const Layout: React.FC = () => {
 
     return (
         <div className="font-sans text-primary-text flex flex-col min-h-screen">
+             {/* Intégration du Tracker Google Analytics */}
+             <GoogleAnalyticsTracker />
+
              {settings && (
                 <Helmet>
                     <title>{title}</title>

@@ -1,6 +1,16 @@
 
 
 /**
+ * Extension de l'interface Window pour Google Analytics
+ */
+declare global {
+  interface Window {
+    dataLayer: any[];
+    gtag: (...args: any[]) => void;
+  }
+}
+
+/**
  * Représente un bien immobilier tel que retourné par Sanity.
  */
 export interface Property {
