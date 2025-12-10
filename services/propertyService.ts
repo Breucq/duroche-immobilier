@@ -1,6 +1,7 @@
 import { client } from './sanityClient';
 import type { Property } from '../types';
 
+// Champs complets pour la page de détail
 const propertyFields = `
   _id,
   _createdAt,
@@ -28,39 +29,63 @@ const propertyFields = `
   risks
 `;
 
+// Champs réduits pour les cartes (listes) : Gain de performance énorme
+const propertyCardFields = `
+  _id,
+  _createdAt,
+  publicationDate,
+  reference,
+  "image": image.asset->,
+  "images": images[0...4].asset->, // On ne charge que les 5 premières images pour le slider au survol
+  type,
+  price,
+  location,
+  bedrooms,
+  rooms,
+  area,
+  status,
+  isHidden,
+  dpe,
+  characteristics // Utile pour les filtres (piscine, etc.)
+`;
+
 export const propertyService = {
   async getAll(): Promise<Property[]> {
-    const query = `*[_type == "property"] | order(publicationDate desc) { ${propertyFields} }`;
+    // Utilisation de cardFields au lieu de propertyFields
+    const query = `*[_type == "property"] | order(publicationDate desc) { ${propertyCardFields} }`;
     return client.fetch(query);
   },
 
   async getActive(): Promise<Property[]> {
-    const query = `*[_type == "property" && isHidden != true && status != "Vendu"] | order(publicationDate desc) { ${propertyFields} }`;
+    // Utilisation de cardFields
+    const query = `*[_type == "property" && isHidden != true && status != "Vendu"] | order(publicationDate desc) { ${propertyCardFields} }`;
     return client.fetch(query);
   },
 
   async getSold(): Promise<Property[]> {
-    const query = `*[_type == "property" && status == "Vendu"] | order(publicationDate desc) { ${propertyFields} }`;
+    // Utilisation de cardFields
+    const query = `*[_type == "property" && status == "Vendu"] | order(publicationDate desc) { ${propertyCardFields} }`;
     return client.fetch(query);
   },
 
   async getById(id: string): Promise<Property | null> {
+    // Garde propertyFields (complet) pour le détail
     const query = `*[_type == "property" && _id == $id][0] { ${propertyFields} }`;
     return client.fetch(query, { id });
   },
 
   /**
    * Récupère un bien par sa référence OU son ID.
-   * Cette méthode est sécurisée : elle cherche une correspondance exacte soit avec le champ 'reference',
-   * soit avec le champ système '_id'.
    */
   async getByReference(refOrId: string): Promise<Property | null> {
+    // Garde propertyFields (complet) pour le détail
     const query = `*[_type == "property" && (reference == $ref || _id == $ref)][0] { ${propertyFields} }`;
     return client.fetch(query, { ref: refOrId });
   },
 
   async getByIds(ids: string[]): Promise<Property[]> {
-    const query = `*[_type == "property" && _id in $ids] { ${propertyFields} }`;
+    // Card fields pour les favoris
+    const query = `*[_type == "property" && _id in $ids] { ${propertyCardFields} }`;
     return client.fetch(query, { ids });
   },
   
@@ -69,8 +94,9 @@ export const propertyService = {
 
     const city = property.location.split(',')[0].trim();
     
-    const sameLocationQuery = `*[_type == "property" && _id != $id && location match $city && isHidden != true && status != "Vendu"] | order(publicationDate desc) [0...5] { ${propertyFields} }`;
-    const sameTypeQuery = `*[_type == "property" && _id != $id && type == $type && isHidden != true && status != "Vendu"] | order(publicationDate desc) [0...5] { ${propertyFields} }`;
+    // Card fields pour les suggestions similaires
+    const sameLocationQuery = `*[_type == "property" && _id != $id && location match $city && isHidden != true && status != "Vendu"] | order(publicationDate desc) [0...5] { ${propertyCardFields} }`;
+    const sameTypeQuery = `*[_type == "property" && _id != $id && type == $type && isHidden != true && status != "Vendu"] | order(publicationDate desc) [0...5] { ${propertyCardFields} }`;
 
     const [sameLocation, sameType] = await Promise.all([
       client.fetch(sameLocationQuery, { id: property._id, city: `*${city}*` }),
@@ -87,7 +113,6 @@ export const propertyService = {
       const query = `*[_type == "property" && isHidden != true && status != "Vendu"].location`;
       const locations: string[] = await client.fetch(query);
       
-      // Extraction et déduplication des villes (ex: "Orange, 84100" -> "Orange")
       const uniqueCities = new Set<string>();
       locations.forEach(loc => {
           if (loc) {

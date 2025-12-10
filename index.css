@@ -33,6 +33,11 @@
     margin: 0 !important;
   }
 
+  /* Force la grille à devenir une liste verticale pour éviter les colonnes étroites */
+  .grid {
+    display: block !important;
+  }
+
   /* Forcer l'affichage des images de fond ou couleurs */
   * {
     -webkit-print-color-adjust: exact !important;

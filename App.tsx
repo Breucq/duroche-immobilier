@@ -1,17 +1,9 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Helmet } from 'react-helmet-async';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import PropertiesListPage from './pages/PropertiesListPage';
-import PropertyDetailPage from './pages/PropertyDetailPage';
-import ContactPage from './pages/ContactPage';
-import BlogListPage from './pages/BlogListPage';
-import ArticleDetailPage from './pages/ArticleDetailPage';
-import EstimationPage from './pages/EstimationPage';
-import GenericPage from './pages/GenericPage';
 import { settingsService } from './services/settingsService';
 import { pageService } from './services/pageService';
 import { propertyService } from './services/propertyService';
@@ -19,6 +11,23 @@ import PropertyCard from './components/PropertyCard';
 import { useFavorites } from './context/FavoritesContext';
 import GoogleAnalyticsTracker from './components/GoogleAnalyticsTracker';
 import type { Property } from './types';
+
+// --- Lazy Loading des pages pour optimiser le bundle initial ---
+const HomePage = React.lazy(() => import('./pages/HomePage'));
+const PropertiesListPage = React.lazy(() => import('./pages/PropertiesListPage'));
+const PropertyDetailPage = React.lazy(() => import('./pages/PropertyDetailPage'));
+const ContactPage = React.lazy(() => import('./pages/ContactPage'));
+const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
+const ArticleDetailPage = React.lazy(() => import('./pages/ArticleDetailPage'));
+const EstimationPage = React.lazy(() => import('./pages/EstimationPage'));
+const GenericPage = React.lazy(() => import('./pages/GenericPage'));
+
+// Composant de chargement léger pour le Suspense
+const PageLoader = () => (
+    <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
+    </div>
+);
 
 const FavoritesPage: React.FC = () => {
     const { favoriteIds } = useFavorites();
@@ -34,7 +43,7 @@ const FavoritesPage: React.FC = () => {
         enabled: favoriteIds.length > 0
     });
 
-    if (isLoading) return <div className="text-center py-48">Chargement des favoris...</div>;
+    if (isLoading) return <PageLoader />;
 
     return (
         <div className="bg-background min-h-screen">
@@ -70,7 +79,7 @@ const SoldPropertiesListPage: React.FC = () => {
         queryFn: propertyService.getSold
     });
 
-    if (isLoading) return <div className="text-center py-48">Chargement des biens vendus...</div>;
+    if (isLoading) return <PageLoader />;
 
     return (
         <div className="bg-background min-h-screen">
@@ -185,11 +194,29 @@ const Layout: React.FC = () => {
             
             {settings && <Header settings={settings} dynamicPages={dynamicPages || []} />}
             <main className="flex-grow">
-                <Outlet />
+                {/* Suspense wrap for lazy loaded routes */}
+                <Suspense fallback={<PageLoader />}>
+                    <Outlet />
+                </Suspense>
             </main>
             {settings && <Footer settings={settings} dynamicPages={dynamicPages || []} />}
         </div>
     );
+};
+
+// Wrapper pour récupérer la page dynamique via le slug
+const GenericPageWrapper: React.FC = () => {
+    const location = useLocation();
+    const slug = location.pathname.substring(1);
+    const { data: page, isLoading } = useQuery({
+        queryKey: ['page', slug],
+        queryFn: () => pageService.getBySlug(slug),
+        retry: false
+    });
+
+    if (isLoading) return <PageLoader />;
+    if (!page) return <div className="py-48 text-center">Page introuvable (404)</div>;
+    return <GenericPage page={page} />;
 };
 
 
@@ -214,21 +241,6 @@ const App: React.FC = () => {
             </Route>
         </Routes>
     );
-};
-
-// Wrapper pour récupérer la page dynamique via le slug
-const GenericPageWrapper: React.FC = () => {
-    const location = useLocation();
-    const slug = location.pathname.substring(1);
-    const { data: page, isLoading } = useQuery({
-        queryKey: ['page', slug],
-        queryFn: () => pageService.getBySlug(slug),
-        retry: false
-    });
-
-    if (isLoading) return <div className="py-48 text-center">Chargement...</div>;
-    if (!page) return <div className="py-48 text-center">Page introuvable (404)</div>;
-    return <GenericPage page={page} />;
 };
 
 export default App;
