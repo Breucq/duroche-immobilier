@@ -26,6 +26,7 @@ const HeartIconOutline = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns=
     <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
 </svg> );
 const PhoneIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg> );
+const PrinterIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6.72 13.829c-.24.03-.48.062-.72.096m.72-.096a42.415 42.415 0 0110.56 0m-10.56 0L6.34 18m10.94-4.171c.24.03.48.062.72.096m-.72-.096L17.66 18m0 0l.229 2.523a1.125 1.125 0 01-1.12 1.227H7.231c-.662 0-1.18-.568-1.12-1.227L6.34 18m11.318 0h1.091A2.25 2.25 0 0021 15.75V9.456c0-1.081-.768-2.015-1.837-2.175a48.055 48.055 0 00-1.913-.247M6.34 18H5.25A2.25 2.25 0 013 15.75V9.456c0-1.081.768-2.015 1.837-2.175a48.041 48.041 0 011.913-.247m10.5 0a48.536 48.536 0 00-10.5 0m10.5 0V3.375c0-.621-.504-1.125-1.125-1.125h-8.25c-.621 0-1.125.504-1.125 1.125v3.659M18 10.5h.008v.008H18V10.5zm-3 0h.008v.008H15V10.5z" /></svg> );
 
 interface PropertySliderProps { title: string; properties: Property[]; seeAllLink: string; seeAllText: string; setCurrentPage: (page: string) => void; className?: string; }
 const PropertySlider: React.FC<PropertySliderProps> = ({ title, properties, seeAllLink, seeAllText, setCurrentPage, className }) => {
@@ -34,7 +35,7 @@ const PropertySlider: React.FC<PropertySliderProps> = ({ title, properties, seeA
   const scroll = (direction: 'left' | 'right') => { if (scrollContainerRef.current) { const { clientWidth } = scrollContainerRef.current; scrollContainerRef.current.scrollBy({ left: direction === 'left' ? -clientWidth : clientWidth, behavior: 'smooth' }); } };
   const scrollbarHideStyle = `.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`;
   return (
-    <section className={`py-16 ${className}`}>
+    <section className={`py-16 ${className} print-hidden`}>
       <style>{scrollbarHideStyle}</style>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-12">
@@ -54,7 +55,7 @@ const PropertySlider: React.FC<PropertySliderProps> = ({ title, properties, seeA
 };
 
 
-const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={className}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2">{title}</h2> <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed">{children}</div> </div> );
+const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={`${className} print:break-inside-avoid`}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2">{title}</h2> <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed">{children}</div> </div> );
 const KeyFeature: React.FC<{ icon: React.ReactNode, label: string, value: string | number }> = ({ icon, label, value }) => ( <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-sm border border-border-color/80"> <div className="text-accent mb-2">{icon}</div> <p className="text-xl sm:text-2xl font-bold font-heading text-primary-text">{value}</p> <p className="text-sm text-secondary-text">{label}</p> </div> );
 const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({title, items}) => { if (!items || items.length === 0) return null; return ( <div> <h4 className="text-md font-semibold text-primary-text mb-3">{title}</h4> <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-secondary-text"> {items.map((char, index) => ( <li key={index} className="flex items-center"> <CharacteristicIcon characteristic={char} className="w-5 h-5 text-accent mr-3 flex-shrink-0" /> <span>{char}</span> </li> ))} </ul> </div> ); };
 
@@ -110,46 +111,28 @@ const PropertyDetailPage: React.FC = () => {
         return ( <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center min-h-screen flex flex-col justify-center items-center"> <h1 className="text-3xl font-bold font-heading text-primary-text">Bien non trouvé</h1> <p className="mt-4 text-secondary-text">Le bien que vous cherchez n'existe pas ou a été retiré.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-8 inline-block px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark"> Retour à la liste des biens </button> </div> );
     }
     
-    // SEO Data Calculation - CUSTOM LOGIC FOR SOCIAL SHARING
+    // SEO Data Calculation
     const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
     const city = property.location.split(',')[0].trim();
     
-    // 1. Calcul des atouts majeurs (Piscine, Jardin, Garage)
+    // SEO Logic omitted for brevity (same as before)
     const keyAmenities: string[] = [];
     const allCharacteristics = [
         ...(property.characteristics?.exterior || []),
         ...(property.characteristics?.general || []),
         ...(property.characteristics?.land || [])
     ];
-    
     if (allCharacteristics.some(c => c.toLowerCase().includes('piscine'))) keyAmenities.push('Piscine');
     if (allCharacteristics.some(c => c.toLowerCase().includes('jardin'))) keyAmenities.push('Jardin');
     if (allCharacteristics.some(c => c.toLowerCase().includes('garage'))) keyAmenities.push('Garage');
-    
-    // Formatage des atouts avec des tirets
     const amenitiesString = keyAmenities.length > 0 ? ` - ${keyAmenities.join(' - ')}` : '';
-    
-    // 2. Format du Titre: "Type à Ville - Surface - Chambres - Atouts"
     const seoTitle = `${property.type} à ${city}${property.area ? ` - ${property.area}m²` : ''}${property.bedrooms ? ` - ${property.bedrooms} chambres` : ''}${amenitiesString}`;
-    
-    // 3. Format de la Description: Début de la description (tronqué ~160 chars)
     const cleanDescription = property.description ? property.description.replace(/\s+/g, ' ').trim() : '';
-    const seoDescription = cleanDescription.length > 160 
-        ? cleanDescription.substring(0, 157) + '...' 
-        : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
-
+    const seoDescription = cleanDescription.length > 160 ? cleanDescription.substring(0, 157) + '...' : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
-    
-    // --- SMART SHARE LINK ---
-    // Au lieu de l'URL directe, on génère un lien vers notre API proxy de partage.
-    // L'identifiant (ID ou Référence) est passé en paramètre.
     const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
     const shareRef = hasCleanRef ? property.reference : property._id;
-    
-    // URL optimisée pour le partage Facebook
     const smartShareUrl = `https://www.duroche.fr/api/share?ref=${shareRef}`;
-
-    // URL canonique pour Google (on garde l'URL "propre" pour le référencement)
     const canonicalUrl = window.location.href;
 
     const isFavorite = favoriteIds.includes(property._id);
@@ -180,18 +163,11 @@ const PropertyDetailPage: React.FC = () => {
                 <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
                 <link rel="canonical" href={canonicalUrl} />
-                
-                {/* 
-                   Note : Les balises meta Open Graph ci-dessous sont utiles si l'utilisateur copie le lien 
-                   depuis la barre d'adresse, mais Facebook risque de les ignorer sans Prerender.io.
-                   Le bouton "Partager" utilisera lui l'URL "smartShareUrl" qui fonctionne à 100%.
-                */}
                 <meta property="og:type" content="website" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
-                
                 <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:url" content={canonicalUrl} />
                 <meta property="twitter:title" content={seoTitle} />
@@ -201,13 +177,29 @@ const PropertyDetailPage: React.FC = () => {
 
             <style>{scrollbarHideStyle}</style>
             
-            {/* Ajout d'un padding-bottom extra sur mobile pour ne pas cacher le contenu sous la barre fixe */}
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16">
-                {/* Header, Gallery, Content... */}
-                 <div className="mb-8"><div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-y-4"><div><div className="flex flex-wrap items-center gap-2 mb-2"><span className="inline-block bg-accent/10 text-accent text-sm font-semibold px-3 py-1.5 rounded-full">{property.type}</span>{statusInfo && <span className={`inline-block text-sm px-3 py-1.5 rounded-full ${statusInfo.className}`}>{statusInfo.text}</span>}</div><h1 className="text-4xl md:text-5xl font-bold font-heading text-primary-text">{property.type} à {property.location}</h1>{property.reference && <p className="text-sm text-secondary-text mt-1">Référence : {property.reference}</p>}</div><div className="text-left sm:text-right flex-shrink-0"><p className="text-3xl md:text-4xl font-bold font-heading text-accent">{formattedPrice}</p>{formattedPricePerSqM && <p className="text-lg text-secondary-text mt-1">{formattedPricePerSqM}</p>}</div></div></div>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16 print:py-0 print:pt-4">
+                 <div className="mb-8">
+                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-y-4">
+                         <div>
+                             <div className="flex flex-wrap items-center gap-2 mb-2">
+                                 <span className="inline-block bg-accent/10 text-accent text-sm font-semibold px-3 py-1.5 rounded-full print:bg-transparent print:text-black print:border print:border-gray-300 print:px-0 print:py-0">{property.type}</span>
+                                 {statusInfo && <span className={`inline-block text-sm px-3 py-1.5 rounded-full ${statusInfo.className} print:hidden`}>{statusInfo.text}</span>}
+                             </div>
+                             <h1 className="text-4xl md:text-5xl font-bold font-heading text-primary-text print:text-3xl">{property.type} à {property.location}</h1>
+                             {property.reference && <p className="text-sm text-secondary-text mt-1">Référence : {property.reference}</p>}
+                         </div>
+                         <div className="text-left sm:text-right flex-shrink-0">
+                             <p className="text-3xl md:text-4xl font-bold font-heading text-accent print:text-black">{formattedPrice}</p>
+                             {formattedPricePerSqM && <p className="text-lg text-secondary-text mt-1">{formattedPricePerSqM}</p>}
+                         </div>
+                     </div>
+                 </div>
+
+                 {/* Galerie d'images */}
                  {imageUrls && imageUrls.length > 0 && ( 
                     <> 
-                        <div className="md:hidden mt-6"> 
+                        <div className="md:hidden mt-6 print:hidden"> 
+                            {/* ... Mobile Gallery ... */}
                             <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide"> 
                                 {imageUrls.map((imgUrl, index) => ( 
                                     <div key={index} className="snap-center w-full flex-shrink-0 aspect-video relative group"> 
@@ -220,7 +212,9 @@ const PropertyDetailPage: React.FC = () => {
                             </div> 
                             {imageUrls.length > 1 && <div className="text-center mt-2 text-sm text-secondary-text">Faites glisser pour voir plus de photos</div>} 
                         </div> 
-                        <div className="hidden mt-6 md:grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[550px] rounded-xl overflow-hidden shadow-lg"> 
+
+                        <div className="hidden mt-6 md:grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[550px] rounded-xl overflow-hidden shadow-lg print:hidden"> 
+                             {/* ... Desktop Gallery ... */}
                             <div className="md:col-span-2 md:row-span-2"> 
                                 <button onClick={() => openLightbox(0)} className="w-full h-full block group relative"> 
                                     <ImageWithSkeleton src={imageUrls[0]} alt="Vue principale" className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
@@ -235,15 +229,85 @@ const PropertyDetailPage: React.FC = () => {
                                 </div> 
                             ))} 
                         </div> 
+                        
+                        {/* Image unique pour l'impression */}
+                        <div className="hidden print:block mb-8">
+                            <img src={imageUrls[0]} alt="Vue principale" className="w-full h-auto rounded-lg max-h-[400px] object-cover" />
+                        </div>
                     </> 
                 )}
-                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 mt-12"> <div className="lg:col-span-3 space-y-12"> <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} </div> {property.virtualTourUrl && <div className="text-center"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} <Section title="Description"><p className="whitespace-pre-line">{property.description}</p></Section> {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} {property.financials && <Section title="Informations financières"> <ul className="list-none p-0 space-y-2"> <li><strong>Prix :</strong> {formattedPrice}</li> <li><strong>Honoraires :</strong> {property.financials.agencyFees}</li> {property.financials.propertyTax && <li><strong>Taxe Foncière :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.propertyTax)} / an</li>} {property.financials.condoFees && <li><strong>Charges de copropriété :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.condoFees)} / mois</li>} </ul> </Section>} {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} {(property.dpe || property.ges) && <Section title="Performances énergétiques"> <div className="space-y-4"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} {property.risks && <Section title="Les risques sur ce bien"><p>{property.risks}</p></Section>} <MortgageSimulator price={property.price} /> </div> <div className="lg:col-span-2"> 
-                    {/* Sidebar "Contact Card" - Uniquement Sticky sur Desktop (lg), Relative sur Mobile pour éviter l'overlap */}
-                    <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80"> <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> <div className="pb-6 border-b border-border-color"> <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> </div> {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} <div className="my-6"> <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> </div> </div> </div> </div>
+
+                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 mt-12"> 
+                    <div className="lg:col-span-3 space-y-12"> 
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4"> {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} </div> 
+                        {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
+                        
+                        <Section title="Description"><p className="whitespace-pre-line">{property.description}</p></Section> 
+                        
+                        {/* SECTION CARTE : Nouveauté */}
+                        <Section title="Localisation" className="print:break-inside-avoid">
+                            <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden border border-border-color">
+                                 <iframe
+                                    width="100%"
+                                    height="100%"
+                                    frameBorder="0"
+                                    scrolling="no"
+                                    marginHeight={0}
+                                    marginWidth={0}
+                                    src={`https://maps.google.com/maps?q=${encodeURIComponent(property.location)}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                                    title={`Carte de situation : ${property.location}`}
+                                 ></iframe>
+                            </div>
+                        </Section>
+
+                        {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} 
+                        {property.financials && <Section title="Informations financières"> <ul className="list-none p-0 space-y-2"> <li><strong>Prix :</strong> {formattedPrice}</li> <li><strong>Honoraires :</strong> {property.financials.agencyFees}</li> {property.financials.propertyTax && <li><strong>Taxe Foncière :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.propertyTax)} / an</li>} {property.financials.condoFees && <li><strong>Charges de copropriété :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.condoFees)} / mois</li>} </ul> </Section>} 
+                        {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} 
+                        {(property.dpe || property.ges) && <Section title="Performances énergétiques"> <div className="space-y-4"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} 
+                        {property.risks && <Section title="Les risques sur ce bien"><p>{property.risks}</p></Section>} 
+                        <MortgageSimulator price={property.price} /> 
+                    </div> 
+                    
+                    <div className="lg:col-span-2"> 
+                        {/* Sidebar "Contact Card" - Uniquement Sticky sur Desktop (lg), Relative sur Mobile */}
+                        <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80 print:border-none print:shadow-none print:p-0"> 
+                            <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 print:hidden" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> 
+                            <div className="pb-6 border-b border-border-color"> 
+                                <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> 
+                                <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> 
+                            </div> 
+                            
+                            {/* Affichage conditionnel pour l'impression */}
+                            <div className="hidden print:block mt-6">
+                                <h3 className="text-xl font-heading font-semibold text-primary-text mb-2">Contact Agence</h3>
+                                <p><strong>Duroche Immobilier</strong></p>
+                                <p>123 Rue de la République, 84100 Orange</p>
+                                <p>Tél: 07 56 87 47 88</p>
+                                <p>Email: contact@duroche.fr</p>
+                                <p className="mt-4 text-sm text-gray-500">Référence du bien : {property.reference}</p>
+                            </div>
+
+                            {/* Contenu Interactif (Masqué à l'impression) */}
+                            <div className="print:hidden">
+                                {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} 
+                                <div className="my-6"> 
+                                    <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> 
+                                    <button 
+                                        onClick={() => window.print()}
+                                        className="flex items-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors"
+                                    >
+                                        <PrinterIcon className="w-5 h-5" />
+                                        <span className="underline">Imprimer la fiche</span>
+                                    </button>
+                                </div> 
+                            </div>
+                        </div> 
+                    </div> 
+                </div>
             </div>
 
             {/* BARRE FIXE MOBILE : Uniquement visible sur mobile (lg:hidden) */}
-            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-color p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 lg:hidden flex items-center justify-between gap-3 safe-area-bottom">
+            <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-color p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 lg:hidden flex items-center justify-between gap-3 safe-area-bottom print:hidden">
                  <div className="flex flex-col">
                     <span className="text-xs text-secondary-text">Prix</span>
                     <span className="text-lg font-bold font-heading text-accent">{formattedPrice}</span>
@@ -258,10 +322,10 @@ const PropertyDetailPage: React.FC = () => {
                  </div>
             </div>
 
-            <PropertySlider title={`Nos biens à ${city}`} properties={similarProperties.sameLocation} seeAllLink={`/properties?location=${encodeURIComponent(city)}`} seeAllText={`Découvrir tous nos biens à ${city}`} setCurrentPage={setCurrentPage} className="bg-background" />
-            <PropertySlider title={`Nos ${pluralType} à vendre`} properties={similarProperties.sameType} seeAllLink={`/properties?type=${encodeURIComponent(property.type)}`} seeAllText={`Découvrir tous nos ${pluralType}`} setCurrentPage={setCurrentPage} className="bg-background-alt" />
+            <PropertySlider title={`Nos biens à ${city}`} properties={similarProperties.sameLocation} seeAllLink={`/properties?location=${encodeURIComponent(city)}`} seeAllText={`Découvrir tous nos biens à ${city}`} setCurrentPage={setCurrentPage} className="bg-background print:hidden" />
+            <PropertySlider title={`Nos ${pluralType} à vendre`} properties={similarProperties.sameType} seeAllLink={`/properties?type=${encodeURIComponent(property.type)}`} seeAllText={`Découvrir tous nos ${pluralType}`} setCurrentPage={setCurrentPage} className="bg-background-alt print:hidden" />
 
-            {isLightboxOpen && ( <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50" onClick={closeLightbox}> <div className="relative w-full h-full max-w-6xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}> <img src={imageUrls[currentImageIndex]} alt={`Vue ${currentImageIndex + 1} du bien à ${property.location}`} className="w-full h-full object-contain" /> <button onClick={closeLightbox} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><CloseIcon className="w-8 h-8"/></button> {imageUrls.length > 1 && ( <> <button onClick={showPrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronLeftIcon className="w-8 h-8"/></button> <button onClick={showNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronRightIcon className="w-8 h-8"/></button> </> )} <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/50 rounded-full px-4 py-1 text-sm">{currentImageIndex + 1} / {imageUrls.length}</div> </div> </div> )}
+            {isLightboxOpen && ( <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 print:hidden" onClick={closeLightbox}> <div className="relative w-full h-full max-w-6xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}> <img src={imageUrls[currentImageIndex]} alt={`Vue ${currentImageIndex + 1} du bien à ${property.location}`} className="w-full h-full object-contain" /> <button onClick={closeLightbox} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><CloseIcon className="w-8 h-8"/></button> {imageUrls.length > 1 && ( <> <button onClick={showPrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronLeftIcon className="w-8 h-8"/></button> <button onClick={showNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronRightIcon className="w-8 h-8"/></button> </> )} <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/50 rounded-full px-4 py-1 text-sm">{currentImageIndex + 1} / {imageUrls.length}</div> </div> </div> )}
         </div>
     );
 };

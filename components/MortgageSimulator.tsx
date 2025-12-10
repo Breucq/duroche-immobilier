@@ -5,6 +5,7 @@ interface MortgageSimulatorProps {
 }
 
 const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
+    // Initialisation avec des valeurs par défaut logiques
     const [amount, setAmount] = useState(price);
     const [contribution, setContribution] = useState(0);
     const [duration, setDuration] = useState(25);
@@ -16,10 +17,6 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
 
     useEffect(() => {
         // Formule : M = P * [r(1+r)^n] / [(1+r)^n – 1]
-        // P = Montant emprunté (Prix - Apport)
-        // r = Taux mensuel (Taux annuel / 12 / 100)
-        // n = Nombre de mensualités (Années * 12)
-        
         const principal = Math.max(0, amount - contribution);
         
         if (principal === 0) {
@@ -39,8 +36,11 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
 
     }, [amount, contribution, duration, rate]);
 
+    // Slider CSS classes
+    const sliderClass = "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent hover:accent-accent-dark transition-all mt-2";
+
     return (
-        <div className="bg-background-alt p-6 rounded-xl border border-border-color/50 mt-8">
+        <div className="bg-background-alt p-6 rounded-xl border border-border-color/50 mt-8 print:break-inside-avoid">
             <h3 className="text-xl font-heading font-bold text-primary-text mb-6 flex items-center">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 7h6m0 36v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -49,9 +49,12 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
             </h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div>
-                        <label className="block text-sm font-medium text-secondary-text mb-1">Montant du bien</label>
+                        <div className="flex justify-between items-baseline mb-1">
+                            <label className="text-sm font-medium text-secondary-text">Montant du bien</label>
+                            <span className="text-sm font-bold text-primary-text">{formatCurrency(amount)}</span>
+                        </div>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -61,10 +64,22 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-text">€</span>
                         </div>
+                        <input 
+                            type="range" 
+                            min="50000" 
+                            max="2000000" 
+                            step="1000" 
+                            value={amount} 
+                            onChange={(e) => setAmount(Number(e.target.value))} 
+                            className={sliderClass} 
+                        />
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-secondary-text mb-1">Votre apport</label>
+                        <div className="flex justify-between items-baseline mb-1">
+                            <label className="text-sm font-medium text-secondary-text">Votre apport</label>
+                            <span className="text-sm font-bold text-primary-text">{formatCurrency(contribution)}</span>
+                        </div>
                         <div className="relative">
                             <input 
                                 type="number" 
@@ -74,24 +89,42 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                             />
                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-text">€</span>
                         </div>
+                        <input 
+                            type="range" 
+                            min="0" 
+                            max={amount} 
+                            step="1000" 
+                            value={contribution} 
+                            onChange={(e) => setContribution(Number(e.target.value))} 
+                            className={sliderClass} 
+                        />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-secondary-text mb-1">Durée</label>
+                            <label className="block text-sm font-medium text-secondary-text mb-1">Durée (années)</label>
                             <div className="relative">
                                 <select 
                                     value={duration} 
                                     onChange={(e) => setDuration(Number(e.target.value))}
-                                    className="w-full px-4 py-2 border border-border-color rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none appearance-none"
+                                    className="w-full px-4 py-2 border border-border-color rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none appearance-none bg-white"
                                 >
-                                    {[10, 15, 20, 25, 30].map(y => <option key={y} value={y}>{y} ans</option>)}
+                                    {[7, 10, 15, 20, 25, 30].map(y => <option key={y} value={y}>{y} ans</option>)}
                                 </select>
-                                <span className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none">▼</span>
+                                <span className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none text-xs">▼</span>
                             </div>
+                            <input 
+                                type="range" 
+                                min="7" 
+                                max="30" 
+                                step="1" 
+                                value={duration} 
+                                onChange={(e) => setDuration(Number(e.target.value))} 
+                                className={sliderClass} 
+                            />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-secondary-text mb-1">Taux</label>
+                            <label className="block text-sm font-medium text-secondary-text mb-1">Taux (%)</label>
                             <div className="relative">
                                 <input 
                                     type="number" 
@@ -100,18 +133,37 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                                     onChange={(e) => setRate(Number(e.target.value))}
                                     className="w-full px-4 py-2 border border-border-color rounded-lg focus:ring-2 focus:ring-accent focus:border-accent outline-none"
                                 />
-                                <span className="absolute right-4 top-1/2 -translate-y-1/2 text-secondary-text">%</span>
                             </div>
+                             <input 
+                                type="range" 
+                                min="0" 
+                                max="10" 
+                                step="0.05" 
+                                value={rate} 
+                                onChange={(e) => setRate(Number(e.target.value))} 
+                                className={sliderClass} 
+                            />
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-white p-6 rounded-lg border border-border-color flex flex-col justify-center items-center text-center">
+                <div className="bg-white p-6 rounded-lg border border-border-color flex flex-col justify-center items-center text-center shadow-sm">
                     <p className="text-secondary-text mb-2">Mensualité estimée (hors assurance)</p>
                     <p className="text-4xl font-bold font-heading text-accent mb-2">
                         {formatCurrency(monthlyPayment)}<span className="text-lg text-secondary-text font-normal"> /mois</span>
                     </p>
-                    <p className="text-xs text-secondary-text mt-4 bg-gray-50 p-2 rounded">
+                    <div className="w-full h-px bg-border-color my-4"></div>
+                    <div className="text-sm text-secondary-text space-y-1 w-full text-left px-4">
+                         <div className="flex justify-between">
+                            <span>Montant emprunté :</span>
+                            <span className="font-semibold">{formatCurrency(amount - contribution)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                            <span>Coût total du crédit :</span>
+                            <span className="font-semibold">{formatCurrency((monthlyPayment * duration * 12) - (amount - contribution))}</span>
+                        </div>
+                    </div>
+                    <p className="text-xs text-secondary-text mt-6 bg-gray-50 p-2 rounded w-full">
                         *Cette simulation est non contractuelle et donnée à titre indicatif. Taux estimatif moyen sur {duration} ans.
                     </p>
                 </div>

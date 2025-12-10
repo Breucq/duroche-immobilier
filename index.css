@@ -1,3 +1,60 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Styles pour l'impression de la fiche bien */
+@media print {
+  @page {
+    margin: 1.5cm;
+    size: A4;
+  }
+  
+  /* Masquer les éléments de navigation et interactifs */
+  header, 
+  footer, 
+  .fixed, /* Barre mobile */
+  .print-hidden, /* Classe utilitaire pour cacher des éléments spécifiques */
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background-color: white !important;
+    color: black !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Ajustements de mise en page pour le papier */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Forcer l'affichage des images de fond ou couleurs */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  /* Éviter de couper les sections au milieu */
+  section, .card {
+    break-inside: avoid;
+  }
+}
+
+/* Style personnalisé pour les sliders du simulateur */
+input[type=range] {
+  -webkit-appearance: none; 
+  background: transparent; 
+}
+
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+}
+
+input[type=range]:focus {
+  outline: none;
+}
