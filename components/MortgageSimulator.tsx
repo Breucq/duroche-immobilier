@@ -36,8 +36,8 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
 
     }, [amount, contribution, duration, rate]);
 
-    // Slider CSS classes
-    const sliderClass = "w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-accent hover:accent-accent-dark transition-all mt-2";
+    // Slider CSS classes - Simplifié car le style est géré dans index.css
+    const sliderClass = "w-full mt-3 cursor-pointer";
 
     return (
         <div className="bg-background-alt p-6 rounded-xl border border-border-color/50 mt-8 print:break-inside-avoid">
@@ -80,7 +80,7 @@ const MortgageSimulator: React.FC<MortgageSimulatorProps> = ({ price }) => {
                             <label className="text-sm font-medium text-secondary-text">Votre apport</label>
                             <span className="text-sm font-bold text-primary-text">{formatCurrency(contribution)}</span>
                         </div>
-                        {/* Champ numérique supprimé, seul le slider reste */}
+                        {/* Slider Apport de 0 à Montant du bien */}
                         <input 
                             type="range" 
                             min="0" 
