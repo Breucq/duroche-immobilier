@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface ShareButtonsProps {
   shareUrl: string;
@@ -32,6 +32,18 @@ const MailIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
+const LinkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+    </svg>
+);
+
+const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+    </svg>
+);
+
 const ShareButton: React.FC<{ href: string, children: React.ReactNode, label: string, className: string }> = ({ href, children, label, className }) => (
     <a
         href={href}
@@ -45,9 +57,10 @@ const ShareButton: React.FC<{ href: string, children: React.ReactNode, label: st
 );
 
 /**
- * Composant affichant une série de boutons de partage pour les réseaux sociaux et l'e-mail.
+ * Composant affichant une série de boutons de partage pour les réseaux sociaux, l'e-mail et la copie de lien.
  */
 const ShareButtons: React.FC<ShareButtonsProps> = ({ shareUrl, title, heading, className }) => {
+    const [copied, setCopied] = useState(false);
     const encodedUrl = encodeURIComponent(shareUrl);
     const encodedTitle = encodeURIComponent(title);
 
@@ -55,7 +68,17 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ shareUrl, title, heading, c
         facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
         twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
         linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedTitle}`,
-        mail: `mailto:?subject=${encodedTitle}&body=Je pensais que cela pourrait t'intéresser : ${encodedUrl}`,
+        mail: `mailto:?subject=${encodedTitle}&body=Je pensais que cela pourrait t'intéresser : ${shareUrl}`,
+    };
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy', err);
+        }
     };
 
     return (
@@ -74,6 +97,14 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ shareUrl, title, heading, c
                 <ShareButton href={shareLinks.mail} label="E-mail" className="bg-secondary">
                     <MailIcon className="w-5 h-5" />
                 </ShareButton>
+                <button
+                    onClick={handleCopy}
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white transition-all hover:opacity-80 bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                    aria-label="Copier le lien"
+                    title="Copier le lien optimisé"
+                >
+                    {copied ? <CheckIcon className="w-5 h-5" /> : <LinkIcon className="w-5 h-5" />}
+                </button>
             </div>
         </div>
     );
