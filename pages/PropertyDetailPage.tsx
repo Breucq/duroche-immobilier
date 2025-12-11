@@ -310,11 +310,11 @@ const PropertyDetailPage: React.FC = () => {
                         {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
                         
                         {/* Wrapper spécial impression 2 colonnes */}
-                        <div className="print:grid print:grid-cols-2 print:gap-8">
+                        <div className="print:grid print:grid-cols-2 print:gap-8 space-y-12 print:space-y-0">
                             <div className="print:col-span-1">
                                 <Section title="Description"><p className="whitespace-pre-line text-justify">{property.description}</p></Section> 
                             </div>
-                            <div className="print:col-span-1 print:space-y-4">
+                            <div className="print:col-span-1 space-y-12 print:space-y-4">
                                 <Section title="Détails techniques">
                                     <ul className="list-none p-0 space-y-2 text-sm text-secondary-text">
                                         {property.details?.heating && (
