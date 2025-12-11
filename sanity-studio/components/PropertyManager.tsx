@@ -291,17 +291,18 @@ export default function PropertyManager() {
               </Grid>
 
               {/* Rows */}
-              <Stack space={0} dividers>
+              <Stack space={0}>
                 {filteredProperties.map((p) => (
                   <Grid
                     key={p._id}
                     columns={[6, 6, 12]}
                     gap={2}
                     padding={3}
-                    align="center"
                     style={{
                       background: selectedIds.has(p._id) ? '#f0f9ff' : 'white',
                       opacity: p.isHidden ? 0.6 : 1,
+                      alignItems: 'center',
+                      borderBottom: '1px solid #e0e0e0'
                     }}
                   >
                     <Box columnStart={1} columnEnd={2}>
