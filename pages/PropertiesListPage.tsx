@@ -229,7 +229,8 @@ const PropertiesListPage: React.FC = () => {
                      <Link to="/nos-biens-vendus" className="mt-4 inline-block text-sm font-medium text-accent hover:text-accent-dark transition-colors"> Voir nos biens récemment vendus &rarr; </Link>
                 </header>
                 
-                <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl mb-12 border border-border-color/50">
+                {/* Modification ici : ajout de z-30 et relative pour gérer le z-index du dropdown */}
+                <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl mb-12 border border-border-color/50 relative z-30">
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                         <div className="relative" ref={wrapperRef}>
                             <label htmlFor="search" className="block text-sm font-medium text-primary-text mb-1">Ville / Localisation</label>
