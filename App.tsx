@@ -135,7 +135,8 @@ const Layout: React.FC = () => {
 
     // Default SEO data
     const defaultTitle = settings?.title || 'Duroche Immobilier';
-    const defaultDescription = settings?.description || 'Agence immobilière experte du Vaucluse Nord.';
+    // Changement ici : Remplacement de "Agence immobilière" par "Expert de l'immobilier"
+    const defaultDescription = settings?.description || 'Expert de l\'immobilier dans le Vaucluse Nord.';
     const defaultKeywords = 'immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse';
     
     // Determine dynamic page SEO if applicable (for pages handled via :slug that aren't specialized routes)
