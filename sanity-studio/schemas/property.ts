@@ -69,7 +69,15 @@ export default {
     // --- Ligne 3 : Surfaces ---
     {
       name: 'area',
-      title: 'Surface (m²)',
+      title: 'Surface Habitable (m²)',
+      type: 'number',
+      validation: (Rule: any) => Rule.min(0),
+      group: 'main',
+    },
+    {
+      name: 'landArea',
+      title: 'Surface Terrain (m²)',
+      description: "Pour les maisons et terrains. Laisser vide pour les appartements sans jardin.",
       type: 'number',
       validation: (Rule: any) => Rule.min(0),
       group: 'main',
@@ -149,9 +157,21 @@ export default {
         },
         {
           name: 'heating',
-          title: 'Chauffage',
-          type: 'string',
-          options: {list: ['Gaz', 'Électrique', 'Fioul', 'Pompe à chaleur', 'Aucun']},
+          title: 'Chauffage / Climatisation',
+          type: 'array',
+          of: [{type: 'string'}],
+          options: {
+            list: [
+              {title: 'Pompe à chaleur', value: 'Pompe à chaleur'},
+              {title: 'Climatisation', value: 'Climatisation'},
+              {title: 'Électrique', value: 'Électrique'},
+              {title: 'Gaz', value: 'Gaz'},
+              {title: 'Fioul', value: 'Fioul'},
+              {title: 'Bois / Granulés', value: 'Bois'},
+              {title: 'Solaire', value: 'Solaire'},
+              {title: 'Aucun', value: 'Aucun'}
+            ]
+          },
         },
         {name: 'levels', title: 'Niveaux', type: 'number'},
         {

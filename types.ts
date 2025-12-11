@@ -27,6 +27,7 @@ export interface Property {
   bathrooms: number;
   rooms: number;
   area: number;
+  landArea?: number; // Surface du terrain
   description: string;
   virtualTourUrl?: string;
   
@@ -36,7 +37,7 @@ export interface Property {
   details?: {
     yearBuilt: number;
     condition: 'À rénover' | 'Bon état' | 'Excellent état' | 'Neuf';
-    heating: 'Gaz' | 'Électrique' | 'Fioul' | 'Pompe à chaleur' | 'Aucun';
+    heating: string[]; // Modifié pour accepter plusieurs valeurs
     levels: number;
     availability: string;
   };

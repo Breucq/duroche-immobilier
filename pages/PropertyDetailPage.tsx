@@ -16,6 +16,7 @@ import ImageWithSkeleton from '../components/ImageWithSkeleton';
 const IconRooms = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg> );
 const IconBed = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg> );
 const IconArea = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg> );
+const IconLand = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg> );
 const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> );
 const ChevronLeftIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg> );
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg> );
@@ -157,6 +158,14 @@ const PropertyDetailPage: React.FC = () => {
     
     const scrollbarHideStyle = `.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`;
 
+    // Helper pour afficher le chauffage qui peut être un tableau ou une string (rétrocompatibilité)
+    const renderHeating = (heating: string | string[]) => {
+        if (Array.isArray(heating)) {
+            return heating.join(', ');
+        }
+        return heating;
+    };
+
     return (
         <div className="bg-background relative">
             <Helmet>
@@ -293,8 +302,9 @@ const PropertyDetailPage: React.FC = () => {
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-4 print:mb-8"> 
                             {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} 
                             {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} 
-                            {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Surface" value={`${property.area} m²`} />} 
-                            {property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} 
+                            {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Habitable" value={`${property.area} m²`} />} 
+                            {property.landArea > 0 && <KeyFeature icon={<IconLand className="w-8 h-8"/>} label="Terrain" value={`${property.landArea} m²`} />}
+                            {!property.landArea && property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} 
                         </div> 
                         
                         {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
@@ -305,6 +315,35 @@ const PropertyDetailPage: React.FC = () => {
                                 <Section title="Description"><p className="whitespace-pre-line text-justify">{property.description}</p></Section> 
                             </div>
                             <div className="print:col-span-1 print:space-y-4">
+                                <Section title="Détails techniques">
+                                    <ul className="list-none p-0 space-y-2 text-sm text-secondary-text">
+                                        {property.details?.heating && (
+                                            <li className="flex items-start">
+                                                <strong className="min-w-[120px] font-semibold text-primary-text">Chauffage :</strong> 
+                                                <span>{renderHeating(property.details.heating)}</span>
+                                            </li>
+                                        )}
+                                        {property.details?.condition && (
+                                            <li className="flex items-start">
+                                                <strong className="min-w-[120px] font-semibold text-primary-text">État :</strong> 
+                                                <span>{property.details.condition}</span>
+                                            </li>
+                                        )}
+                                        {property.details?.yearBuilt && property.details.yearBuilt > 0 && (
+                                            <li className="flex items-start">
+                                                <strong className="min-w-[120px] font-semibold text-primary-text">Année :</strong> 
+                                                <span>{property.details.yearBuilt}</span>
+                                            </li>
+                                        )}
+                                        {property.details?.levels && property.details.levels > 0 && (
+                                            <li className="flex items-start">
+                                                <strong className="min-w-[120px] font-semibold text-primary-text">Niveaux :</strong> 
+                                                <span>{property.details.levels}</span>
+                                            </li>
+                                        )}
+                                    </ul>
+                                </Section>
+
                                 {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6 print:space-y-4"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} 
                                 {(property.dpe || property.ges) && <Section title="Performances"> <div className="space-y-4 print:space-y-2"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} 
                             </div>

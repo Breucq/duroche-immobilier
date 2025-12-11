@@ -80,6 +80,11 @@ export default async function handler(request, response) {
     const surfaceMatch = bodyText.match(/([0-9]+)\s?m²(?!\s?terrain)/i); // m² mais pas "m² terrain"
     if (surfaceMatch) surface = parseInt(surfaceMatch[1], 10);
 
+    // Extraction de la surface du terrain
+    let landArea = 0;
+    const landMatch = bodyText.match(/(?:terrain|parcelle|jardin)\s?(?:de|clos|arboré)?\s?([0-9\s]+)\s?m²/i);
+    if (landMatch) landArea = parseInt(landMatch[1].replace(/\s/g, ''), 10);
+
     let rooms = 0;
     const roomsMatch = bodyText.match(/([0-9]+)\s?pièce/i);
     if (roomsMatch) rooms = parseInt(roomsMatch[1], 10);
@@ -106,6 +111,7 @@ export default async function handler(request, response) {
       reference,
       images: [...new Set(images)].slice(0, 10), // Limite à 10 images uniques
       surface,
+      landArea,
       rooms,
       bedrooms,
       location: location || 'Vaucluse',
