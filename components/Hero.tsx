@@ -33,7 +33,8 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
           {buttonText}
         </button>
       </div>
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform translate-y-1/2 w-11/12 max-w-6xl px-4 sm:px-0">
+      {/* Ajout de z-20 pour que la searchbar passe au-dessus des sections suivantes */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform translate-y-1/2 w-11/12 max-w-6xl px-4 sm:px-0 z-20">
         <SearchBar setCurrentPage={setCurrentPage} />
       </div>
     </section>

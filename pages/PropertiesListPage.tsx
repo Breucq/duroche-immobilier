@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
@@ -9,7 +9,7 @@ import type { Property } from '../types';
 const LocationIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg> );
 const PropertyTypeIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> );
 const PriceIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg> );
-const BedroomsIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg> );
+const BedroomsIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg> );
 const AreaIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg> );
 const CheckmarkIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> );
 
@@ -77,13 +77,43 @@ const PropertiesListPage: React.FC = () => {
     const [sortBy, setSortBy] = useState('date_desc');
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
     
+    // State for location dropdown
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+
+    // Filtrer les suggestions en fonction de la saisie
+    const filteredLocations = useMemo(() => availableLocations?.filter(city => 
+        city.toLowerCase().includes(locationFilter.toLowerCase())
+    ) || [], [availableLocations, locationFilter]);
+
+    // Fermer les suggestions si on clique en dehors
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, [wrapperRef]);
+    
     const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = e.target; setAmenities(prev => ({ ...prev, [name]: checked })); };
+    
     const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
         const value = e.target.value; 
         setLocationFilter(value);
+        setShowSuggestions(true);
         // Update URL params
         const newParams = new URLSearchParams(searchParams);
         if(value) newParams.set('location', value); else newParams.delete('location');
+        setSearchParams(newParams);
+    };
+
+    const selectLocation = (city: string) => {
+        setLocationFilter(city);
+        setShowSuggestions(false);
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('location', city);
         setSearchParams(newParams);
     };
 
@@ -155,7 +185,7 @@ const PropertiesListPage: React.FC = () => {
     };
 
     const inputGroupClass = "relative flex items-center w-full";
-    const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none";
+    const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none z-10";
     const inputClass = "w-full pl-10 pr-3 py-3 text-primary-text bg-background-alt border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
 
     return (
@@ -201,7 +231,7 @@ const PropertiesListPage: React.FC = () => {
                 
                 <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl mb-12 border border-border-color/50">
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                        <div className="relative">
+                        <div className="relative" ref={wrapperRef}>
                             <label htmlFor="search" className="block text-sm font-medium text-primary-text mb-1">Ville / Localisation</label>
                             <div className={inputGroupClass}>
                                 <LocationIcon className={iconClass} />
@@ -209,19 +239,32 @@ const PropertiesListPage: React.FC = () => {
                                     type="text"
                                     id="search" 
                                     name="search" 
-                                    list="locations-list"
                                     className={inputClass} 
                                     value={locationFilter} 
                                     onChange={handleLocationChange}
+                                    onFocus={() => setShowSuggestions(true)}
                                     placeholder="Ville (ex: Orange)"
                                     autoComplete="off"
                                 />
-                                <datalist id="locations-list">
-                                    {availableLocations?.map(city => (
-                                        <option key={city} value={city} />
-                                    ))}
-                                </datalist>
                             </div>
+                            {/* Liste de suggestions personnalisée */}
+                            {showSuggestions && filteredLocations.length > 0 && (
+                                <ul className="absolute z-[100] left-0 right-0 mt-1 bg-white border border-border-color rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                                    {filteredLocations.map((city) => (
+                                        <li 
+                                            key={city}
+                                            onClick={() => selectLocation(city)}
+                                            className="px-4 py-2 hover:bg-background-alt cursor-pointer text-sm text-primary-text transition-colors flex items-center"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            </svg>
+                                            {city}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
                         </div>
                         <div> <label htmlFor="property-type" className="block text-sm font-medium text-primary-text mb-1">Type de bien</label> <div className={inputGroupClass}> <PropertyTypeIcon className={iconClass} /> <select id="property-type" name="property-type" value={propertyType} onChange={e => setPropertyType(e.target.value)} className={inputClass}><option value="all">Tous</option><option value="Maison">Maison</option><option value="Appartement">Appartement</option><option value="Terrain">Terrain</option><option value="Autre">Autre</option></select> </div> </div>
                          <div> <label htmlFor="price" className="block text-sm font-medium text-primary-text mb-1">Budget Max.</label> <div className={inputGroupClass}> <PriceIcon className={iconClass} /> <input type="number" name="price" id="price" placeholder="ex: 500000" value={maxPrice} onChange={e => setMaxPrice(e.target.value)} className={inputClass} /> </div> </div>

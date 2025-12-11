@@ -104,7 +104,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
           
           {/* Liste de suggestions personnalisée */}
           {showSuggestions && filteredLocations.length > 0 && (
-            <ul className="absolute z-50 left-0 right-0 mt-1 bg-white border border-border-color rounded-lg shadow-xl max-h-60 overflow-y-auto">
+            <ul className="absolute z-[100] left-0 right-0 mt-1 bg-white border border-border-color rounded-lg shadow-xl max-h-60 overflow-y-auto">
               {filteredLocations.map((city) => (
                 <li 
                   key={city}
