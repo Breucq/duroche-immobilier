@@ -1,8 +1,10 @@
 import {defineConfig} from 'sanity'
-import {deskTool} from 'sanity/desk'
+import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
 import {schemaTypes} from './schemas'
 import ImportTool from './components/ImportTool'
+import PropertyManager from './components/PropertyManager'
+import {HomeIcon, UlistIcon, DownloadIcon} from '@sanity/icons'
 
 // Helper function to create singleton document structure
 const singletonListItem = (S: any, typeName: string, title: string) =>
@@ -19,7 +21,8 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
-    deskTool({
+    structureTool({
+      title: 'Contenu',
       structure: (S) =>
         S.list()
           .title('Contenu')
@@ -43,8 +46,15 @@ export default defineConfig({
     return [
       ...prev,
       {
+        name: 'property-manager',
+        title: 'Gestion des Biens',
+        icon: UlistIcon,
+        component: PropertyManager,
+      },
+      {
         name: 'import-tool',
-        title: 'Importer un bien',
+        title: 'Importer (CSV/URL)',
+        icon: DownloadIcon,
         component: ImportTool,
       },
     ]
