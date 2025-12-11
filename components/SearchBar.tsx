@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
 
@@ -8,17 +8,45 @@ interface SearchBarProps {
 
 /**
  * Barre de recherche de biens immobiliers.
- * Permet de filtrer par type de bien et par localisation (champ libre avec autocomplétion).
+ * Permet de filtrer par type de bien et par localisation (champ libre avec autocomplétion stylisée).
  */
 const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
   const [type, setType] = useState('Maison');
   const [location, setLocation] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Récupération dynamique des villes disponibles pour l'autocomplétion
   const { data: availableLocations } = useQuery({
       queryKey: ['availableLocations'],
       queryFn: propertyService.getUniqueLocations
   });
+
+  // Filtrer les suggestions en fonction de la saisie
+  const filteredLocations = availableLocations?.filter(city => 
+    city.toLowerCase().includes(location.toLowerCase())
+  ) || [];
+
+  // Fermer les suggestions si on clique en dehors
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [wrapperRef]);
+
+  const handleLocationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLocation(e.target.value);
+    setShowSuggestions(true);
+  };
+
+  const selectLocation = (city: string) => {
+    setLocation(city);
+    setShowSuggestions(false);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,10 +56,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
 
     const queryString = params.toString();
     setCurrentPage(`/properties${queryString ? `?${queryString}` : ''}`);
+    setShowSuggestions(false);
   };
   
   const inputGroupClass = "relative flex items-center w-full";
-  const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none";
+  const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none z-10";
   const inputClass = "w-full pl-10 pr-3 py-2 text-primary-text bg-background-alt/50 border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
 
   return (
@@ -53,7 +82,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
           </div>
         </div>
         
-        <div>
+        <div className="relative" ref={wrapperRef}>
           <label htmlFor="location" className="sr-only">Localisation</label>
           <div className={inputGroupClass}>
             <svg xmlns="http://www.w3.org/2000/svg" className={iconClass} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -64,19 +93,33 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
                 type="text"
                 id="location" 
                 name="location" 
-                list="locations-list"
                 className={inputClass} 
                 value={location} 
-                onChange={e => setLocation(e.target.value)}
+                onChange={handleLocationChange}
+                onFocus={() => setShowSuggestions(true)}
                 placeholder="Ville (ex: Orange)"
                 autoComplete="off"
             />
-            <datalist id="locations-list">
-                {availableLocations?.map(city => (
-                    <option key={city} value={city} />
-                ))}
-            </datalist>
           </div>
+          
+          {/* Liste de suggestions personnalisée */}
+          {showSuggestions && filteredLocations.length > 0 && (
+            <ul className="absolute z-50 left-0 right-0 mt-1 bg-white border border-border-color rounded-lg shadow-xl max-h-60 overflow-y-auto">
+              {filteredLocations.map((city) => (
+                <li 
+                  key={city}
+                  onClick={() => selectLocation(city)}
+                  className="px-4 py-2 hover:bg-background-alt cursor-pointer text-sm text-primary-text transition-colors flex items-center"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         
         <div className="sm:col-span-2 lg:col-span-1">

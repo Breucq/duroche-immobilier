@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { PortableText, PortableTextComponents } from '@portabletext/react';
 import { propertyService } from '../services/propertyService';
 import DPEChart from '../components/DPEChart';
 import CharacteristicIcon from '../components/CharacteristicIcon';
@@ -116,7 +117,16 @@ const PropertyDetailPage: React.FC = () => {
     const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
     const city = property.location.split(',')[0].trim();
     
-    // SEO Logic omitted for brevity (same as before)
+    // Helper pour la description texte simple
+    const getPlainDescription = (desc: string | any[]) => {
+        if (Array.isArray(desc)) {
+            // C'est du Portable Text, on ne l'utilise pas pour les meta tags ici (ou on devrait le parser)
+            // Pour l'instant on met un fallback simple
+            return `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
+        }
+        return desc ? desc.replace(/\s+/g, ' ').trim() : '';
+    };
+
     const keyAmenities: string[] = [];
     const allCharacteristics = [
         ...(property.characteristics?.exterior || []),
@@ -128,8 +138,10 @@ const PropertyDetailPage: React.FC = () => {
     if (allCharacteristics.some(c => c.toLowerCase().includes('garage'))) keyAmenities.push('Garage');
     const amenitiesString = keyAmenities.length > 0 ? ` - ${keyAmenities.join(' - ')}` : '';
     const seoTitle = `${property.type} à ${city}${property.area ? ` - ${property.area}m²` : ''}${property.bedrooms ? ` - ${property.bedrooms} chambres` : ''}${amenitiesString}`;
-    const cleanDescription = property.description ? property.description.replace(/\s+/g, ' ').trim() : '';
-    const seoDescription = cleanDescription.length > 160 ? cleanDescription.substring(0, 157) + '...' : cleanDescription || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
+    
+    const plainDesc = getPlainDescription(property.description);
+    const seoDescription = plainDesc.length > 160 ? plainDesc.substring(0, 157) + '...' : plainDesc || `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
+    
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
     const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
     const shareRef = hasCleanRef ? property.reference : property._id;
@@ -164,6 +176,15 @@ const PropertyDetailPage: React.FC = () => {
             return heating.join(', ');
         }
         return heating;
+    };
+
+    const portableTextComponents: PortableTextComponents = {
+        block: {
+            normal: ({ children }) => <p className="mb-4 text-justify whitespace-pre-line">{children}</p>,
+        },
+        marks: {
+            strong: ({ children }) => <strong className="font-bold text-primary-text">{children}</strong>,
+        }
     };
 
     return (
@@ -312,7 +333,13 @@ const PropertyDetailPage: React.FC = () => {
                         {/* Wrapper spécial impression 2 colonnes */}
                         <div className="print:grid print:grid-cols-2 print:gap-8 space-y-12 print:space-y-0">
                             <div className="print:col-span-1">
-                                <Section title="Description"><p className="whitespace-pre-line text-justify">{property.description}</p></Section> 
+                                <Section title="Description">
+                                    {Array.isArray(property.description) ? (
+                                        <PortableText value={property.description} components={portableTextComponents} />
+                                    ) : (
+                                        <p className="whitespace-pre-line text-justify">{property.description}</p>
+                                    )}
+                                </Section> 
                             </div>
                             <div className="print:col-span-1 space-y-12 print:space-y-4">
                                 <Section title="Détails techniques">

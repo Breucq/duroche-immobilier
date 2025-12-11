@@ -105,8 +105,9 @@ export default {
     {
       name: 'description',
       title: 'Description commerciale',
-      type: 'text',
-      rows: 10,
+      type: 'array', 
+      of: [{type: 'block'}], // Permet le texte riche (Gras, Italique, Listes)
+      description: "Utilisez les outils de formatage pour mettre du texte en gras ou créer des paragraphes.",
       validation: (Rule: any) => Rule.required(),
       group: 'main',
     },

@@ -28,7 +28,7 @@ export interface Property {
   rooms: number;
   area: number;
   landArea?: number; // Surface du terrain
-  description: string;
+  description: string | any[]; // String (Legacy) ou PortableText Array
   virtualTourUrl?: string;
   
   status?: 'Disponible' | 'Nouveautés' | 'Sous offre' | 'Vendu';
