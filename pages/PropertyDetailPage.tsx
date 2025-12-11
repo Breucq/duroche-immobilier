@@ -187,6 +187,9 @@ const PropertyDetailPage: React.FC = () => {
         }
     };
 
+    // SEO Helper pour les alts d'images
+    const getImageAlt = (index: number) => `${property.type} à vendre à ${property.location} - Vue ${index + 1} - ${formattedPrice}`;
+
     return (
         <div className="bg-background relative">
             <Helmet>
@@ -279,7 +282,7 @@ const PropertyDetailPage: React.FC = () => {
                             <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide"> 
                                 {imageUrls.map((imgUrl, index) => ( 
                                     <div key={index} className="snap-center w-full flex-shrink-0 aspect-video relative group"> 
-                                        <ImageWithSkeleton src={imgUrl} alt={`Vue ${index + 1}`} className="w-full h-full" onClick={() => openLightbox(index)} />
+                                        <ImageWithSkeleton src={imgUrl} alt={getImageAlt(index)} className="w-full h-full" onClick={() => openLightbox(index)} />
                                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => openLightbox(index)}> 
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg> 
                                         </div> 
@@ -293,13 +296,13 @@ const PropertyDetailPage: React.FC = () => {
                              {/* ... Desktop Gallery ... */}
                             <div className="md:col-span-2 md:row-span-2"> 
                                 <button onClick={() => openLightbox(0)} className="w-full h-full block group relative"> 
-                                    <ImageWithSkeleton src={imageUrls[0]} alt="Vue principale" className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                                    <ImageWithSkeleton src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
                                 </button> 
                             </div> 
                             {otherImages.map((imgUrl, index) => ( 
                                 <div key={index} className="hidden md:block"> 
                                     <button onClick={() => openLightbox(index + 1)} className="w-full h-full block group relative"> 
-                                        <ImageWithSkeleton src={imgUrl} alt={`Vue ${index + 2}`} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                                        <ImageWithSkeleton src={imgUrl} alt={getImageAlt(index + 1)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
                                         {index === 3 && imageUrls.length > 5 && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-lg font-bold cursor-pointer">+{imageUrls.length - 5}</div>} 
                                     </button> 
                                 </div> 
@@ -308,7 +311,7 @@ const PropertyDetailPage: React.FC = () => {
                         
                         {/* Image unique pour l'impression (prend toute la largeur) */}
                         <div className="hidden print:block mb-8 w-full">
-                            <img src={imageUrls[0]} alt="Vue principale" className="w-full h-96 object-cover rounded-lg" />
+                            <img src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-96 object-cover rounded-lg" />
                         </div>
                     </> 
                 )}
@@ -447,7 +450,7 @@ const PropertyDetailPage: React.FC = () => {
             <PropertySlider title={`Nos biens à ${city}`} properties={similarProperties.sameLocation} seeAllLink={`/properties?location=${encodeURIComponent(city)}`} seeAllText={`Découvrir tous nos biens à ${city}`} setCurrentPage={setCurrentPage} className="bg-background print:hidden" />
             <PropertySlider title={`Nos ${pluralType} à vendre`} properties={similarProperties.sameType} seeAllLink={`/properties?type=${encodeURIComponent(property.type)}`} seeAllText={`Découvrir tous nos ${pluralType}`} setCurrentPage={setCurrentPage} className="bg-background-alt print:hidden" />
 
-            {isLightboxOpen && ( <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 print:hidden" onClick={closeLightbox}> <div className="relative w-full h-full max-w-6xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}> <img src={imageUrls[currentImageIndex]} alt={`Vue ${currentImageIndex + 1} du bien à ${property.location}`} className="w-full h-full object-contain" /> <button onClick={closeLightbox} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><CloseIcon className="w-8 h-8"/></button> {imageUrls.length > 1 && ( <> <button onClick={showPrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronLeftIcon className="w-8 h-8"/></button> <button onClick={showNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronRightIcon className="w-8 h-8"/></button> </> )} <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/50 rounded-full px-4 py-1 text-sm">{currentImageIndex + 1} / {imageUrls.length}</div> </div> </div> )}
+            {isLightboxOpen && ( <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 print:hidden" onClick={closeLightbox}> <div className="relative w-full h-full max-w-6xl max-h-[90vh]" onClick={(e) => e.stopPropagation()}> <img src={imageUrls[currentImageIndex]} alt={getImageAlt(currentImageIndex)} className="w-full h-full object-contain" /> <button onClick={closeLightbox} className="absolute top-4 right-4 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><CloseIcon className="w-8 h-8"/></button> {imageUrls.length > 1 && ( <> <button onClick={showPrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronLeftIcon className="w-8 h-8"/></button> <button onClick={showNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black/50 rounded-full p-2 hover:bg-black/75 focus:outline-none"><ChevronRightIcon className="w-8 h-8"/></button> </> )} <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white bg-black/50 rounded-full px-4 py-1 text-sm">{currentImageIndex + 1} / {imageUrls.length}</div> </div> </div> )}
         </div>
     );
 };

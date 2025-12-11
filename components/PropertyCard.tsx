@@ -53,21 +53,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
 
-  // SÉCURITÉ : On utilise la référence SEULEMENT si elle est "propre" (alphanumérique, tirets, underscores).
-  // Si elle contient des espaces ou caractères spéciaux qui pourraient casser l'URL ou le routing, on utilise l'ID.
-  // Cela garantit que le lien est toujours valide.
+  // SÉCURITÉ : On utilise la référence SEULEMENT si elle est "propre"
   const hasCleanReference = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
-  
-  const linkIdentifier = hasCleanReference
-      ? property.reference 
-      : property._id;
-  
+  const linkIdentifier = hasCleanReference ? property.reference : property._id;
   const detailPath = `/properties/${linkIdentifier}`;
   
   const isFavorite = favoriteIds.includes(property._id);
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
-      e.preventDefault(); // Prevents navigation when clicking the heart
+      e.preventDefault(); 
       e.stopPropagation();
       toggleFavorite(property._id);
   };
@@ -86,6 +80,9 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
   const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
 
+  // SEO: Alt text dynamique
+  const altText = `${property.type} à vendre à ${property.location} - ${formattedPrice} - Vue ${currentImageIndex + 1}`;
+
   return (
     <Link 
       to={detailPath}
@@ -102,7 +99,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           >
             {imageUrls.map((imgUrl, index) => (
                 <div key={index} className="w-full h-full flex-shrink-0">
-                    <ImageWithSkeleton src={imgUrl} alt={`Vue ${index + 1}`} className="w-full h-full" />
+                    <ImageWithSkeleton src={imgUrl} alt={altText} className="w-full h-full" />
                 </div>
             ))}
         </div>

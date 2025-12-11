@@ -10,7 +10,7 @@ const LocationIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="htt
 const PropertyTypeIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg> );
 const PriceIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg> );
 const BedroomsIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg> );
-const AreaIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg> );
+const AreaIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" /></svg> );
 const CheckmarkIcon = (props: React.SVGProps<SVGSVGElement>) => ( <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg> );
 
 interface CustomCheckboxProps { id: string; name: string; label: string; checked: boolean; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; }
@@ -76,6 +76,10 @@ const PropertiesListPage: React.FC = () => {
     const [amenities, setAmenities] = useState({ pool: false, garden: false, garage: false, terrace: false, cellar: false });
     const [sortBy, setSortBy] = useState('date_desc');
     const [isAlertModalOpen, setIsAlertModalOpen] = useState(false);
+
+    // Pagination State
+    const [currentPage, setCurrentPage] = useState(1);
+    const ITEMS_PER_PAGE = 12;
     
     // State for location dropdown
     const [showSuggestions, setShowSuggestions] = useState(false);
@@ -96,6 +100,16 @@ const PropertiesListPage: React.FC = () => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [wrapperRef]);
+
+    // Reset pagination when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities, sortBy]);
+
+    // Scroll to top when page changes
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, [currentPage]);
     
     const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = e.target; setAmenities(prev => ({ ...prev, [name]: checked })); };
     
@@ -139,6 +153,15 @@ const PropertiesListPage: React.FC = () => {
             case 'date_desc': default: return results.sort((a, b) => new Date(b._createdAt).getTime() - new Date(a._createdAt).getTime());
         }
     }, [properties, locationFilter, propertyType, maxPrice, bedrooms, minArea, amenities, sortBy]);
+
+    // Pagination calculations
+    const totalItems = filteredProperties.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    
+    const displayedProperties = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return filteredProperties.slice(start, start + ITEMS_PER_PAGE);
+    }, [filteredProperties, currentPage]);
     
     const getCriteriaSummary = () => { 
         const parts = []; 
@@ -187,6 +210,68 @@ const PropertiesListPage: React.FC = () => {
     const inputGroupClass = "relative flex items-center w-full";
     const iconClass = "absolute left-3 w-5 h-5 text-secondary pointer-events-none z-10";
     const inputClass = "w-full pl-10 pr-3 py-3 text-primary-text bg-background-alt border border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-accent focus:bg-white transition-colors appearance-none";
+
+    const renderPagination = () => {
+        if (totalPages <= 1) return null;
+
+        let pageNumbers: (number | string)[] = [];
+        
+        if (totalPages <= 7) {
+             pageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1);
+        } else {
+             if (currentPage <= 4) {
+                 pageNumbers = [1, 2, 3, 4, 5, '...', totalPages];
+             } else if (currentPage >= totalPages - 3) {
+                 pageNumbers = [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+             } else {
+                 pageNumbers = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+             }
+        }
+
+        return (
+            <div className="mt-16 flex justify-center items-center space-x-2 print:hidden">
+                <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className="p-2 border border-border-color rounded-lg text-primary-text hover:bg-background-alt disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Page précédente"
+                >
+                     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                </button>
+                
+                {pageNumbers.map((page, index) => (
+                    typeof page === 'number' ? (
+                        <button
+                            key={index}
+                            onClick={() => setCurrentPage(page)}
+                            className={`w-10 h-10 flex items-center justify-center rounded-lg border font-medium transition-colors ${
+                                currentPage === page
+                                    ? 'bg-accent border-accent text-white shadow-md'
+                                    : 'border-border-color text-primary-text hover:bg-background-alt hover:border-accent'
+                            }`}
+                        >
+                            {page}
+                        </button>
+                    ) : (
+                        <span key={index} className="px-2 text-secondary-text font-medium">...</span>
+                    )
+                ))}
+
+                <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className="p-2 border border-border-color rounded-lg text-primary-text hover:bg-background-alt disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    aria-label="Page suivante"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        );
+    };
 
     return (
         <div className="bg-background min-h-screen">
@@ -283,7 +368,9 @@ const PropertiesListPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-                    <p className="text-secondary-text font-medium">{filteredProperties.length} bien{filteredProperties.length > 1 ? 's' : ''} trouvé{filteredProperties.length > 1 ? 's' : ''}</p>
+                    <p className="text-secondary-text font-medium">
+                        {filteredProperties.length} bien{filteredProperties.length > 1 ? 's' : ''} trouvé{filteredProperties.length > 1 ? 's' : ''}
+                    </p>
                     <div className="flex items-center gap-4 w-full sm:w-auto">
                         <button onClick={() => setIsAlertModalOpen(true)} className="flex-grow sm:flex-grow-0 inline-flex items-center justify-center px-4 py-2 border border-accent text-sm font-medium rounded-lg text-accent bg-white hover:bg-accent/10 transition-colors"> <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg> Créer une alerte </button>
                         <select value={sortBy} onChange={e => setSortBy(e.target.value)} className="flex-grow sm:flex-grow-0 px-4 py-2 text-sm font-medium rounded-lg text-primary-text bg-white border border-border-color focus:ring-1 focus:ring-accent focus:border-accent"> <option value="date_desc">Trier par : Plus récent</option> <option value="price_asc">Trier par : Prix croissant</option> <option value="price_desc">Trier par : Prix décroissant</option> </select>
@@ -293,11 +380,14 @@ const PropertiesListPage: React.FC = () => {
                 {isLoading ? (
                     <div className="text-center py-16">Chargement des biens...</div>
                 ) : filteredProperties.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {filteredProperties.map((property) => (
-                            <PropertyCard key={property._id} property={property} />
-                        ))}
-                    </div>
+                    <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                            {displayedProperties.map((property) => (
+                                <PropertyCard key={property._id} property={property} />
+                            ))}
+                        </div>
+                        {renderPagination()}
+                    </>
                 ) : (
                     <div className="text-center py-16">
                         <h2 className="text-2xl font-semibold text-primary-text">Aucun bien ne correspond à vos critères</h2>
