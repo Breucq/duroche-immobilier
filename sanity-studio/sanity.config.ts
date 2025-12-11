@@ -1,6 +1,7 @@
 import {defineConfig} from 'sanity'
 import {structureTool} from 'sanity/structure'
 import {visionTool} from '@sanity/vision'
+import {media} from 'sanity-plugin-media'
 import {schemaTypes} from './schemas'
 import ImportTool from './components/ImportTool'
 import PropertyManager from './components/PropertyManager'
@@ -39,6 +40,7 @@ export default defineConfig({
             S.documentTypeListItem('page').title('Pages'),
           ]),
     }),
+    media(), // Plugin Médiathèque pour upload multiple
     visionTool(),
   ],
 

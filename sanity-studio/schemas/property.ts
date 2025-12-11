@@ -3,45 +3,43 @@ export default {
   title: 'Biens Immobiliers',
   type: 'document',
   groups: [
-    {name: 'main', title: 'Informations Principales', default: true},
+    {name: 'main', title: 'Infos Principales', default: true},
+    {name: 'media', title: 'Photos & Visite'},
     {name: 'advanced', title: 'Détails & Diagnostics'},
     {name: 'legal', title: 'Finances & Légal'},
   ],
   fields: [
-    {
-      name: 'publicationDate',
-      title: 'Date de Publication',
-      type: 'datetime',
-      initialValue: new Date().toISOString(),
-      validation: (Rule: any) => Rule.required(),
-      group: 'main',
-    },
+    // --- Ligne 1 : Identification rapide ---
     {
       name: 'reference',
       title: 'Référence',
       type: 'string',
       group: 'main',
+      validation: (Rule: any) => Rule.required(),
     },
     {
-      name: 'image',
-      title: 'Image Principale',
-      type: 'image',
-      options: {hotspot: true},
+      name: 'status',
+      title: 'Statut du mandat',
+      type: 'string',
+      options: {
+        list: ['Disponible', 'Nouveautés', 'Sous offre', 'Vendu'],
+        layout: 'radio',
+        direction: 'horizontal',
+      },
+      initialValue: 'Disponible',
       validation: (Rule: any) => Rule.required(),
       group: 'main',
     },
     {
-      name: 'images',
-      title: 'Images Supplémentaires',
-      type: 'array',
-      description:
-        "Vous pouvez glisser-déposer plusieurs images à la fois, ou en sélectionner plusieurs lors de l'upload.",
-      options: {
-        layout: 'grid',
-      },
-      of: [{type: 'image', options: {hotspot: true}}],
+      name: 'isHidden',
+      title: 'Cacher le bien (Brouillon)',
+      description: "Si coché, le bien ne sera pas visible sur le site public.",
+      type: 'boolean',
+      initialValue: false,
       group: 'main',
     },
+
+    // --- Ligne 2 : Caractéristiques clés ---
     {
       name: 'type',
       title: 'Type de bien',
@@ -54,19 +52,21 @@ export default {
     },
     {
       name: 'price',
-      title: 'Prix',
+      title: 'Prix (€)',
       type: 'number',
       validation: (Rule: any) => Rule.required().positive(),
       group: 'main',
     },
     {
       name: 'location',
-      title: 'Localisation',
+      title: 'Localisation (Ville)',
       type: 'string',
-      description: 'Ex: "Caderousse, 84860"',
+      description: 'Ex: "Orange", "Caderousse, 84860"',
       validation: (Rule: any) => Rule.required(),
       group: 'main',
     },
+
+    // --- Ligne 3 : Surfaces ---
     {
       name: 'area',
       title: 'Surface (m²)',
@@ -76,66 +76,71 @@ export default {
     },
     {
       name: 'rooms',
-      title: 'Nombre de pièces',
+      title: 'Pièces',
       type: 'number',
-      validation: (Rule: any) => Rule.min(0).integer(),
       group: 'main',
     },
     {
       name: 'bedrooms',
-      title: 'Nombre de chambres',
+      title: 'Chambres',
       type: 'number',
-      validation: (Rule: any) => Rule.min(0).integer(),
       group: 'main',
     },
     {
       name: 'bathrooms',
-      title: 'Nombre de salles de bain',
+      title: 'Salles de bain',
       type: 'number',
-      validation: (Rule: any) => Rule.min(0).integer(),
-      group: 'main',
-    },
-    {
-      name: 'description',
-      title: 'Description',
-      type: 'text',
-      validation: (Rule: any) => Rule.required(),
-      group: 'main',
-    },
-    {
-      name: 'virtualTourUrl',
-      title: 'URL de la Visite Virtuelle',
-      type: 'url',
-      group: 'main',
-    },
-    {
-      name: 'status',
-      title: 'Statut',
-      type: 'string',
-      options: {
-        list: ['Disponible', 'Nouveautés', 'Sous offre', 'Vendu'],
-        layout: 'radio',
-      },
-      initialValue: 'Disponible',
-      group: 'main',
-    },
-    {
-      name: 'isHidden',
-      title: 'Cacher le bien du site public',
-      type: 'boolean',
-      initialValue: false,
       group: 'main',
     },
 
-    // --- Advanced Details & Diagnostics ---
+    // --- Description ---
+    {
+      name: 'description',
+      title: 'Description commerciale',
+      type: 'text',
+      rows: 10,
+      validation: (Rule: any) => Rule.required(),
+      group: 'main',
+    },
+
+    // --- MEDIA GROUP ---
+    {
+      name: 'image',
+      title: 'Photo de couverture (Principale)',
+      type: 'image',
+      options: {hotspot: true},
+      validation: (Rule: any) => Rule.required(),
+      group: 'media',
+    },
+    {
+      name: 'images',
+      title: 'Galerie photos',
+      type: 'array',
+      description:
+        "Astuce : Cliquez sur 'Select' pour ouvrir la médiathèque et sélectionner PLUSIEURS images d'un coup (Ctrl+Click ou Cmd+Click). Vous pouvez aussi glisser-déposer vos fichiers ici.",
+      options: {
+        layout: 'grid',
+      },
+      of: [{type: 'image', options: {hotspot: true}}],
+      group: 'media',
+    },
+    {
+      name: 'virtualTourUrl',
+      title: 'Lien Visite Virtuelle (Matterport, etc.)',
+      type: 'url',
+      group: 'media',
+    },
+
+
+    // --- Advanced Details ---
     {
       name: 'details',
-      title: 'Détails du bien',
+      title: 'Détails techniques',
       type: 'object',
       group: 'advanced',
       options: {collapsible: true, collapsed: false},
       fields: [
-        {name: 'yearBuilt', title: 'Année de construction', type: 'number', validation: (Rule: any) => Rule.integer()},
+        {name: 'yearBuilt', title: 'Année de construction', type: 'number'},
         {
           name: 'condition',
           title: 'État',
@@ -148,26 +153,25 @@ export default {
           type: 'string',
           options: {list: ['Gaz', 'Électrique', 'Fioul', 'Pompe à chaleur', 'Aucun']},
         },
-        {name: 'levels', title: 'Nombre de niveaux', type: 'number', validation: (Rule: any) => Rule.integer()},
+        {name: 'levels', title: 'Niveaux', type: 'number'},
         {
           name: 'availability',
           title: 'Disponibilité',
           type: 'string',
-          description: 'Ex: "Immédiate", "Loué", "À partir du JJ/MM/AAAA"',
         },
       ],
     },
 
     {
       name: 'dpe',
-      title: 'DPE (Diagnostic de Performance Énergétique)',
+      title: 'Performance Énergétique (DPE)',
       type: 'object',
       group: 'advanced',
-      options: {collapsible: true, collapsed: false},
+      options: {collapsible: true, collapsed: true},
       fields: [
         {
           name: 'class',
-          title: 'Classe',
+          title: 'Classe DPE',
           type: 'string',
           options: {list: ['A', 'B', 'C', 'D', 'E', 'F', 'G']},
         },
@@ -177,14 +181,14 @@ export default {
 
     {
       name: 'ges',
-      title: 'GES (Gaz à Effet de Serre)',
+      title: 'Gaz à Effet de Serre (GES)',
       type: 'object',
       group: 'advanced',
-      options: {collapsible: true, collapsed: false},
+      options: {collapsible: true, collapsed: true},
       fields: [
         {
           name: 'class',
-          title: 'Classe',
+          title: 'Classe GES',
           type: 'string',
           options: {list: ['A', 'B', 'C', 'D', 'E', 'F', 'G']},
         },
@@ -194,9 +198,10 @@ export default {
 
     {
       name: 'characteristics',
-      title: 'Caractéristiques',
+      title: 'Caractéristiques (Tags)',
       type: 'object',
       group: 'advanced',
+      description: "Appuyez sur Entrée après chaque caractéristique.",
       options: {collapsible: true, collapsed: false},
       fields: [
         {name: 'general', title: 'Général', type: 'array', of: [{type: 'string'}], options: {layout: 'tags'}},
@@ -222,7 +227,7 @@ export default {
           name: 'agencyFees',
           title: 'Honoraires',
           type: 'string',
-          description: 'Ex: "À la charge du vendeur"',
+          initialValue: 'À la charge du vendeur',
         },
       ],
     },
@@ -232,7 +237,7 @@ export default {
       title: 'Copropriété',
       type: 'object',
       group: 'legal',
-      options: {collapsible: true, collapsed: false},
+      options: {collapsible: true, collapsed: true},
       fields: [
         {name: 'isCoOwnership', title: 'Le bien est en copropriété', type: 'boolean', initialValue: false},
         {
@@ -253,28 +258,37 @@ export default {
 
     {
       name: 'risks',
-      title: 'Informations sur les risques',
+      title: 'Mentions Légales Risques',
       type: 'text',
       group: 'legal',
-      description:
-        'Ex: "Les informations sur les risques auxquels ce bien est exposé sont disponibles sur le site Géorisques : www.georisques.gouv.fr"',
+      initialValue: 'Les informations sur les risques auxquels ce bien est exposé sont disponibles sur le site Géorisques : www.georisques.gouv.fr',
     },
   ],
   preview: {
     select: {
-      title: 'location',
-      subtitle: 'price',
+      title: 'type',
+      location: 'location',
+      price: 'price',
       media: 'image',
+      status: 'status',
+      isHidden: 'isHidden',
+      ref: 'reference',
     },
-    prepare({title, subtitle, media}: any) {
+    prepare({title, location, price, media, status, isHidden, ref}: any) {
       const formattedPrice = new Intl.NumberFormat('fr-FR', {
         style: 'currency',
         currency: 'EUR',
         minimumFractionDigits: 0,
-      }).format(subtitle)
+      }).format(price)
+
+      let statusEmoji = '🟢' // Disponible
+      if (status === 'Vendu') statusEmoji = '🔴'
+      if (status === 'Sous offre') statusEmoji = '🟠'
+      if (isHidden) statusEmoji = '👻' // Caché
+
       return {
-        title: title || 'Bien non localisé',
-        subtitle: formattedPrice || 'Prix non défini',
+        title: `${statusEmoji} ${title} à ${location}`,
+        subtitle: `${formattedPrice} [Réf: ${ref || '?'}]`,
         media,
       }
     },
