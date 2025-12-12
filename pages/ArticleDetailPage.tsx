@@ -107,11 +107,34 @@ const ArticleDetailPage: React.FC = () => {
         },
     };
 
+    // Schema.org Structured Data (JSON-LD) for Blog Posting
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      "headline": article.title,
+      "image": shareImageUrl ? [shareImageUrl] : [],
+      "datePublished": article.date,
+      "author": {
+        "@type": "Person",
+        "name": article.author
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Duroche Immobilier"
+      },
+      "description": seoDescription,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": pageUrl
+      }
+    };
+
     return (
         <div className="bg-background py-24">
              <Helmet>
                 <title>{seoTitle}</title>
                 <meta name="description" content={seoDescription} />
+                <link rel="canonical" href={pageUrl} />
                 
                 {/* Open Graph / Facebook */}
                 <meta property="og:type" content="article" />
@@ -119,6 +142,8 @@ const ArticleDetailPage: React.FC = () => {
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
+                <meta property="article:published_time" content={article.date} />
+                <meta property="article:author" content={article.author} />
                 
                 {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
@@ -126,6 +151,11 @@ const ArticleDetailPage: React.FC = () => {
                 <meta property="twitter:title" content={seoTitle} />
                 <meta property="twitter:description" content={seoDescription} />
                 <meta property="twitter:image" content={shareImageUrl} />
+
+                {/* Structured Data */}
+                <script type="application/ld+json">
+                    {JSON.stringify(structuredData)}
+                </script>
             </Helmet>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl">

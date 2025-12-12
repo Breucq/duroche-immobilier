@@ -117,12 +117,10 @@ const PropertyDetailPage: React.FC = () => {
     const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
     const city = property.location.split(',')[0].trim();
     
-    // Helper pour la description texte simple
+    // Helper pour la description texte simple sans formatage PortableText
     const getPlainDescription = (desc: string | any[]) => {
         if (Array.isArray(desc)) {
-            // C'est du Portable Text, on ne l'utilise pas pour les meta tags ici (ou on devrait le parser)
-            // Pour l'instant on met un fallback simple
-            return `Découvrez ce bien d'exception à ${property.location} au prix de ${formattedPrice}.`;
+            return desc.map(block => block.children?.map((child: any) => child.text).join('') || '').join(' ');
         }
         return desc ? desc.replace(/\s+/g, ' ').trim() : '';
     };
@@ -190,22 +188,61 @@ const PropertyDetailPage: React.FC = () => {
     // SEO Helper pour les alts d'images
     const getImageAlt = (index: number) => `${property.type} à vendre à ${property.location} - Vue ${index + 1} - ${formattedPrice}`;
 
+    // Schema.org Structured Data (JSON-LD)
+    const schemaImages = allImages.slice(0, 5).map(img => urlFor(img).width(1200).url());
+    const availabilitySchema = property.status === 'Vendu' ? 'https://schema.org/Sold' : 'https://schema.org/InStock';
+    
+    const structuredData = {
+      "@context": "https://schema.org",
+      "@type": ["Product", "RealEstateListing"],
+      "name": seoTitle,
+      "description": seoDescription,
+      "image": schemaImages,
+      "sku": property.reference || property._id,
+      "brand": {
+        "@type": "Organization",
+        "name": "Duroche Immobilier"
+      },
+      "offers": {
+        "@type": "Offer",
+        "url": canonicalUrl,
+        "priceCurrency": "EUR",
+        "price": property.price,
+        "availability": availabilitySchema,
+        "itemCondition": "https://schema.org/UsedCondition"
+      },
+      "category": "Real Estate > " + property.type
+    };
+
     return (
         <div className="bg-background relative">
             <Helmet>
                 <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
                 <link rel="canonical" href={canonicalUrl} />
-                <meta property="og:type" content="website" />
+                
+                {/* Open Graph / Facebook */}
+                <meta property="og:type" content="product" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
+                <meta property="og:price:amount" content={property.price.toString()} />
+                <meta property="og:price:currency" content="EUR" />
+                <meta property="product:price:amount" content={property.price.toString()} />
+                <meta property="product:price:currency" content="EUR" />
+                
+                {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:url" content={canonicalUrl} />
                 <meta property="twitter:title" content={seoTitle} />
                 <meta property="twitter:description" content={seoDescription} />
                 <meta property="twitter:image" content={shareImageUrl} />
+
+                {/* Structured Data */}
+                <script type="application/ld+json">
+                    {JSON.stringify(structuredData)}
+                </script>
             </Helmet>
 
             <style>{scrollbarHideStyle}</style>
