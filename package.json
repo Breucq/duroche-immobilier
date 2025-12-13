@@ -4,8 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "update-favicon": "node scripts/update-favicon.js",
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run update-favicon && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
