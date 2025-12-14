@@ -1,55 +1,76 @@
 import fs from 'fs';
+import path from 'path';
 import axios from 'axios';
+import { fileURLToPath } from 'url';
+
+// Nécessaire pour __dirname en module ES
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Configuration Sanity
 const PROJECT_ID = 'jvrtf17r';
 const DATASET = 'production';
 const DOCUMENT_ID = 'siteSettings';
 
-// Requête pour récupérer l'URL du favicon (optimisée en 128px pour les onglets)
+// On interroge Sanity pour avoir l'URL de base
 const QUERY = encodeURIComponent(`*[_type == "siteSettings" && _id == "${DOCUMENT_ID}"][0]{ "faviconUrl": favicon.asset->url }`);
 const URL = `https://${PROJECT_ID}.api.sanity.io/v2023-05-03/data/query/${DATASET}?query=${QUERY}`;
 
+// Dossier de destination (public/ à la racine pour Vite)
+const PUBLIC_DIR = path.resolve(__dirname, '../public');
+
+async function downloadImage(url, filename) {
+    const filePath = path.join(PUBLIC_DIR, filename);
+    const writer = fs.createWriteStream(filePath);
+
+    const response = await axios({
+        url,
+        method: 'GET',
+        responseType: 'stream'
+    });
+
+    response.data.pipe(writer);
+
+    return new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+    });
+}
+
 async function run() {
   try {
-    console.log('🔄 Récupération du favicon depuis Sanity...');
+    // Création du dossier public s'il n'existe pas
+    if (!fs.existsSync(PUBLIC_DIR)){
+        fs.mkdirSync(PUBLIC_DIR);
+    }
+
+    console.log('🔄 Récupération de la configuration favicon depuis Sanity...');
     const response = await axios.get(URL);
-    
     const faviconUrl = response.data.result?.faviconUrl;
 
     if (faviconUrl) {
-      console.log(`✅ Favicon trouvé : ${faviconUrl}`);
+      console.log(`✅ Image source trouvée : ${faviconUrl}`);
       
-      // On ajoute un paramètre de largeur pour optimiser l'image et s'assurer que c'est un format web standard
-      const optimizedUrl = `${faviconUrl}?w=128&fit=max&auto=format`;
-      
-      let html = fs.readFileSync('index.html', 'utf-8');
-      
-      // Regex pour trouver la balise <link rel="icon" id="favicon-link" ...> et remplacer son href
-      // On cherche l'ID spécifique pour être sûr de ne pas casser autre chose
-      const linkRegex = /(<link[^>]*id="favicon-link"[^>]*href=")([^"]*)("[^>]*>)/;
-      
-      if (linkRegex.test(html)) {
-         // Remplacement de l'URL
-         html = html.replace(linkRegex, `$1${optimizedUrl}$3`);
-         
-         // Nettoyage : si l'ancien favicon était un SVG (type="image/svg+xml"), on enlève cet attribut
-         // car Sanity peut renvoyer un PNG ou JPG.
-         // On remplace simplement type="..." par rien ou par type="image/png" si on veut être strict, 
-         // mais sans type, les navigateurs modernes détectent automatiquement.
-         html = html.replace(/type="image\/svg\+xml"/g, '');
+      // 1. Favicon PNG standard pour Google (Recommandation : multiple de 48px, 192x192 est idéal)
+      console.log('⬇️  Génération de public/favicon.png (192x192)...');
+      await downloadImage(`${faviconUrl}?w=192&h=192&fit=crop&auto=format&fm=png`, 'favicon.png');
 
-         fs.writeFileSync('index.html', html);
-         console.log('✅ index.html mis à jour avec le favicon de Sanity.');
-      } else {
-         console.warn('⚠️ Impossible de trouver la balise <link id="favicon-link"> dans index.html');
-      }
+      // 2. Apple Touch Icon pour iPhone/iPad et certains affichages Google Mobile (180x180)
+      console.log('⬇️  Génération de public/apple-touch-icon.png (180x180)...');
+      await downloadImage(`${faviconUrl}?w=180&h=180&fit=crop&auto=format&fm=png`, 'apple-touch-icon.png');
+      
+      // 3. Favicon.ico pour la compatibilité historique (48x48)
+      // Google cherche souvent ce fichier à la racine par défaut
+      console.log('⬇️  Génération de public/favicon.ico (48x48)...');
+      await downloadImage(`${faviconUrl}?w=48&h=48&fit=crop&auto=format&fm=png`, 'favicon.ico');
+
+      console.log('✅ Tous les favicons ont été générés avec succès.');
     } else {
-      console.log('ℹ️ Aucun favicon configuré dans Sanity (siteSettings). Le favicon par défaut sera utilisé.');
+      console.log('ℹ️  Aucun favicon configuré dans Sanity. Les fichiers existants ou par défaut seront utilisés.');
     }
   } catch (error) {
-    console.error('❌ Erreur lors de la mise à jour du favicon :', error.message);
-    // On ne bloque pas le build pour ça, on laisse l'erreur s'afficher mais le processus continue
+    console.error('❌ Erreur lors de la génération des favicons :', error.message);
+    // On ne bloque pas le build, le site fonctionnera avec les assets précédents s'ils existent
   }
 }
 
