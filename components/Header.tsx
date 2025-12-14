@@ -19,7 +19,8 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
   
   const staticLinks = [
     { name: 'Accueil', path: '/' },
-    { name: 'Nos Biens', path: '/properties' },
+    { name: 'Acheter', path: '/properties' }, // Renommé de "Nos Biens" à "Acheter" pour la clarté
+    { name: 'Vendre', path: '/vendre' },     // Ajout de la page Vendre
   ];
   const navLinks = [...staticLinks, ...dynamicLinks];
   

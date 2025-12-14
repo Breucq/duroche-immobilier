@@ -20,6 +20,7 @@ const ContactPage = React.lazy(() => import('./pages/ContactPage'));
 const BlogListPage = React.lazy(() => import('./pages/BlogListPage'));
 const ArticleDetailPage = React.lazy(() => import('./pages/ArticleDetailPage'));
 const EstimationPage = React.lazy(() => import('./pages/EstimationPage'));
+const SellingPage = React.lazy(() => import('./pages/SellingPage'));
 const GenericPage = React.lazy(() => import('./pages/GenericPage'));
 
 // Composant de chargement léger pour le Suspense
@@ -236,6 +237,7 @@ const App: React.FC = () => {
                 <Route path="contact" element={<ContactPage />} />
                 <Route path="contact/:reference" element={<ContactPage />} />
                 <Route path="estimation" element={<EstimationPage />} />
+                <Route path="vendre" element={<SellingPage />} />
 
                 {/* Route catch-all pour les pages dynamiques */}
                 <Route path=":slug" element={<GenericPageWrapper />} />

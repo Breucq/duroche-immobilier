@@ -67,8 +67,10 @@ const Footer: React.FC<FooterProps> = ({ settings, dynamicPages }) => {
                 <h3 className="text-lg font-heading font-semibold text-white">Liens Rapides</h3>
                 <ul className="mt-2 space-y-1 text-sm">
                     <li><Link to="/" className="hover:text-white">Accueil</Link></li>
-                    <li><Link to="/properties" className="hover:text-white">Nos Biens</Link></li>
-                    <li><Link to="/nos-biens-vendus" className="hover:text-white">Nos Biens Vendus</Link></li>
+                    <li><Link to="/properties" className="hover:text-white">Acheter un bien</Link></li>
+                    <li><Link to="/vendre" className="hover:text-white font-medium text-accent">Vendre un bien</Link></li>
+                    <li><Link to="/estimation" className="hover:text-white">Estimation offerte</Link></li>
+                    <li><Link to="/nos-biens-vendus" className="hover:text-white">Nos Références</Link></li>
                     <li><Link to="/blog" className="hover:text-white">Blog</Link></li>
                     {footerPages.filter(p => p.slug.current !== 'legal-notice').map(page => (
                          <li key={page._id}><Link to={`/${page.slug.current}`} className="hover:text-white">{page.title}</Link></li>
