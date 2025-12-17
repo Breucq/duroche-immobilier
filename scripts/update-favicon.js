@@ -12,8 +12,8 @@ const PROJECT_ID = 'jvrtf17r';
 const DATASET = 'production';
 const DOCUMENT_ID = 'siteSettings';
 
-// On interroge Sanity pour avoir l'URL de base
-const QUERY = encodeURIComponent(`*[_type == "siteSettings" && _id == "${DOCUMENT_ID}"][0]{ "faviconUrl": favicon.asset->url }`);
+// On interroge Sanity pour avoir l'URL de base et le titre du site
+const QUERY = encodeURIComponent(`*[_type == "siteSettings" && _id == "${DOCUMENT_ID}"][0]{ "faviconUrl": favicon.asset->url, title }`);
 const URL = `https://${PROJECT_ID}.api.sanity.io/v2023-05-03/data/query/${DATASET}?query=${QUERY}`;
 
 // Dossier de destination (public/ à la racine pour Vite)
@@ -37,6 +37,32 @@ async function downloadImage(url, filename) {
     });
 }
 
+async function createManifest(siteTitle) {
+    const manifestContent = {
+        name: siteTitle || "Duroche Immobilier",
+        short_name: "Duroche",
+        icons: [
+            {
+                src: "/favicon.png",
+                sizes: "192x192",
+                type: "image/png"
+            },
+            {
+                src: "/apple-touch-icon.png",
+                sizes: "180x180",
+                type: "image/png"
+            }
+        ],
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
+        display: "standalone"
+    };
+
+    const manifestPath = path.join(PUBLIC_DIR, 'site.webmanifest');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifestContent, null, 2));
+    console.log('✅ Fichier site.webmanifest généré.');
+}
+
 async function run() {
   try {
     // Création du dossier public s'il n'existe pas
@@ -46,31 +72,34 @@ async function run() {
 
     console.log('🔄 Récupération de la configuration favicon depuis Sanity...');
     const response = await axios.get(URL);
-    const faviconUrl = response.data.result?.faviconUrl;
+    const result = response.data.result;
+    const faviconUrl = result?.faviconUrl;
+    const siteTitle = result?.title;
 
     if (faviconUrl) {
       console.log(`✅ Image source trouvée : ${faviconUrl}`);
       
-      // 1. Favicon PNG standard pour Google (Recommandation : multiple de 48px, 192x192 est idéal)
+      // 1. Favicon PNG standard pour Google (192x192)
       console.log('⬇️  Génération de public/favicon.png (192x192)...');
       await downloadImage(`${faviconUrl}?w=192&h=192&fit=crop&auto=format&fm=png`, 'favicon.png');
 
-      // 2. Apple Touch Icon pour iPhone/iPad et certains affichages Google Mobile (180x180)
+      // 2. Apple Touch Icon (180x180)
       console.log('⬇️  Génération de public/apple-touch-icon.png (180x180)...');
       await downloadImage(`${faviconUrl}?w=180&h=180&fit=crop&auto=format&fm=png`, 'apple-touch-icon.png');
       
-      // 3. Favicon.ico pour la compatibilité historique (48x48)
-      // Google cherche souvent ce fichier à la racine par défaut
+      // 3. Favicon.ico (48x48)
       console.log('⬇️  Génération de public/favicon.ico (48x48)...');
       await downloadImage(`${faviconUrl}?w=48&h=48&fit=crop&auto=format&fm=png`, 'favicon.ico');
 
-      console.log('✅ Tous les favicons ont été générés avec succès.');
+      // 4. Génération du Manifest
+      await createManifest(siteTitle);
+
+      console.log('✅ Tous les favicons et le manifest ont été générés avec succès.');
     } else {
-      console.log('ℹ️  Aucun favicon configuré dans Sanity. Les fichiers existants ou par défaut seront utilisés.');
+      console.log('ℹ️  Aucun favicon configuré dans Sanity. Les fichiers existants seront utilisés.');
     }
   } catch (error) {
     console.error('❌ Erreur lors de la génération des favicons :', error.message);
-    // On ne bloque pas le build, le site fonctionnera avec les assets précédents s'ils existent
   }
 }
 
