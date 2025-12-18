@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface ShareButtonsProps {
   shareUrl: string;
@@ -26,9 +26,9 @@ const LinkedInIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
-const MailIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+const ShareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} {...props}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
     </svg>
 );
 
@@ -44,31 +44,31 @@ const CheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     </svg>
 );
 
-const ShareButton: React.FC<{ href: string, children: React.ReactNode, label: string, className: string }> = ({ href, children, label, className }) => (
-    <a
-        href={href}
-        target="_blank"
-        rel="noopener noreferrer"
-        aria-label={`Partager sur ${label}`}
-        className={`inline-flex items-center justify-center w-10 h-10 rounded-full text-white transition-opacity hover:opacity-80 ${className}`}
-    >
-        {children}
-    </a>
-);
-
 /**
- * Composant affichant une série de boutons de partage pour les réseaux sociaux, l'e-mail et la copie de lien.
+ * Composant de partage intelligent. 
+ * Utilise l'API Web Share native sur mobile pour forcer l'ouverture des applications.
  */
 const ShareButtons: React.FC<ShareButtonsProps> = ({ shareUrl, title, heading, className }) => {
+    const [canShare, setCanShare] = useState(false);
     const [copied, setCopied] = useState(false);
-    const encodedUrl = encodeURIComponent(shareUrl);
-    const encodedTitle = encodeURIComponent(title);
 
-    const shareLinks = {
-        facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
-        twitter: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`,
-        linkedin: `https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}&summary=${encodedTitle}`,
-        mail: `mailto:?subject=${encodedTitle}&body=Je pensais que cela pourrait t'intéresser : ${shareUrl}`,
+    useEffect(() => {
+        // Vérifie si le partage natif est disponible (Mobile Chrome/Safari)
+        if (navigator.share) {
+            setCanShare(true);
+        }
+    }, []);
+
+    const handleNativeShare = async () => {
+        try {
+            await navigator.share({
+                title: title,
+                text: `Découvrez ce bien chez Duroche Immobilier : ${title}`,
+                url: shareUrl,
+            });
+        } catch (err) {
+            console.log('Partage annulé ou erreur:', err);
+        }
     };
 
     const handleCopy = async () => {
@@ -81,27 +81,58 @@ const ShareButtons: React.FC<ShareButtonsProps> = ({ shareUrl, title, heading, c
         }
     };
 
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedTitle = encodeURIComponent(title);
+
     return (
         <div className={className}>
             <h3 className="text-lg font-heading font-semibold text-primary-text mb-3">{heading}</h3>
+            
             <div className="flex items-center space-x-3">
-                <ShareButton href={shareLinks.facebook} label="Facebook" className="bg-[#1877F2]">
-                    <FacebookIcon className="w-5 h-5" />
-                </ShareButton>
-                <ShareButton href={shareLinks.twitter} label="Twitter" className="bg-[#1DA1F2]">
-                    <TwitterIcon className="w-5 h-5" />
-                </ShareButton>
-                <ShareButton href={shareLinks.linkedin} label="LinkedIn" className="bg-[#0A66C2]">
-                    <LinkedInIcon className="w-5 h-5" />
-                </ShareButton>
-                <ShareButton href={shareLinks.mail} label="E-mail" className="bg-secondary">
-                    <MailIcon className="w-5 h-5" />
-                </ShareButton>
+                {/* SI MOBILE : Bouton de partage natif (Ouvre l'App Facebook directement) */}
+                {canShare ? (
+                    <button
+                        onClick={handleNativeShare}
+                        className="inline-flex items-center justify-center px-6 py-2.5 rounded-full text-white bg-accent hover:bg-accent-dark transition-all shadow-md font-medium"
+                    >
+                        <ShareIcon className="w-5 h-5 mr-2" />
+                        Partager le bien
+                    </button>
+                ) : (
+                    // SI DESKTOP : Liens classiques
+                    <>
+                        <a
+                            href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white bg-[#1877F2] hover:opacity-80 transition-opacity"
+                        >
+                            <FacebookIcon className="w-5 h-5" />
+                        </a>
+                        <a
+                            href={`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white bg-[#1DA1F2] hover:opacity-80 transition-opacity"
+                        >
+                            <TwitterIcon className="w-5 h-5" />
+                        </a>
+                        <a
+                            href={`https://www.linkedin.com/shareArticle?mini=true&url=${encodedUrl}&title=${encodedTitle}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white bg-[#0A66C2] hover:opacity-80 transition-opacity"
+                        >
+                            <LinkedInIcon className="w-5 h-5" />
+                        </a>
+                    </>
+                )}
+
+                {/* Bouton de copie (toujours utile) */}
                 <button
                     onClick={handleCopy}
-                    className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white transition-all hover:opacity-80 bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full text-white bg-gray-600 hover:opacity-80 transition-all focus:outline-none"
                     aria-label="Copier le lien"
-                    title="Copier le lien optimisé"
                 >
                     {copied ? <CheckIcon className="w-5 h-5" /> : <LinkIcon className="w-5 h-5" />}
                 </button>
