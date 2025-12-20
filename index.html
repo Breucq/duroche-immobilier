@@ -11,13 +11,18 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- Favicons : Configuration stricte pour Google Search -->
+    <!-- Preconnect pour les domaines tiers -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.sanity.io">
+
+    <!-- Favicons -->
     <link rel="icon" href="https://www.duroche.fr/favicon.ico" sizes="any">
     <link rel="icon" href="https://www.duroche.fr/favicon.png" type="image/png" sizes="192x192">
     <link rel="apple-touch-icon" href="https://www.duroche.fr/apple-touch-icon.png">
     <link rel="manifest" href="https://www.duroche.fr/site.webmanifest">
 
-    <!-- Google Analytics 4 (GA4) -->
+    <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -25,13 +30,10 @@
       gtag('js', new Date());
     </script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.sanity.io">
-    
+    <!-- Polices avec display swap pour éviter le CLS -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
     
-    <!-- Open Graph Default Data (Fallback) -->
+    <!-- Open Graph -->
     <meta property="og:site_name" content="Duroche Immobilier" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Duroche Immobilier" />
@@ -40,9 +42,7 @@
     <meta name="twitter:card" content="summary_large_image" />
 </head>
   <body class="bg-background antialiased">
-    <noscript>Vous devez activer JavaScript pour exécuter cette application.</noscript>
     <div id="root"></div>
-    <script type="application/ld+json" id="structured-data"></script>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>

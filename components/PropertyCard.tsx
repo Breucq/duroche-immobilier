@@ -1,3 +1,4 @@
+
 import React, { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
@@ -53,7 +54,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const { favoriteIds, toggleFavorite } = useFavorites();
   const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
 
-  // SÉCURITÉ : On utilise la référence SEULEMENT si elle est "propre"
   const hasCleanReference = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
   const linkIdentifier = hasCleanReference ? property.reference : property._id;
   const detailPath = `/properties/${linkIdentifier}`;
@@ -70,9 +70,11 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const statusInfo = property.status && property.status !== 'Disponible' ? statusConfig[property.status as keyof typeof statusConfig] : null;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  
+  // Utilisation de WebP et qualité maîtrisée
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(600).height(450).auto('format').quality(80).url());
+    .map(img => urlFor(img).width(500).height(375).quality(75).url());
   
   const hasMultipleImages = imageUrls.length > 1;
   const containerRef = useRef<HTMLDivElement>(null);
@@ -80,18 +82,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
   const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
   const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
 
-  // SEO: Alt text dynamique
-  const altText = `${property.type} à vendre à ${property.location} - ${formattedPrice} - Vue ${currentImageIndex + 1}`;
-
   return (
     <Link 
       to={detailPath}
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
-      aria-label={`Voir les détails pour ${property.type} à ${property.location}`}
+      aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
       <div 
         ref={containerRef}
-        className="relative overflow-hidden h-56"
+        className="relative overflow-hidden h-56 bg-gray-100"
       >
         <div
             className="flex h-full transition-transform duration-300 ease-in-out"
@@ -99,7 +98,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
           >
             {imageUrls.map((imgUrl, index) => (
                 <div key={index} className="w-full h-full flex-shrink-0">
-                    <ImageWithSkeleton src={imgUrl} alt={altText} className="w-full h-full" />
+                    <ImageWithSkeleton src={imgUrl} alt={`${property.type} à ${property.location}`} className="w-full h-full" />
                 </div>
             ))}
         </div>
@@ -107,18 +106,15 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         {hasMultipleImages && (
             <>
                 {currentImageIndex > 0 && (
-                    <button onClick={handlePrevClick} className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
+                    <button onClick={handlePrevClick} aria-label="Image précédente" className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 )}
                 {currentImageIndex < imageUrls.length - 1 && (
-                    <button onClick={handleNextClick} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
+                    <button onClick={handleNextClick} aria-label="Image suivante" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
                 )}
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-1.5 z-10">
-                    {imageUrls.slice(0, 8).map((_, index) => ( <div key={index} className={`w-2 h-2 rounded-full transition-all duration-300 ${ currentImageIndex === index ? 'bg-white scale-125 shadow-md' : 'bg-white/60' }`} /> ))}
-                </div>
             </>
         )}
 
@@ -130,7 +126,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         {property.dpe?.class && <DPEBadge classification={property.dpe.class} />}
       </div>
       <div className="p-6 flex flex-col flex-grow">
-        <p className="text-2xl font-bold font-heading text-primary-text mb-2">{formattedPrice}</p>
+        <p className="text-2xl font-bold font-heading text-primary-text mb-1">{formattedPrice}</p>
         <p className="text-secondary-text font-medium mb-4">{property.location}</p>
         <div className="grid grid-cols-3 gap-x-2 gap-y-4 text-sm text-secondary-text border-t border-border-color/70 pt-4 mt-auto">
             {property.rooms > 0 && <span title="Pièces" className="flex items-center gap-1.5"><IconRooms className="w-4 h-4 text-secondary"/> {property.rooms} p.</span>}

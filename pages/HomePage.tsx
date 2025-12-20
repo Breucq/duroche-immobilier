@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -27,7 +28,7 @@ const Zones: React.FC<{ title: string, subtitle: string, zones: string }> = ({ t
                 <div className="flex flex-wrap justify-center gap-4">
                     {zonesList.map(zone => (
                         <a key={zone} href="#" onClick={(e) => handleZoneClick(e, zone)} className="px-5 py-2 bg-background-alt border border-border-color rounded-full text-primary-text font-medium hover:bg-accent hover:text-white hover:border-accent transition-colors shadow-sm">
-                            {zone}
+                            Immobilier {zone}
                         </a>
                     ))}
                 </div>
@@ -41,7 +42,7 @@ const HomePage: React.FC = () => {
   const { data: content } = useQuery({ queryKey: ['homePageSettings'], queryFn: homePageSettingsService.getSettings });
   const { data: properties } = useQuery({ queryKey: ['activeProperties'], queryFn: propertyService.getActive });
 
-  if (!content) return <div className="py-48 text-center">Chargement de la page d'accueil...</div>;
+  if (!content) return <div className="py-48 text-center min-h-screen">Chargement...</div>;
 
   return (
     <>
