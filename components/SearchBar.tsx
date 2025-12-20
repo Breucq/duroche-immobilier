@@ -11,7 +11,7 @@ interface SearchBarProps {
  * Permet de filtrer par type de bien et par localisation (champ libre avec autocomplétion stylisée).
  */
 const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
-  const [type, setType] = useState('Maison');
+  const [type, setType] = useState('all');
   const [location, setLocation] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -74,10 +74,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
             <select id="property-type" name="property-type" className={inputClass} value={type} onChange={e => setType(e.target.value)}>
-              <option>Maison</option>
-              <option>Appartement</option>
-              <option>Terrain</option>
-              <option>Autre</option>
+              <option value="all">Tous les types</option>
+              <option value="Maison">Maison</option>
+              <option value="Appartement">Appartement</option>
+              <option value="Terrain">Terrain</option>
+              <option value="Autre">Autre</option>
             </select>
           </div>
         </div>

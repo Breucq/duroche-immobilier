@@ -1,3 +1,4 @@
+
 import React, { useEffect, Suspense } from 'react';
 import { Routes, Route, useLocation, Outlet } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -12,7 +13,7 @@ import { useFavorites } from './context/FavoritesContext';
 import GoogleAnalyticsTracker from './components/GoogleAnalyticsTracker';
 import type { Property } from './types';
 
-// --- Lazy Loading des pages pour optimiser le bundle initial ---
+// --- Lazy Loading des pages ---
 const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PropertiesListPage = React.lazy(() => import('./pages/PropertiesListPage'));
 const PropertyDetailPage = React.lazy(() => import('./pages/PropertyDetailPage'));
@@ -23,7 +24,6 @@ const EstimationPage = React.lazy(() => import('./pages/EstimationPage'));
 const SellingPage = React.lazy(() => import('./pages/SellingPage'));
 const GenericPage = React.lazy(() => import('./pages/GenericPage'));
 
-// Composant de chargement léger pour le Suspense
 const PageLoader = () => (
     <div className="min-h-[60vh] flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"></div>
@@ -51,7 +51,6 @@ const FavoritesPage: React.FC = () => {
             <Helmet>
                 <title>Mes Favoris | Duroche Immobilier</title>
                 <meta name="description" content="Retrouvez vos biens immobiliers favoris." />
-                <link rel="canonical" href={window.location.href} />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
@@ -87,7 +86,6 @@ const SoldPropertiesListPage: React.FC = () => {
             <Helmet>
                 <title>Nos Références - Biens Vendus | Duroche Immobilier</title>
                 <meta name="description" content="Découvrez une sélection de biens que nous avons récemment vendus dans le Vaucluse Nord." />
-                <link rel="canonical" href={window.location.href} />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
@@ -113,11 +111,9 @@ const SoldPropertiesListPage: React.FC = () => {
 const Layout: React.FC = () => {
     const { pathname } = useLocation();
     
-    // Fetch global settings and dynamic pages
     const { data: settings, isLoading: settingsLoading } = useQuery({ queryKey: ['settings'], queryFn: settingsService.getSettings });
     const { data: dynamicPages, isLoading: pagesLoading } = useQuery({ queryKey: ['dynamicPages'], queryFn: pageService.getAll });
 
-    // Scroll to top on route change
     useEffect(() => {
         window.scrollTo(0, 0);
     }, [pathname]);
@@ -134,14 +130,10 @@ const Layout: React.FC = () => {
         );
     }
 
-    // Default SEO data
     const defaultTitle = settings?.title || 'Duroche Immobilier';
-    // Changement ici : Remplacement de "Agence immobilière" par "Expert de l'immobilier"
     const defaultDescription = settings?.description || 'Expert de l\'immobilier dans le Vaucluse Nord.';
     const defaultKeywords = 'immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse';
     
-    // Determine dynamic page SEO if applicable (for pages handled via :slug that aren't specialized routes)
-    // Note: specialized pages like PropertyDetailPage handle their own SEO overriding these defaults.
     const pageSlug = pathname.substring(1).split('?')[0];
     const dynamicPage = dynamicPages?.find(p => p.slug.current === pageSlug);
     
@@ -160,7 +152,7 @@ const Layout: React.FC = () => {
             "@type": "RealEstateAgent", 
             "name": settings?.title, 
             "description": settings?.description, 
-            "url": "https://duroche.fr", 
+            "url": "https://www.duroche.fr", 
             "logo": settings?.logo, 
             "telephone": "+33756874788", 
             "email": "contact@duroche.fr", 
@@ -171,9 +163,12 @@ const Layout: React.FC = () => {
          description = "Découvrez nos biens immobiliers à vendre dans le Vaucluse Nord. Maisons, appartements, terrains...";
     }
 
+    // --- Génération de l'URL canonique stricte ---
+    // On force toujours https://www.duroche.fr pour éviter les erreurs Search Console
+    const canonicalUrl = `https://www.duroche.fr${pathname === '/' ? '' : pathname}`;
+
     return (
         <div className="font-sans text-primary-text flex flex-col min-h-screen">
-             {/* Intégration du Tracker Google Analytics */}
              <GoogleAnalyticsTracker />
 
              {settings && (
@@ -181,11 +176,11 @@ const Layout: React.FC = () => {
                     <title>{title}</title>
                     <meta name="description" content={description} />
                     <meta name="keywords" content={keywords} />
+                    <link rel="canonical" href={canonicalUrl} />
                     {settings.favicon && <link rel="icon" href={settings.favicon} />}
                     <meta property="og:type" content="website" />
                     <meta property="og:site_name" content={settings.title} />
                     <meta property="og:locale" content="fr_FR" />
-                    <link rel="canonical" href={window.location.href} />
                     {structuredData && (
                         <script type="application/ld+json">
                             {JSON.stringify(structuredData)}
@@ -196,7 +191,6 @@ const Layout: React.FC = () => {
             
             {settings && <Header settings={settings} dynamicPages={dynamicPages || []} />}
             <main className="flex-grow">
-                {/* Suspense wrap for lazy loaded routes */}
                 <Suspense fallback={<PageLoader />}>
                     <Outlet />
                 </Suspense>
@@ -206,7 +200,6 @@ const Layout: React.FC = () => {
     );
 };
 
-// Wrapper pour récupérer la page dynamique via le slug
 const GenericPageWrapper: React.FC = () => {
     const location = useLocation();
     const slug = location.pathname.substring(1);
@@ -221,14 +214,12 @@ const GenericPageWrapper: React.FC = () => {
     return <GenericPage page={page} />;
 };
 
-
 const App: React.FC = () => {
     return (
         <Routes>
             <Route path="/" element={<Layout />}>
                 <Route index element={<HomePage />} />
                 <Route path="properties" element={<PropertiesListPage />} />
-                {/* Utilisation de :reference au lieu de :id pour l'URL courte */}
                 <Route path="properties/:reference" element={<PropertyDetailPage />} />
                 <Route path="nos-biens-vendus" element={<SoldPropertiesListPage />} />
                 <Route path="favorites" element={<FavoritesPage />} />
@@ -238,8 +229,6 @@ const App: React.FC = () => {
                 <Route path="contact/:reference" element={<ContactPage />} />
                 <Route path="estimation" element={<EstimationPage />} />
                 <Route path="vendre" element={<SellingPage />} />
-
-                {/* Route catch-all pour les pages dynamiques */}
                 <Route path=":slug" element={<GenericPageWrapper />} />
             </Route>
         </Routes>
