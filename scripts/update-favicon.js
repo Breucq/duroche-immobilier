@@ -53,7 +53,7 @@ async function createManifest(siteTitle) {
                 type: "image/png"
             }
         ],
-        theme_color: "#ffffff",
+        theme_color: "#b68d3d",
         background_color: "#ffffff",
         display: "standalone"
     };
@@ -79,19 +79,23 @@ async function run() {
     if (faviconUrl) {
       console.log(`✅ Image source trouvée : ${faviconUrl}`);
       
-      // 1. Favicon PNG standard pour Google (192x192)
+      // 1. Favicon PNG standard (192x192)
       console.log('⬇️  Génération de public/favicon.png (192x192)...');
       await downloadImage(`${faviconUrl}?w=192&h=192&fit=crop&auto=format&fm=png`, 'favicon.png');
 
-      // 2. Apple Touch Icon (180x180)
+      // 2. Favicon PNG 32x32 (Très important pour Google Search)
+      console.log('⬇️  Génération de public/favicon-32x32.png (32x32)...');
+      await downloadImage(`${faviconUrl}?w=32&h=32&fit=crop&auto=format&fm=png`, 'favicon-32x32.png');
+
+      // 3. Apple Touch Icon (180x180)
       console.log('⬇️  Génération de public/apple-touch-icon.png (180x180)...');
       await downloadImage(`${faviconUrl}?w=180&h=180&fit=crop&auto=format&fm=png`, 'apple-touch-icon.png');
       
-      // 3. Favicon.ico (48x48)
+      // 4. Favicon.ico (48x48) - Google préfère les multiples de 48 pour le format .ico
       console.log('⬇️  Génération de public/favicon.ico (48x48)...');
       await downloadImage(`${faviconUrl}?w=48&h=48&fit=crop&auto=format&fm=png`, 'favicon.ico');
 
-      // 4. Génération du Manifest
+      // 5. Génération du Manifest
       await createManifest(siteTitle);
 
       console.log('✅ Tous les favicons et le manifest ont été générés avec succès.');

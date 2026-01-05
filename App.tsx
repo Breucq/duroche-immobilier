@@ -163,8 +163,6 @@ const Layout: React.FC = () => {
          description = "Découvrez nos biens immobiliers à vendre dans le Vaucluse Nord. Maisons, appartements, terrains...";
     }
 
-    // --- Génération de l'URL canonique stricte ---
-    // On force toujours https://www.duroche.fr pour éviter les erreurs Search Console
     const canonicalUrl = `https://www.duroche.fr${pathname === '/' ? '' : pathname}`;
 
     return (
@@ -177,7 +175,7 @@ const Layout: React.FC = () => {
                     <meta name="description" content={description} />
                     <meta name="keywords" content={keywords} />
                     <link rel="canonical" href={canonicalUrl} />
-                    {settings.favicon && <link rel="icon" href={settings.favicon} />}
+                    {/* Le favicon est maintenant géré statiquement dans index.html pour optimiser l'indexation Google */}
                     <meta property="og:type" content="website" />
                     <meta property="og:site_name" content={settings.title} />
                     <meta property="og:locale" content="fr_FR" />
