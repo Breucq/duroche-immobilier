@@ -1,14 +1,13 @@
+
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 import type { SanityImageSource } from '@sanity/image-url/lib/types/types';
 
 /**
- * Récupération des IDs via les variables d'environnement.
- * VITE_SANITY_PROJECT_ID et VITE_SANITY_DATASET doivent être définis.
+ * Récupération sécurisée des variables d'environnement.
  */
-// Fixed: Property 'env' does not exist on type 'ImportMeta'. Using process.env to access environment variables.
-const projectId = process.env.VITE_SANITY_PROJECT_ID || 'jvrtf17r';
-const dataset = process.env.VITE_SANITY_DATASET || 'production';
+const projectId = (typeof process !== 'undefined' && process.env?.VITE_SANITY_PROJECT_ID) || 'jvrtf17r';
+const dataset = (typeof process !== 'undefined' && process.env?.VITE_SANITY_DATASET) || 'production';
 
 if (!projectId || !dataset) {
   throw new Error(

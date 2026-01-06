@@ -11,16 +11,12 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- 1. CONNEXIONS ANTICIPÉES (Placées tout en haut pour démarrer le handshake TLS immédiatement) -->
+    <!-- 1. CONNEXIONS ANTICIPÉES -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-
-    <!-- 2. PRELOAD DES ASSETS CRITIQUES -->
-    <!-- On demande au navigateur de charger le JS principal avec une priorité haute -->
-    <link rel="modulepreload" href="/index.tsx" fetchpriority="high">
 
     <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -37,9 +33,7 @@
       gtag('js', new Date());
     </script>
 
-    <!-- 3. CHARGEMENT DES POLICES SANS BLOCAGE DU RENDU -->
-    <!-- Cette technique permet d'afficher le contenu immédiatement sans attendre le téléchargement des polices.
-         Le paramètre &display=swap est crucial ici. -->
+    <!-- 2. CHARGEMENT DES POLICES SANS BLOCAGE -->
     <link 
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
@@ -60,6 +54,7 @@
 </head>
   <body class="bg-background antialiased">
     <div id="root"></div>
+    <!-- On laisse le système gérer le chargement du module TSX normalement -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
