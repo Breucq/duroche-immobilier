@@ -1,10 +1,13 @@
+
 import React, { useState } from 'react';
 
 interface ImageWithSkeletonProps extends React.ImgHTMLAttributes<HTMLImageElement> {
     className?: string;
+    // Corrected: use fetchPriority instead of fetchpriority
+    fetchPriority?: "high" | "low" | "auto";
 }
 
-const ImageWithSkeleton: React.FC<ImageWithSkeletonProps> = ({ className, ...props }) => {
+const ImageWithSkeleton: React.FC<ImageWithSkeletonProps> = ({ className, fetchPriority, ...props }) => {
     const [isLoaded, setIsLoaded] = useState(false);
 
     return (
@@ -14,6 +17,8 @@ const ImageWithSkeleton: React.FC<ImageWithSkeletonProps> = ({ className, ...pro
             )}
             <img
                 {...props}
+                // Corrected: pass fetchPriority correctly to the img element
+                fetchPriority={fetchPriority}
                 onLoad={() => setIsLoaded(true)}
                 className={`transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} w-full h-full object-cover`}
             />
