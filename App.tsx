@@ -11,10 +11,9 @@ import { propertyService } from './services/propertyService';
 import PropertyCard from './components/PropertyCard';
 import { useFavorites } from './context/FavoritesContext';
 import GoogleAnalyticsTracker from './components/GoogleAnalyticsTracker';
-import type { Property } from './types';
+import HomePage from './pages/HomePage'; // Importation directe pour éviter le lazy loading sur la home
 
-// --- Lazy Loading des pages ---
-const HomePage = React.lazy(() => import('./pages/HomePage'));
+// --- Lazy Loading des autres pages ---
 const PropertiesListPage = React.lazy(() => import('./pages/PropertiesListPage'));
 const PropertyDetailPage = React.lazy(() => import('./pages/PropertyDetailPage'));
 const ContactPage = React.lazy(() => import('./pages/ContactPage'));

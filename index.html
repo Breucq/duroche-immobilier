@@ -11,34 +11,34 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- 1. CONNEXIONS ANTICIPÉES -->
+    <!-- 1. CONNEXIONS ANTICIPÉES (DNS + TLS) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io">
+    <link rel="preconnect" href="https://jvrtf17r.api.sanity.io">
 
-    <!-- 2. LCP PRELOADER SCRIPT (Crucial pour Lighthouse) 
-         Ce script récupère l'image Hero AVANT que React ne démarre.
+    <!-- 2. LCP PRELOADER SCRIPT ULTRA-RAPIDE 
+         Il récupère l'image Hero AVANT même que React ne soit téléchargé.
     -->
     <script>
       (function() {
-        const projectId = 'jvrtf17r';
-        const query = encodeURIComponent('*[_type == "homePageSettings" && _id == "homePageSettings"][0]{"url": heroBackgroundImage.asset->url}');
-        const url = `https://${projectId}.api.sanity.io/v2023-05-03/data/query/production?query=${query}`;
+        const pId = 'jvrtf17r';
+        const q = encodeURIComponent('*[_type == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}');
+        const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${q}`;
         
-        fetch(url)
-          .then(r => r.json())
-          .then(data => {
-            if (data && data.result && data.result.url) {
-              const link = document.createElement('link');
-              link.rel = 'preload';
-              link.as = 'image';
-              link.href = data.result.url + '?w=1920&q=80&auto=format';
-              link.fetchPriority = 'high';
-              document.head.appendChild(link);
-              // Garder l'URL en cache pour éviter un double fetch dans React
-              window.__LCP_HERO_URL__ = data.result.url;
+        fetch(url).then(r => r.json()).then(d => {
+            const imgUrl = d?.result?.u;
+            if (imgUrl) {
+                const l = document.createElement('link');
+                l.rel = 'preload';
+                l.as = 'image';
+                l.href = imgUrl + '?w=1920&q=80&auto=format';
+                l.fetchPriority = 'high';
+                document.head.appendChild(l);
+                // Stockage global pour éviter que React ne re-fasse la requête
+                window.__LCP_HERO_URL__ = imgUrl;
             }
-          }).catch(() => {});
+        }).catch(()=>{});
       })();
     </script>
 
