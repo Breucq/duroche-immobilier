@@ -41,7 +41,7 @@ const DPEBadge: React.FC<{ classification: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | '
     const dpeConfig = { A: { color: 'bg-green-700' }, B: { color: 'bg-green-500' }, C: { color: 'bg-lime-400' }, D: { color: 'bg-yellow-300' }, E: { color: 'bg-orange-400' }, F: { color: 'bg-red-500' }, G: { color: 'bg-red-700' }, };
     const config = dpeConfig[classification];
     return (
-        <div className="absolute bottom-2 right-2 flex items-center bg-gray-800/70 p-1 rounded-sm shadow-lg text-white font-sans" title={`Classe énergie : ${classification}`}>
+        <div className="absolute bottom-2 right-2 flex items-center bg-gray-800/70 p-1 rounded-sm shadow-lg text-white font-sans z-10" title={`Classe énergie : ${classification}`}>
             <span className="text-xs mr-1.5">DPE</span>
             <span className={`w-5 h-5 flex items-center justify-center font-bold text-sm rounded-sm ${config.color}`}>
                 {classification}
@@ -76,7 +76,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     .map(img => urlFor(img).width(500).height(375).quality(75).url());
   
   const hasMultipleImages = imageUrls.length > 1;
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
   const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
@@ -87,11 +86,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
-      {/* Aspect-ratio fixe pour éviter le forced reflow */}
-      <div 
-        ref={containerRef}
-        className="relative overflow-hidden aspect-[4/3] bg-gray-100"
-      >
+      <div className="relative overflow-hidden aspect-[4/3] bg-gray-100">
         <div
             className="flex h-full transition-transform duration-300 ease-in-out"
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
@@ -104,18 +99,18 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         </div>
 
         {hasMultipleImages && (
-            <>
-                {currentImageIndex > 0 && (
-                    <button onClick={handlePrevClick} aria-label="Image précédente" className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
+            <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10">
+                {currentImageIndex > 0 ? (
+                    <button onClick={handlePrevClick} aria-label="Image précédente" className="pointer-events-auto p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                     </button>
-                )}
+                ) : <div />}
                 {currentImageIndex < imageUrls.length - 1 && (
-                    <button onClick={handleNextClick} aria-label="Image suivante" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
+                    <button onClick={handleNextClick} aria-label="Image suivante" className="pointer-events-auto p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 )}
-            </>
+            </div>
         )}
 
         <div className="absolute bottom-2 left-2 bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold z-10">{property.type}</div>
