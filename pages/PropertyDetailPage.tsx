@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -63,7 +64,6 @@ const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({tit
 
 
 const PropertyDetailPage: React.FC = () => {
-    // On récupère "reference" depuis l'URL (qui peut être un ID ou une référence)
     const { reference } = useParams<{ reference: string }>();
     const navigate = useNavigate();
     const { pathname: path } = useLocation();
@@ -81,18 +81,13 @@ const PropertyDetailPage: React.FC = () => {
             if (!reference) { setIsLoading(false); return; }
             setIsLoading(true);
             try {
-                // Décodage de l'URL pour gérer les espaces ou caractères spéciaux éventuels
                 const decodedRef = decodeURIComponent(reference);
-                console.log("Fetching property with ref:", decodedRef);
-
                 const prop = await propertyService.getByReference(decodedRef);
                 setProperty(prop);
                 
                 if (prop) {
                     const similar = await propertyService.getSimilar(prop);
                     setSimilarProperties(similar);
-                } else {
-                    console.warn("Property not found for ref:", decodedRef);
                 }
             } catch (error) {
                 console.error("Failed to fetch property details:", error);
@@ -117,7 +112,6 @@ const PropertyDetailPage: React.FC = () => {
     const formattedPrice = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.price);
     const city = property.location.split(',')[0].trim();
     
-    // Helper pour la description texte simple sans formatage PortableText
     const getPlainDescription = (desc: string | any[]) => {
         if (Array.isArray(desc)) {
             return desc.map(block => block.children?.map((child: any) => child.text).join('') || '').join(' ');
@@ -142,9 +136,15 @@ const PropertyDetailPage: React.FC = () => {
     
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
     const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
+    
+    // --- CALCUL DE L'URL CANONIQUE OFFICIELLE ---
+    // On force l'URL officielle basée sur la référence si elle existe, sinon sur l'ID.
+    // Cela évite que Google indexe la page ID et la page REF comme deux pages différentes.
+    const officialSlug = hasCleanRef ? property.reference : property._id;
+    const canonicalUrl = `https://www.duroche.fr/properties/${officialSlug}`;
+
     const shareRef = hasCleanRef ? property.reference : property._id;
     const smartShareUrl = `https://www.duroche.fr/api/share?ref=${shareRef}`;
-    const canonicalUrl = window.location.href;
 
     const isFavorite = favoriteIds.includes(property._id);
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
@@ -168,7 +168,6 @@ const PropertyDetailPage: React.FC = () => {
     
     const scrollbarHideStyle = `.scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }`;
 
-    // Helper pour afficher le chauffage qui peut être un tableau ou une string (rétrocompatibilité)
     const renderHeating = (heating: string | string[]) => {
         if (Array.isArray(heating)) {
             return heating.join(', ');
@@ -185,19 +184,14 @@ const PropertyDetailPage: React.FC = () => {
         }
     };
 
-    // SEO Helper pour les alts d'images
     const getImageAlt = (index: number) => `${property.type} à vendre à ${property.location} - Vue ${index + 1} - ${formattedPrice}`;
 
-    // Schema.org Structured Data (JSON-LD)
-    const schemaImages = allImages.slice(0, 5).map(img => urlFor(img).width(1200).url());
-    const availabilitySchema = property.status === 'Vendu' ? 'https://schema.org/Sold' : 'https://schema.org/InStock';
-    
     const structuredData = {
       "@context": "https://schema.org",
       "@type": ["Product", "RealEstateListing"],
       "name": seoTitle,
       "description": seoDescription,
-      "image": schemaImages,
+      "image": allImages.slice(0, 5).map(img => urlFor(img).width(1200).url()),
       "sku": property.reference || property._id,
       "brand": {
         "@type": "Organization",
@@ -208,7 +202,7 @@ const PropertyDetailPage: React.FC = () => {
         "url": canonicalUrl,
         "priceCurrency": "EUR",
         "price": property.price,
-        "availability": availabilitySchema,
+        "availability": property.status === 'Vendu' ? 'https://schema.org/Sold' : 'https://schema.org/InStock',
         "itemCondition": "https://schema.org/UsedCondition"
       },
       "category": "Real Estate > " + property.type
@@ -221,7 +215,6 @@ const PropertyDetailPage: React.FC = () => {
                 <meta name="description" content={seoDescription} />
                 <link rel="canonical" href={canonicalUrl} />
                 
-                {/* Open Graph / Facebook */}
                 <meta property="og:type" content="product" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
@@ -232,14 +225,12 @@ const PropertyDetailPage: React.FC = () => {
                 <meta property="product:price:amount" content={property.price.toString()} />
                 <meta property="product:price:currency" content="EUR" />
                 
-                {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
                 <meta property="twitter:url" content={canonicalUrl} />
                 <meta property="twitter:title" content={seoTitle} />
                 <meta property="twitter:description" content={seoDescription} />
                 <meta property="twitter:image" content={shareImageUrl} />
 
-                {/* Structured Data */}
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}
                 </script>
@@ -249,7 +240,6 @@ const PropertyDetailPage: React.FC = () => {
             
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16 print:py-0 print:pt-2">
 
-                 {/* Arborescence / Fil d'Ariane */}
                  <nav className="flex flex-wrap mb-6 text-sm text-secondary-text print:hidden" aria-label="Fil d'ariane">
                     <ol className="inline-flex items-center space-x-1 md:space-x-2">
                         <li className="inline-flex items-center">
@@ -281,7 +271,6 @@ const PropertyDetailPage: React.FC = () => {
                     </ol>
                 </nav>
                  
-                 {/* HEADER IMPRESSION : Spécifique pour le papier */}
                  <div className="hidden print:flex justify-between items-center mb-4 border-b-2 border-accent pb-2">
                     <div className="flex items-center gap-3">
                         <div className="flex flex-col">
@@ -313,11 +302,9 @@ const PropertyDetailPage: React.FC = () => {
                      </div>
                  </div>
 
-                 {/* Galerie d'images */}
                  {imageUrls && imageUrls.length > 0 && ( 
                     <> 
                         <div className="md:hidden mt-6 print:hidden"> 
-                            {/* ... Mobile Gallery ... */}
                             <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide"> 
                                 {imageUrls.map((imgUrl, index) => ( 
                                     <div key={index} className="snap-center w-full flex-shrink-0 aspect-video relative group"> 
@@ -332,7 +319,6 @@ const PropertyDetailPage: React.FC = () => {
                         </div> 
 
                         <div className="hidden mt-6 md:grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[550px] rounded-xl overflow-hidden shadow-lg print:hidden"> 
-                             {/* ... Desktop Gallery ... */}
                             <div className="md:col-span-2 md:row-span-2"> 
                                 <button onClick={() => openLightbox(0)} className="w-full h-full block group relative"> 
                                     <ImageWithSkeleton src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
@@ -348,20 +334,16 @@ const PropertyDetailPage: React.FC = () => {
                             ))} 
                         </div> 
                         
-                        {/* Image unique pour l'impression (prend toute la largeur mais hauteur réduite) */}
                         <div className="hidden print:block mb-4 w-full h-64 overflow-hidden rounded-lg">
                             <img src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-full object-cover" />
                         </div>
                     </> 
                 )}
 
-                 {/* LAYOUT PRINCIPAL : Flex en web, mais on va gérer l'impression différemment */}
                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12 mt-12 print:block print:mt-4"> 
                     
-                    {/* Colonne Gauche (Infos principales) - A l'impression, prend tout l'espace ou split */}
                     <div className="lg:col-span-3 space-y-12 print:space-y-4"> 
                         
-                        {/* Barre de stats (Chambres/Surface etc) */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 print:grid-cols-4 print:gap-2 print:mb-4"> 
                             {property.rooms > 0 && <KeyFeature icon={<IconRooms className="w-8 h-8"/>} label="Pièces" value={property.rooms} />} 
                             {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} 
@@ -372,7 +354,6 @@ const PropertyDetailPage: React.FC = () => {
                         
                         {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
                         
-                        {/* Wrapper spécial impression 2 colonnes */}
                         <div className="print:grid print:grid-cols-2 print:gap-6 space-y-12 print:space-y-0">
                             <div className="print:col-span-1">
                                 <Section title="Description">
@@ -422,14 +403,12 @@ const PropertyDetailPage: React.FC = () => {
                         {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2 print:text-xs"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} 
                         {property.risks && <Section title="Les risques sur ce bien"><p className="print:text-[10px]">{property.risks}</p></Section>} 
                         
-                        {/* Masqué à l'impression */}
                         <div className="print:hidden">
                             <MortgageSimulator price={property.price} /> 
                         </div>
                     </div> 
                     
                     <div className="lg:col-span-2"> 
-                        {/* Sidebar "Contact Card" - Masqué à l'impression */}
                         <div className="relative lg:sticky lg:top-28 bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-border-color/80 print:hidden"> 
                             <button onClick={() => toggleFavorite(property._id)} className="absolute top-4 right-4 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 print:hidden" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>{isFavorite ? <HeartIconSolid className="w-7 h-7 text-red-500" /> : <HeartIconOutline className="w-7 h-7 text-primary-text" />}</button> 
                             <div className="pb-6 border-b border-border-color print:hidden"> 
@@ -437,7 +416,6 @@ const PropertyDetailPage: React.FC = () => {
                                 <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> 
                             </div> 
                             
-                            {/* Contenu Interactif (Masqué à l'impression) */}
                             <div className="print:hidden">
                                 {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} 
                                 <div className="my-6"> 
@@ -455,10 +433,8 @@ const PropertyDetailPage: React.FC = () => {
                     </div> 
                 </div>
 
-                {/* Footer spécial impression avec Design respecté */}
                 <div className="hidden print:flex mt-4 pt-4 border-t-2 border-accent items-center justify-between bg-gray-50 p-4 rounded-lg break-inside-avoid">
                     <div className="flex items-center gap-4">
-                        {/* Logo simplifié ou texte stylisé pour l'impression */}
                         <div>
                             <h3 className="font-heading font-bold text-primary-text text-xl">Duroche Immobilier</h3>
                             <p className="text-xs text-secondary-text uppercase tracking-wide">Expert de l'immobilier - Vaucluse Nord</p>
@@ -474,7 +450,6 @@ const PropertyDetailPage: React.FC = () => {
 
             </div>
 
-            {/* BARRE FIXE MOBILE : Uniquement visible sur mobile (lg:hidden) */}
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-color p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 lg:hidden flex items-center justify-between gap-3 safe-area-bottom print:hidden">
                  <div className="flex flex-col">
                     <span className="text-xs text-secondary-text">Prix</span>
