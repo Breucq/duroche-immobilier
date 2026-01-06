@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -10,10 +11,16 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- Preconnect pour les domaines tiers -->
+    <!-- Pré-résolution DNS et connexions anticipées pour gagner de précieuses millisecondes -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdn.sanity.io">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io">
+
+    <!-- Preload du module principal pour qu'il se charge en parallèle du CSS -->
+    <link rel="modulepreload" href="/index.tsx">
 
     <!-- Favicons : Configuration optimisée pour Google Search -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -30,8 +37,18 @@
       gtag('js', new Date());
     </script>
 
-    <!-- Polices avec display swap -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    <!-- Chargement optimisé des polices : 
+         On utilise media="print" + onload pour charger le CSS des polices sans bloquer le rendu initial.
+         Le display=swap assure que le texte s'affiche immédiatement avec une police système en attendant. -->
+    <link 
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" 
+      rel="stylesheet" 
+      media="print" 
+      onload="this.media='all'"
+    >
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+    </noscript>
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Duroche Immobilier" />
