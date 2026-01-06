@@ -71,7 +71,6 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // Utilisation de WebP et qualité maîtrisée
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
     .map(img => urlFor(img).width(500).height(375).quality(75).url());
@@ -88,9 +87,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
+      {/* Aspect-ratio fixe pour éviter le forced reflow */}
       <div 
         ref={containerRef}
-        className="relative overflow-hidden h-56 bg-gray-100"
+        className="relative overflow-hidden aspect-[4/3] bg-gray-100"
       >
         <div
             className="flex h-full transition-transform duration-300 ease-in-out"
@@ -107,12 +107,12 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             <>
                 {currentImageIndex > 0 && (
                     <button onClick={handlePrevClick} aria-label="Image précédente" className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 )}
                 {currentImageIndex < imageUrls.length - 1 && (
                     <button onClick={handleNextClick} aria-label="Image suivante" className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none z-10">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 )}
             </>

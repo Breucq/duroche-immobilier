@@ -4,7 +4,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, investissement. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
+    <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
     <meta name="keywords" content="immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse, appartement jonquières, terrain piolenc, duroche immobilier" id="meta-keywords">
     <meta name="author" content="Duroche Immobilier">
     <meta name="robots" content="index, follow">
@@ -15,15 +15,37 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io">
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+
+    <!-- 2. LCP PRELOADER SCRIPT (Crucial pour Lighthouse) 
+         Ce script récupère l'image Hero AVANT que React ne démarre.
+    -->
+    <script>
+      (function() {
+        const projectId = 'jvrtf17r';
+        const query = encodeURIComponent('*[_type == "homePageSettings" && _id == "homePageSettings"][0]{"url": heroBackgroundImage.asset->url}');
+        const url = `https://${projectId}.api.sanity.io/v2023-05-03/data/query/production?query=${query}`;
+        
+        fetch(url)
+          .then(r => r.json())
+          .then(data => {
+            if (data && data.result && data.result.url) {
+              const link = document.createElement('link');
+              link.rel = 'preload';
+              link.as = 'image';
+              link.href = data.result.url + '?w=1920&q=80&auto=format';
+              link.fetchPriority = 'high';
+              document.head.appendChild(link);
+              // Garder l'URL en cache pour éviter un double fetch dans React
+              window.__LCP_HERO_URL__ = data.result.url;
+            }
+          }).catch(() => {});
+      })();
+    </script>
 
     <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="192x192" href="/favicon.png">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="manifest" href="/site.webmanifest">
 
     <!-- Google Analytics 4 -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
@@ -33,7 +55,7 @@
       gtag('js', new Date());
     </script>
 
-    <!-- 2. CHARGEMENT DES POLICES SANS BLOCAGE -->
+    <!-- 3. CHARGEMENT DES POLICES SANS BLOCAGE -->
     <link 
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
@@ -50,11 +72,9 @@
     <meta property="og:title" content="Duroche Immobilier" />
     <meta property="og:description" content="Achat, vente, estimation. Votre partenaire immobilier de confiance à Orange et ses environs." />
     <meta property="og:image" content="https://cdn.sanity.io/images/jvrtf17r/production/b5a4529d38c642277c0827137f88467472097973-1920x1080.jpg?fm=jpg" />
-    <meta name="twitter:card" content="summary_large_image" />
 </head>
   <body class="bg-background antialiased">
     <div id="root"></div>
-    <!-- On laisse le système gérer le chargement du module TSX normalement -->
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
