@@ -9,6 +9,8 @@ export default async function handler(request, response) {
   });
 
   const baseUrl = 'https://www.duroche.fr';
+  // Date du jour pour indiquer à Google que les pages statiques sont à jour
+  const currentDate = new Date().toISOString().split('T')[0];
 
   try {
     // 1. Récupération de toutes les routes dynamiques depuis Sanity
@@ -30,26 +32,28 @@ export default async function handler(request, response) {
 
     const data = await client.fetch(query);
 
-    // 2. Définition des pages statiques
+    // 2. Définition des pages statiques avec priorités fortes
     const staticPages = [
-      '',
-      '/properties',
-      '/nos-biens-vendus',
-      '/contact',
-      '/estimation',
-      '/blog',
+      { url: '', priority: '1.0', changefreq: 'daily' },
+      { url: '/properties', priority: '0.9', changefreq: 'daily' },
+      { url: '/vendre', priority: '0.9', changefreq: 'weekly' },
+      { url: '/nos-biens-vendus', priority: '0.8', changefreq: 'weekly' },
+      { url: '/contact', priority: '0.7', changefreq: 'monthly' },
+      { url: '/estimation', priority: '0.9', changefreq: 'weekly' },
+      { url: '/blog', priority: '0.8', changefreq: 'daily' },
     ];
 
     // 3. Construction du XML
     const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
     <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
       ${staticPages
-        .map((url) => {
+        .map((page) => {
           return `
             <url>
-              <loc>${baseUrl}${url}</loc>
-              <changefreq>daily</changefreq>
-              <priority>0.8</priority>
+              <loc>${baseUrl}${page.url}</loc>
+              <lastmod>${currentDate}</lastmod>
+              <changefreq>${page.changefreq}</changefreq>
+              <priority>${page.priority}</priority>
             </url>
           `;
         })
@@ -62,9 +66,9 @@ export default async function handler(request, response) {
           return `
             <url>
               <loc>${baseUrl}/properties/${slug}</loc>
-              <lastmod>${property._updatedAt}</lastmod>
+              <lastmod>${property._updatedAt.split('T')[0]}</lastmod>
               <changefreq>weekly</changefreq>
-              <priority>1.0</priority>
+              <priority>0.8</priority>
             </url>
           `;
         })
@@ -75,7 +79,7 @@ export default async function handler(request, response) {
           return `
             <url>
               <loc>${baseUrl}/blog/${article.slug}</loc>
-              <lastmod>${article._updatedAt}</lastmod>
+              <lastmod>${article._updatedAt.split('T')[0]}</lastmod>
               <changefreq>monthly</changefreq>
               <priority>0.7</priority>
             </url>
@@ -88,7 +92,7 @@ export default async function handler(request, response) {
           return `
             <url>
               <loc>${baseUrl}/${page.slug}</loc>
-              <lastmod>${page._updatedAt}</lastmod>
+              <lastmod>${page._updatedAt.split('T')[0]}</lastmod>
               <changefreq>monthly</changefreq>
               <priority>0.5</priority>
             </url>
