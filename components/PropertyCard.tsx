@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
 import type { Property } from '../types';
@@ -86,6 +86,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
+      {/* CORRECTION : aspect-ratio sur le conteneur pour éviter les Layout Shifts */}
       <div className="relative overflow-hidden aspect-[4/3] bg-gray-100">
         <div
             className="flex h-full transition-transform duration-300 ease-in-out"

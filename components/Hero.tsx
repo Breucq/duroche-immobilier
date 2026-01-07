@@ -12,16 +12,16 @@ interface HeroProps {
 
 /**
  * Composant "Hero" de la page d'accueil.
- * Optimisé pour le LCP : Utilise une balise img avec fetchPriority="high".
+ * Optimisé pour le LCP : Utilise fetchPriority="high" et synchronise avec le preloader global.
  */
 const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText, heroBackgroundImage }) => {
+  // On récupère l'URL potentiellement déjà optimisée par le script du head
+  const optimizedUrl = (window as any).__LCP_HERO_URL__ || heroBackgroundImage;
+
   return (
-    /* Correction : Retrait de overflow-hidden pour laisser respirer la barre de recherche */
     <section className="relative h-[70vh] sm:h-[60vh] min-h-[500px] sm:min-h-[450px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
-      {/* L'image est maintenant isolée dans son propre conteneur avec overflow-hidden si besoin, 
-          mais ici object-cover sur l'img absolue suffit */}
       <img 
-        src={heroBackgroundImage} 
+        src={optimizedUrl} 
         alt="" 
         role="presentation"
         fetchPriority="high"
@@ -46,7 +46,6 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
         </button>
       </div>
       
-      {/* La barre de recherche qui dépasse en bas */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform translate-y-1/2 w-11/12 max-w-6xl px-4 sm:px-0 z-20">
         <SearchBar setCurrentPage={setCurrentPage} />
       </div>

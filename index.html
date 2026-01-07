@@ -11,14 +11,14 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- 1. CONNEXIONS ANTICIPÉES (DNS + TLS) -->
+    <!-- 1. CONNEXIONS ANTICIPÉES -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io">
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io">
 
-    <!-- 2. LCP PRELOADER SCRIPT ULTRA-RAPIDE 
-         Il récupère l'image Hero AVANT même que React ne soit téléchargé.
+    <!-- 2. LCP PRELOADER CRITIQUE 
+         Ce script s'exécute AVANT le chargement du JS de l'application.
     -->
     <script>
       (function() {
@@ -29,14 +29,17 @@
         fetch(url).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
+                const fullUrl = imgUrl + '?w=1920&q=80&auto=format';
+                // On crée un lien de préchargement immédiat
                 const l = document.createElement('link');
                 l.rel = 'preload';
                 l.as = 'image';
-                l.href = imgUrl + '?w=1920&q=80&auto=format';
+                l.href = fullUrl;
+                l.imageSrcset = fullUrl;
                 l.fetchPriority = 'high';
                 document.head.appendChild(l);
-                // Stockage global pour éviter que React ne re-fasse la requête
-                window.__LCP_HERO_URL__ = imgUrl;
+                // On stocke l'URL pour que React l'utilise sans attendre
+                window.__LCP_HERO_URL__ = fullUrl;
             }
         }).catch(()=>{});
       })();
@@ -55,16 +58,13 @@
       gtag('js', new Date());
     </script>
 
-    <!-- 3. CHARGEMENT DES POLICES SANS BLOCAGE -->
+    <!-- 3. POLICES : Chargement optimisé -->
     <link 
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
       media="print" 
       onload="this.media='all'"
     >
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
-    </noscript>
     
     <!-- Open Graph -->
     <meta property="og:site_name" content="Duroche Immobilier" />
