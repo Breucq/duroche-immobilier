@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -34,7 +33,7 @@
               l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);
               
-              // Injection immédiate si le placeholder existe
+              // Injection immédiate si le placeholder existe déjà dans le DOM
               const bg = document.getElementById('lcp-detail-bg') || document.getElementById('lcp-hero-bg');
               if (bg) { bg.src = fullUrl; }
             }
@@ -73,4 +72,20 @@
             <img id="lcp-hero-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
         </div>
         <!-- Placeholder LCP Detail -->
-        <div id="lcp-detail-placeholder" style="width:100%;
+        <div id="lcp-detail-placeholder" style="width:100%; aspect-ratio:16/9; display:none; background:#eee; overflow:hidden;">
+            <img id="lcp-detail-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
+        </div>
+        <script>
+            (function() {
+                const p = window.location.pathname;
+                if (p === '/') {
+                    document.getElementById('lcp-hero-placeholder').style.display = 'block';
+                } else if (p.startsWith('/properties/')) {
+                    document.getElementById('lcp-detail-placeholder').style.display = 'block';
+                }
+            })();
+        </script>
+    </div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
