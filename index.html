@@ -2,48 +2,57 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
-    <meta name="keywords" content="immobilier vaucluse, conseiller immobilier orange, maison à vendre caderousse, appartement jonquières, terrain piolenc, duroche immobilier" id="meta-keywords">
-    <meta name="author" content="Duroche Immobilier">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://www.duroche.fr/" />
-    <title>Duroche Immobilier</title>
+    <!-- 1. PRIORITÉ ABSOLUE : CONNEXIONS ET DÉCOUVERTE LCP -->
+    <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
+    <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
+    <link rel="dns-prefetch" href="https://jvrtf17r.api.sanity.io">
+    <link rel="dns-prefetch" href="https://cdn.sanity.io">
     
-    <!-- 1. CONNEXIONS ANTICIPÉES -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.sanity.io">
-    <link rel="preconnect" href="https://jvrtf17r.api.sanity.io">
-
-    <!-- 2. LCP PRELOADER CRITIQUE 
-         Ce script s'exécute AVANT le chargement du JS de l'application.
-    -->
+    <!-- Script LCP : Placé avant tout pour casser la chaîne de dépendance -->
     <script>
       (function() {
         const pId = 'jvrtf17r';
-        const q = encodeURIComponent('*[_type == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}');
+        // Requête simplifiée au maximum pour un TTFB optimal
+        const q = encodeURIComponent('*[_id == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}');
         const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${q}`;
         
         fetch(url).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-                const fullUrl = imgUrl + '?w=1920&q=80&auto=format';
-                // On crée un lien de préchargement immédiat
+                const fullUrl = imgUrl + '?w=1920&q=75&auto=format';
                 const l = document.createElement('link');
                 l.rel = 'preload';
                 l.as = 'image';
                 l.href = fullUrl;
-                l.imageSrcset = fullUrl;
                 l.fetchPriority = 'high';
                 document.head.appendChild(l);
-                // On stocke l'URL pour que React l'utilise sans attendre
                 window.__LCP_HERO_URL__ = fullUrl;
             }
         }).catch(()=>{});
       })();
     </script>
+
+    <!-- 2. PRÉ-CHARGEMENT DU CODE (Réduit le temps de blocage JS) -->
+    <link rel="modulepreload" href="/index.tsx">
+
+    <!-- 3. MÉTADONNÉES STANDARDS -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
+    <meta name="author" content="Duroche Immobilier">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://www.duroche.fr/" />
+    <title>Duroche Immobilier</title>
+    
+    <!-- 4. POLICES ET RESSOURCES TIERCES -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link 
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+      media="print" 
+      onload="this.media='all'"
+    >
 
     <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -58,14 +67,6 @@
       gtag('js', new Date());
     </script>
 
-    <!-- 3. POLICES : Chargement optimisé -->
-    <link 
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
-      media="print" 
-      onload="this.media='all'"
-    >
-    
     <!-- Open Graph -->
     <meta property="og:site_name" content="Duroche Immobilier" />
     <meta property="og:type" content="website" />

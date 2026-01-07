@@ -16,6 +16,7 @@ interface HeroProps {
  */
 const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText, heroBackgroundImage }) => {
   // On récupère l'URL potentiellement déjà optimisée par le script du head
+  // Cela permet d'afficher l'image instantanément si le navigateur l'a déjà en mémoire
   const optimizedUrl = (window as any).__LCP_HERO_URL__ || heroBackgroundImage;
 
   return (
