@@ -149,8 +149,22 @@ const PropertyDetailPage: React.FC = () => {
     
     const allImages = [property.image, ...(property.images || [])].filter(Boolean);
     
-    // Utilisation de l'image préchargée pour la photo principale si disponible
-    const firstImageUrl = (window as any).__LCP_IMG_URL__ || urlFor(allImages[0]).width(1280).quality(60).url();
+    // --- GESTION DU CACHE LCP (SPA NAVIGATION) ---
+    // On utilise l'image préchargée SEULEMENT si elle correspond au bien actuel (target === reference)
+    const preloadedUrl = (window as any).__LCP_IMG_URL__;
+    const preloadedTarget = (window as any).__LCP_TARGET__;
+    
+    const decodedRef = decodeURIComponent(reference || '');
+    const isTargetMatch = preloadedTarget === decodedRef || preloadedTarget === property._id;
+    
+    // On consomme la variable globale une fois vérifiée pour ne pas qu'elle traîne lors de la prochaine navigation
+    const firstImageUrl = (isTargetMatch && preloadedUrl) ? preloadedUrl : urlFor(allImages[0]).width(1280).quality(60).url();
+    
+    // Nettoyage immédiat pour la prochaine navigation interne
+    if (window && (window as any).__LCP_IMG_URL__) {
+        (window as any).__LCP_IMG_URL__ = null;
+        (window as any).__LCP_TARGET__ = null;
+    }
     
     const imageUrls = [
         firstImageUrl,
@@ -214,7 +228,7 @@ const PropertyDetailPage: React.FC = () => {
     };
 
     return (
-        <div className="bg-background relative">
+        <div className="bg-background relative" key={property._id}>
             <Helmet>
                 <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
@@ -434,7 +448,7 @@ const PropertyDetailPage: React.FC = () => {
             </div>
 
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-color p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 lg:hidden flex items-center justify-between gap-3 safe-area-bottom print:hidden">
-                 <div className="flex flex-col">
+                 <div className="flex items-col">
                     <span className="text-xs text-secondary-text">Prix</span>
                     <span className="text-lg font-bold font-heading text-accent">{formattedPrice}</span>
                  </div>

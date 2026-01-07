@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -11,13 +12,16 @@
         const pId = 'jvrtf17r';
         const path = window.location.pathname;
         let query = '';
+        let target = '';
         
         // Détection de la page pour le LCP
         if (path === '/') {
+          target = 'home';
           query = '*[_id == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}';
         } else if (path.startsWith('/properties/')) {
           const ref = path.split('/').pop();
           if (ref) {
+            target = ref;
             query = `*[_type == "property" && (reference == "${ref}" || _id == "${ref}")][0]{"u": image.asset->url}`;
           }
         }
@@ -29,11 +33,12 @@
             if (imgUrl) {
               const fullUrl = imgUrl + '?w=1280&q=60&auto=format';
               window.__LCP_IMG_URL__ = fullUrl;
+              window.__LCP_TARGET__ = target; // On stocke la cible (home ou la référence du bien)
+              
               const l = document.createElement('link');
               l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);
               
-              // Injection immédiate si le placeholder existe déjà dans le DOM
               const bg = document.getElementById('lcp-detail-bg') || document.getElementById('lcp-hero-bg');
               if (bg) { bg.src = fullUrl; }
             }
