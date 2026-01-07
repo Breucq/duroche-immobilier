@@ -2,57 +2,61 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <!-- 1. PRIORITÉ ABSOLUE : CONNEXIONS ET DÉCOUVERTE LCP -->
+    <!-- 1. CONNEXIONS CRITIQUES (Placées tout en haut) -->
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
     <link rel="dns-prefetch" href="https://jvrtf17r.api.sanity.io">
-    <link rel="dns-prefetch" href="https://cdn.sanity.io">
     
-    <!-- Script LCP : Placé avant tout pour casser la chaîne de dépendance -->
+    <!-- 2. LCP FAST-RENDER : Affiche l'image SANS attendre React -->
+    <style>
+      #lcp-hero-bg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
+        background-color: #1a1a1a; /* Placeholder couleur sombre */
+      }
+    </style>
     <script>
       (function() {
         const pId = 'jvrtf17r';
-        // Requête simplifiée au maximum pour un TTFB optimal
         const q = encodeURIComponent('*[_id == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}');
         const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${q}`;
         
         fetch(url).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-                const fullUrl = imgUrl + '?w=1920&q=75&auto=format';
-                const l = document.createElement('link');
-                l.rel = 'preload';
-                l.as = 'image';
-                l.href = fullUrl;
-                l.fetchPriority = 'high';
-                document.head.appendChild(l);
+                // Optimisation agressive : 1280px / Qualité 60
+                const fullUrl = imgUrl + '?w=1280&q=60&auto=format';
                 window.__LCP_HERO_URL__ = fullUrl;
+                
+                // Préchargement prioritaire
+                const l = document.createElement('link');
+                l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
+                document.head.appendChild(l);
+                
+                // Affichage immédiat dans le placeholder pour tuer le "render delay"
+                const bg = document.getElementById('lcp-hero-bg');
+                if (bg) { bg.src = fullUrl; }
             }
         }).catch(()=>{});
       })();
     </script>
 
-    <!-- 2. PRÉ-CHARGEMENT DU CODE (Réduit le temps de blocage JS) -->
     <link rel="modulepreload" href="/index.tsx">
-
-    <!-- 3. MÉTADONNÉES STANDARDS -->
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
     <meta name="author" content="Duroche Immobilier">
-    <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- 4. POLICES ET RESSOURCES TIERCES -->
+    <!-- Polices optimisées -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link 
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
-      media="print" 
-      onload="this.media='all'"
-    >
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@700&display=swap" media="print" onload="this.media='all'">
 
     <!-- Favicons -->
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
@@ -66,16 +70,20 @@
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
     </script>
-
-    <!-- Open Graph -->
-    <meta property="og:site_name" content="Duroche Immobilier" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Duroche Immobilier" />
-    <meta property="og:description" content="Achat, vente, estimation. Votre partenaire immobilier de confiance à Orange et ses environs." />
-    <meta property="og:image" content="https://cdn.sanity.io/images/jvrtf17r/production/b5a4529d38c642277c0827137f88467472097973-1920x1080.jpg?fm=jpg" />
 </head>
   <body class="bg-background antialiased">
-    <div id="root"></div>
+    <div id="root">
+        <!-- Placeholder LCP pour éliminer le "Element Render Delay" -->
+        <div id="lcp-hero-placeholder" style="position:relative; width:100%; height:70vh; min-height:500px; display:none;">
+            <img id="lcp-hero-bg" alt="" role="presentation">
+        </div>
+        <script>
+            // Affiche le placeholder uniquement sur la home
+            if (window.location.pathname === '/') {
+                document.getElementById('lcp-hero-placeholder').style.display = 'block';
+            }
+        </script>
+    </div>
     <script type="module" src="/index.tsx"></script>
   </body>
 </html>
