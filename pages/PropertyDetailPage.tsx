@@ -138,8 +138,6 @@ const PropertyDetailPage: React.FC = () => {
     const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
     
     // --- CALCUL DE L'URL CANONIQUE OFFICIELLE ---
-    // On force l'URL officielle basée sur la référence si elle existe, sinon sur l'ID.
-    // Cela évite que Google indexe la page ID et la page REF comme deux pages différentes.
     const officialSlug = hasCleanRef ? property.reference : property._id;
     const canonicalUrl = `https://www.duroche.fr/properties/${officialSlug}`;
 
@@ -150,7 +148,14 @@ const PropertyDetailPage: React.FC = () => {
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
     
     const allImages = [property.image, ...(property.images || [])].filter(Boolean);
-    const imageUrls = allImages.map(img => urlFor(img).auto('format').quality(80).url());
+    
+    // Utilisation de l'image préchargée pour la photo principale si disponible
+    const firstImageUrl = (window as any).__LCP_IMG_URL__ || urlFor(allImages[0]).width(1280).quality(60).url();
+    
+    const imageUrls = [
+        firstImageUrl,
+        ...allImages.slice(1).map(img => urlFor(img).auto('format').quality(80).url())
+    ];
     const otherImages = imageUrls.slice(1, 5);
 
     const openLightbox = (index: number) => { setCurrentImageIndex(index); setIsLightboxOpen(true); };
@@ -214,23 +219,12 @@ const PropertyDetailPage: React.FC = () => {
                 <title>{seoTitle} | Duroche Immobilier</title>
                 <meta name="description" content={seoDescription} />
                 <link rel="canonical" href={canonicalUrl} />
-                
                 <meta property="og:type" content="product" />
                 <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
-                <meta property="og:price:amount" content={property.price.toString()} />
-                <meta property="og:price:currency" content="EUR" />
-                <meta property="product:price:amount" content={property.price.toString()} />
-                <meta property="product:price:currency" content="EUR" />
-                
                 <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:url" content={canonicalUrl} />
-                <meta property="twitter:title" content={seoTitle} />
-                <meta property="twitter:description" content={seoDescription} />
-                <meta property="twitter:image" content={shareImageUrl} />
-
                 <script type="application/ld+json">
                     {JSON.stringify(structuredData)}
                 </script>
@@ -305,10 +299,16 @@ const PropertyDetailPage: React.FC = () => {
                  {imageUrls && imageUrls.length > 0 && ( 
                     <> 
                         <div className="md:hidden mt-6 print:hidden"> 
-                            <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide"> 
+                            <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide aspect-video"> 
                                 {imageUrls.map((imgUrl, index) => ( 
                                     <div key={index} className="snap-center w-full flex-shrink-0 aspect-video relative group"> 
-                                        <ImageWithSkeleton src={imgUrl} alt={getImageAlt(index)} className="w-full h-full" onClick={() => openLightbox(index)} />
+                                        <ImageWithSkeleton 
+                                            src={imgUrl} 
+                                            alt={getImageAlt(index)} 
+                                            className="w-full h-full" 
+                                            onClick={() => openLightbox(index)} 
+                                            fetchPriority={index === 0 ? "high" : "auto"}
+                                        />
                                         <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => openLightbox(index)}> 
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" /></svg> 
                                         </div> 
@@ -321,7 +321,16 @@ const PropertyDetailPage: React.FC = () => {
                         <div className="hidden mt-6 md:grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[550px] rounded-xl overflow-hidden shadow-lg print:hidden"> 
                             <div className="md:col-span-2 md:row-span-2"> 
                                 <button onClick={() => openLightbox(0)} className="w-full h-full block group relative"> 
-                                    <ImageWithSkeleton src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                                    <ImageWithSkeleton 
+                                        src={imageUrls[0]} 
+                                        alt={getImageAlt(0)} 
+                                        className="w-full h-full transition-transform duration-300 group-hover:scale-105" 
+                                        fetchPriority="high"
+                                        onLoad={() => {
+                                            const ph = document.getElementById('lcp-detail-placeholder');
+                                            if (ph) ph.style.display = 'none';
+                                        }}
+                                    />
                                 </button> 
                             </div> 
                             {otherImages.map((imgUrl, index) => ( 
@@ -349,7 +358,6 @@ const PropertyDetailPage: React.FC = () => {
                             {property.bedrooms > 0 && <KeyFeature icon={<IconBed className="w-8 h-8"/>} label="Chambres" value={property.bedrooms} />} 
                             {property.area > 0 && <KeyFeature icon={<IconArea className="w-8 h-8"/>} label="Habitable" value={`${property.area} m²`} />} 
                             {property.landArea > 0 && <KeyFeature icon={<IconLand className="w-8 h-8"/>} label="Terrain" value={`${property.landArea} m²`} />}
-                            {!property.landArea && property.details?.yearBuilt && property.details.yearBuilt > 0 && <KeyFeature icon={<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0h18M12 12.75h.008v.008H12v-.008z" /></svg>} label="Année" value={property.details.yearBuilt} />} 
                         </div> 
                         
                         {property.virtualTourUrl && <div className="text-center print:hidden"> <a href={property.virtualTourUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors w-full sm:w-auto"> <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg> Visite Virtuelle </a> </div>} 
@@ -379,30 +387,12 @@ const PropertyDetailPage: React.FC = () => {
                                                 <span>{property.details.condition}</span>
                                             </li>
                                         )}
-                                        {property.details?.yearBuilt && property.details.yearBuilt > 0 && (
-                                            <li className="flex items-start">
-                                                <strong className="min-w-[120px] font-semibold text-primary-text print:min-w-[90px]">Année :</strong> 
-                                                <span>{property.details.yearBuilt}</span>
-                                            </li>
-                                        )}
-                                        {property.details?.levels && property.details.levels > 0 && (
-                                            <li className="flex items-start">
-                                                <strong className="min-w-[120px] font-semibold text-primary-text print:min-w-[90px]">Niveaux :</strong> 
-                                                <span>{property.details.levels}</span>
-                                            </li>
-                                        )}
                                     </ul>
                                 </Section>
-
-                                {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6 print:space-y-2"> <CharacteristicSection title="Général" items={property.characteristics.general} /> <CharacteristicSection title="Intérieur" items={property.characteristics.interior} /> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> <CharacteristicSection title="Terrain" items={property.characteristics.land} /> <CharacteristicSection title="Local Commercial" items={property.characteristics.commercial} /> </div> </Section>} 
+                                {property.characteristics && <Section title="Caractéristiques"> <div className="space-y-6 print:space-y-2"> <CharacteristicSection title="Extérieur" items={property.characteristics.exterior} /> <CharacteristicSection title="Équipements" items={property.characteristics.equipment} /> </div> </Section>} 
                                 {(property.dpe || property.ges) && <Section title="Performances"> <div className="space-y-4 print:space-y-2"> {property.dpe && <DPEChart type="DPE" classification={property.dpe.class} value={property.dpe.value} />} {property.ges && <DPEChart type="GES" classification={property.ges.class} value={property.ges.value} />} </div> </Section>} 
                             </div>
                         </div>
-
-                        {property.financials && <Section title="Informations financières"> <ul className="list-none p-0 space-y-2 print:text-xs"> <li><strong>Prix :</strong> {formattedPrice}</li> <li><strong>Honoraires :</strong> {property.financials.agencyFees}</li> {property.financials.propertyTax && <li><strong>Taxe Foncière :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.propertyTax)} / an</li>} {property.financials.condoFees && <li><strong>Charges de copropriété :</strong> {new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 0 }).format(property.financials.condoFees)} / mois</li>} </ul> </Section>} 
-                        {property.coOwnership?.isCoOwnership && <Section title="Informations sur la copropriété"> <ul className="list-none p-0 space-y-2 print:text-xs"> <li><strong>Bien en copropriété :</strong> Oui</li> {property.coOwnership.numberOfLots && <li><strong>Nombre de lots :</strong> {property.coOwnership.numberOfLots}</li>} {property.coOwnership.proceedings && <li><strong>Procédure en cours :</strong> {property.coOwnership.proceedings}</li>} </ul> </Section>} 
-                        {property.risks && <Section title="Les risques sur ce bien"><p className="print:text-[10px]">{property.risks}</p></Section>} 
-                        
                         <div className="print:hidden">
                             <MortgageSimulator price={property.price} /> 
                         </div>
@@ -415,18 +405,11 @@ const PropertyDetailPage: React.FC = () => {
                                 <h2 className="text-2xl font-heading font-bold text-primary-text leading-tight pr-8">{property.type} à {property.location}</h2> 
                                 <p className="text-3xl font-bold font-heading text-accent mt-2">{formattedPrice}</p> 
                             </div> 
-                            
                             <div className="print:hidden">
-                                {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence. Contactez-nous pour que nous vous aidions à trouver une propriété similaire.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-6 w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Voir les biens disponibles </button> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> <p className="text-secondary-text mt-2">Contactez votre conseiller pour organiser une visite.</p> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} 
+                                {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence.</p> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} 
                                 <div className="my-6"> 
                                     <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> 
-                                    <button 
-                                        onClick={() => window.print()}
-                                        className="flex items-center justify-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors w-full mx-auto"
-                                    >
-                                        <PrinterIcon className="w-5 h-5" />
-                                        <span className="underline">Imprimer la fiche</span>
-                                    </button>
+                                    <button onClick={() => window.print()} className="flex items-center justify-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors w-full mx-auto"><PrinterIcon className="w-5 h-5" /><span className="underline">Imprimer la fiche</span></button>
                                 </div> 
                             </div>
                         </div> 
