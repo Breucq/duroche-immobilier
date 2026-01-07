@@ -71,9 +71,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
+  // OPTIMISATION : Demande une taille de vignette 16:9 (480x270) avec une qualité de 70 pour alléger le chargement
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(500).height(375).quality(75).url());
+    .map(img => urlFor(img).width(480).height(270).quality(70).url());
   
   const hasMultipleImages = imageUrls.length > 1;
 
@@ -86,8 +87,8 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
-      {/* CORRECTION : aspect-ratio sur le conteneur pour éviter les Layout Shifts */}
-      <div className="relative overflow-hidden aspect-[4/3] bg-gray-100">
+      {/* CORRECTION : aspect-video pour correspondre au ratio 16:9 des photos de 1920x1080 */}
+      <div className="relative overflow-hidden aspect-video bg-gray-100">
         <div
             className="flex h-full transition-transform duration-300 ease-in-out"
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
