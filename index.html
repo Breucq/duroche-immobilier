@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
   <head>
@@ -33,7 +32,7 @@
             if (imgUrl) {
               const fullUrl = imgUrl + '?w=1280&q=60&auto=format';
               window.__LCP_IMG_URL__ = fullUrl;
-              window.__LCP_TARGET__ = target; // On stocke la cible (home ou la référence du bien)
+              window.__LCP_TARGET__ = target; 
               
               const l = document.createElement('link');
               l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
@@ -47,7 +46,6 @@
       })();
     </script>
 
-    <link rel="modulepreload" href="/index.tsx">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
