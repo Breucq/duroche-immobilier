@@ -1,10 +1,33 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <!-- 1. CONNEXIONS CRITIQUES -->
+    <!-- 1. CONNEXIONS CRITIQUES ET CSS CRITIQUE -->
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
     <link rel="dns-prefetch" href="https://jvrtf17r.api.sanity.io">
+    
+    <style>
+      /* CSS CRITIQUE : Affichage instantané avant chargement du fichier CSS externe */
+      :root {
+        --background: #FDFCFB;
+        --primary-text: #333D4B;
+        --accent: #b68d3d;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: var(--background);
+        color: var(--primary-text);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root { min-height: 100vh; }
+      #lcp-hero-placeholder { background: #1a1a1a; }
+      #lcp-detail-placeholder { background: #eee; }
+      /* Animation de pulsation pour les placeholders */
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+      .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
     
     <script>
       (function() {
@@ -52,11 +75,11 @@
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
+    <!-- Polices chargées de manière non-bloquante -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@700&display=swap" media="print" onload="this.media='all'">
 
-    <!-- FAVICONS (Servis depuis /public) -->
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -70,14 +93,14 @@
       gtag('js', new Date());
     </script>
 </head>
-  <body class="bg-background antialiased">
+  <body class="antialiased">
     <div id="root">
         <!-- Placeholder LCP Home -->
-        <div id="lcp-hero-placeholder" style="position:relative; width:100%; height:70vh; min-height:500px; display:none; background:#1a1a1a;">
+        <div id="lcp-hero-placeholder" class="animate-pulse" style="position:relative; width:100%; height:70vh; min-height:500px; display:none;">
             <img id="lcp-hero-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
         </div>
         <!-- Placeholder LCP Detail -->
-        <div id="lcp-detail-placeholder" style="width:100%; aspect-ratio:16/9; display:none; background:#eee; overflow:hidden;">
+        <div id="lcp-detail-placeholder" class="animate-pulse" style="width:100%; aspect-ratio:16/9; display:none; overflow:hidden;">
             <img id="lcp-detail-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
         </div>
         <script>
