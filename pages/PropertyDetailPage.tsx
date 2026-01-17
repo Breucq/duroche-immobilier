@@ -150,27 +150,27 @@ const PropertyDetailPage: React.FC = () => {
     const allImages = [property.image, ...(property.images || [])].filter(Boolean);
     
     // --- GESTION DU CACHE LCP (SPA NAVIGATION) ---
-    // On utilise l'image préchargée SEULEMENT si elle correspond au bien actuel (target === reference)
     const preloadedUrl = (window as any).__LCP_IMG_URL__;
     const preloadedTarget = (window as any).__LCP_TARGET__;
     
     const decodedRef = decodeURIComponent(reference || '');
     const isTargetMatch = preloadedTarget === decodedRef || preloadedTarget === property._id;
     
-    // On consomme la variable globale une fois vérifiée pour ne pas qu'elle traîne lors de la prochaine navigation
     const firstImageUrl = (isTargetMatch && preloadedUrl) ? preloadedUrl : urlFor(allImages[0]).width(1280).quality(60).url();
     
-    // Nettoyage immédiat pour la prochaine navigation interne
     if (window && (window as any).__LCP_IMG_URL__) {
         (window as any).__LCP_IMG_URL__ = null;
         (window as any).__LCP_TARGET__ = null;
     }
     
+    // OPTIMISATION : Les images secondaires (vignettes) doivent avoir un width(400) sinon on charge l'original
     const imageUrls = [
         firstImageUrl,
-        ...allImages.slice(1).map(img => urlFor(img).auto('format').quality(80).url())
+        ...allImages.slice(1).map(img => urlFor(img).width(1280).auto('format').quality(70).url())
     ];
-    const otherImages = imageUrls.slice(1, 5);
+    
+    // Vignettes secondaires limitées à 400px de large
+    const thumbUrls = allImages.map(img => urlFor(img).width(400).height(300).fit('crop').quality(60).url());
 
     const openLightbox = (index: number) => { setCurrentImageIndex(index); setIsLightboxOpen(true); };
     const closeLightbox = () => setIsLightboxOpen(false);
@@ -273,25 +273,11 @@ const PropertyDetailPage: React.FC = () => {
                          <li aria-current="page">
                             <div className="flex items-center">
                                 <svg className="w-3 h-3 text-gray-400 mx-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 9 4-4-4-4"/></svg>
-                                <Link to={`/properties?location=${encodeURIComponent(city)}&type=${encodeURIComponent(property.type)}`} className="ml-1 font-medium text-primary-text hover:text-accent transition-colors">{property.type}</Link>
+                                <span className="ml-1 font-medium text-primary-text">{property.type}</span>
                             </div>
                         </li>
                     </ol>
                 </nav>
-                 
-                 <div className="hidden print:flex justify-between items-center mb-4 border-b-2 border-accent pb-2">
-                    <div className="flex items-center gap-3">
-                        <div className="flex flex-col">
-                            <h1 className="text-xl font-heading font-bold text-primary-text uppercase tracking-wider">Duroche Immobilier</h1>
-                            <p className="text-[10px] text-secondary-text">Votre expert du Vaucluse Nord</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <h2 className="text-lg font-bold">{property.type} - {property.location}</h2>
-                        <p className="text-xl font-bold text-accent">{formattedPrice}</p>
-                        {property.reference && <p className="text-[10px] text-gray-500">Réf: {property.reference}</p>}
-                    </div>
-                 </div>
 
                  <div className="mb-8 print:hidden">
                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-y-4">
@@ -314,10 +300,10 @@ const PropertyDetailPage: React.FC = () => {
                     <> 
                         <div className="md:hidden mt-6 print:hidden"> 
                             <div className="relative flex overflow-x-auto snap-x snap-mandatory rounded-xl shadow-lg scrollbar-hide aspect-video"> 
-                                {imageUrls.map((imgUrl, index) => ( 
+                                {thumbUrls.map((thumbUrl, index) => ( 
                                     <div key={index} className="snap-center w-full flex-shrink-0 aspect-video relative group"> 
                                         <ImageWithSkeleton 
-                                            src={imgUrl} 
+                                            src={thumbUrl} 
                                             alt={getImageAlt(index)} 
                                             className="w-full h-full" 
                                             onClick={() => openLightbox(index)} 
@@ -329,7 +315,6 @@ const PropertyDetailPage: React.FC = () => {
                                     </div> 
                                 ))} 
                             </div> 
-                            {imageUrls.length > 1 && <div className="text-center mt-2 text-sm text-secondary-text">Faites glisser pour voir plus de photos</div>} 
                         </div> 
 
                         <div className="hidden mt-6 md:grid grid-cols-1 gap-2 md:grid-cols-4 md:grid-rows-2 md:h-[550px] rounded-xl overflow-hidden shadow-lg print:hidden"> 
@@ -347,19 +332,15 @@ const PropertyDetailPage: React.FC = () => {
                                     />
                                 </button> 
                             </div> 
-                            {otherImages.map((imgUrl, index) => ( 
+                            {thumbUrls.slice(1, 5).map((thumbUrl, index) => ( 
                                 <div key={index} className="hidden md:block"> 
                                     <button onClick={() => openLightbox(index + 1)} className="w-full h-full block group relative"> 
-                                        <ImageWithSkeleton src={imgUrl} alt={getImageAlt(index + 1)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                                        <ImageWithSkeleton src={thumbUrl} alt={getImageAlt(index + 1)} className="w-full h-full transition-transform duration-300 group-hover:scale-105" />
                                         {index === 3 && imageUrls.length > 5 && <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white text-lg font-bold cursor-pointer">+{imageUrls.length - 5}</div>} 
                                     </button> 
                                 </div> 
                             ))} 
                         </div> 
-                        
-                        <div className="hidden print:block mb-4 w-full h-64 overflow-hidden rounded-lg">
-                            <img src={imageUrls[0]} alt={getImageAlt(0)} className="w-full h-full object-cover" />
-                        </div>
                     </> 
                 )}
 

@@ -52,6 +52,7 @@
           fetch(url).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
+              // OPTIMISATION : w=1280 (HD suffisant) et q=60 (Compression optimale)
               const fullUrl = imgUrl + '?w=1280&q=60&auto=format';
               window.__LCP_IMG_URL__ = fullUrl;
               window.__LCP_TARGET__ = target; 
