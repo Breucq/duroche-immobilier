@@ -1,82 +1,60 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <!-- 1. CONNEXIONS CRITIQUES ET CSS CRITIQUE -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- 1. PRÉCONNEXIONS (Critique pour éliminer les délais DNS) -->
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
-    <link rel="dns-prefetch" href="https://jvrtf17r.api.sanity.io">
+    <link rel="dns-prefetch" href="https://cdn.sanity.io">
     
     <style>
-      /* CSS CRITIQUE : Affichage instantané avant chargement du fichier CSS externe */
-      :root {
-        --background: #FDFCFB;
-        --primary-text: #333D4B;
-        --accent: #b68d3d;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: var(--background);
-        color: var(--primary-text);
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        -webkit-font-smoothing: antialiased;
-      }
-      #root { min-height: 100vh; }
-      #lcp-hero-placeholder { background: #1a1a1a; }
-      #lcp-detail-placeholder { background: #eee; }
-      /* Animation de pulsation pour les placeholders */
-      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+      /* CSS CRITIQUE RENFORCÉ : Évite tout décalage visuel (CLS) */
+      :root { --background: #FDFCFB; --primary-text: #333D4B; --accent: #b68d3d; }
+      body { margin: 0; background-color: var(--background); color: var(--primary-text); font-family: system-ui, -apple-system, sans-serif; }
+      #root { min-height: 100vh; display: flex; flex-direction: column; }
+      .lcp-wrap { position: relative; width: 100%; overflow: hidden; background: #1a1a1a; }
+      .lcp-home { height: 70vh; min-height: 500px; }
+      .lcp-detail { aspect-ratio: 16/9; }
       .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+      header { height: 80px; background: white; border-bottom: 1px solid #eee; }
     </style>
     
     <script>
+      /* SCRIPT LCP ULTRA-RAPIDE : S'exécute avant même le téléchargement du JS principal */
       (function() {
         const pId = 'jvrtf17r';
         const path = window.location.pathname;
-        let query = '';
-        let target = '';
-        
-        if (path === '/') {
-          target = 'home';
-          query = '*[_id == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}';
-        } else if (path.startsWith('/properties/')) {
-          const ref = path.split('/').pop();
-          if (ref) {
-            target = ref;
-            query = `*[_type == "property" && (reference == "${ref}" || _id == "${ref}")][0]{"u": image.asset->url}`;
-          }
+        let q = ''; let t = '';
+        if (path === '/') { t='home'; q='*[_id=="homePageSettings"][0]{"u":heroBackgroundImage.asset->url}'; }
+        else if (path.startsWith('/properties/')) {
+          const r = path.split('/').pop();
+          if (r) { t=r; q=`*[_type=="property" && (reference=="${r}"||_id=="${r}")][0]{"u":image.asset->url}`; }
         }
-
-        if (query) {
-          const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${encodeURIComponent(query)}`;
-          fetch(url).then(r => r.json()).then(d => {
+        if (q) {
+          const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${encodeURIComponent(q)}`;
+          fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-              // OPTIMISATION : w=1280 (HD suffisant) et q=60 (Compression optimale)
-              const fullUrl = imgUrl + '?w=1280&q=60&auto=format';
-              window.__LCP_IMG_URL__ = fullUrl;
-              window.__LCP_TARGET__ = target; 
-              
-              const l = document.createElement('link');
-              l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
+              const fullUrl = imgUrl + '?w=1200&q=65&auto=format';
+              window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
+              const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);
-              
-              const bg = document.getElementById('lcp-detail-bg') || document.getElementById('lcp-hero-bg');
-              if (bg) { bg.src = fullUrl; }
+              const bg = document.getElementById('lcp-img'); if (bg) { bg.src = fullUrl; bg.style.opacity = "1"; }
             }
           }).catch(()=>{});
         }
       })();
     </script>
 
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation. Découvrez nos biens à Orange, Caderousse, et environs." id="meta-description">
     <meta name="author" content="Duroche Immobilier">
     <link rel="canonical" href="https://www.duroche.fr/" />
     <title>Duroche Immobilier</title>
     
-    <!-- Polices chargées de manière non-bloquante -->
+    <!-- Polices non-bloquantes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@700&display=swap" media="print" onload="this.media='all'">
@@ -88,33 +66,24 @@
     <meta name="theme-color" content="#b68d3d">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-    </script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());</script>
 </head>
   <body class="antialiased">
     <div id="root">
-        <!-- Placeholder LCP Home -->
-        <div id="lcp-hero-placeholder" class="animate-pulse" style="position:relative; width:100%; height:70vh; min-height:500px; display:none;">
-            <img id="lcp-hero-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
-        </div>
-        <!-- Placeholder LCP Detail -->
-        <div id="lcp-detail-placeholder" class="animate-pulse" style="width:100%; aspect-ratio:16/9; display:none; overflow:hidden;">
-            <img id="lcp-detail-bg" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;">
+        <header></header>
+        <div id="lcp-placeholder" class="lcp-wrap animate-pulse">
+            <img id="lcp-img" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 0.3s;" fetchpriority="high">
         </div>
         <script>
             (function() {
                 const p = window.location.pathname;
-                if (p === '/') {
-                    document.getElementById('lcp-hero-placeholder').style.display = 'block';
-                } else if (p.startsWith('/properties/')) {
-                    document.getElementById('lcp-detail-placeholder').style.display = 'block';
-                }
+                const el = document.getElementById('lcp-placeholder');
+                if (p === '/') { el.classList.add('lcp-home'); } 
+                else if (p.startsWith('/properties/')) { el.classList.add('lcp-detail'); }
+                else { el.style.display = 'none'; }
             })();
         </script>
     </div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="/index.tsx" fetchpriority="high"></script>
   </body>
 </html>

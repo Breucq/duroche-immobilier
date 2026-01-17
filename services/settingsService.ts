@@ -9,12 +9,11 @@ export const settingsService = {
     const query = `*[_type == "siteSettings" && _id == "${SETTINGS_DOCUMENT_ID}"][0]`;
     const settings = await client.fetch(query);
 
-    // Build full image URLs from Sanity image objects
-    // Fix: Increased width to 1200px to ensure sharpness on Retina/High-DPI screens
+    // FIX PageSpeed: On demande du 400px max pour les logos, c'est largement suffisant.
     return {
       ...settings,
-      logo: settings.logo ? urlFor(settings.logo).width(1200).url() : '',
-      footerLogo: settings.footerLogo ? urlFor(settings.footerLogo).width(1200).url() : '',
+      logo: settings.logo ? urlFor(settings.logo).width(400).auto('format').url() : '',
+      footerLogo: settings.footerLogo ? urlFor(settings.footerLogo).width(400).auto('format').url() : '',
       favicon: settings.favicon ? urlFor(settings.favicon).width(128).url() : '',
     };
   },

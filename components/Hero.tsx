@@ -11,14 +11,11 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText, heroBackgroundImage }) => {
-  const optimizedUrl = (window as any).__LCP_HERO_URL__ || heroBackgroundImage;
+  // On utilise l'URL préchargée si elle existe, sinon on prend l'originale
+  const optimizedUrl = (window as any).__LCP_IMG_URL__ || heroBackgroundImage;
 
   return (
     <section className="relative h-[70vh] sm:h-[60vh] min-h-[500px] sm:min-h-[450px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
-      {/* 
-          L'image est déjà affichée par le HTML initial (placeholder). 
-          React vient ici "reprendre la main" sans flash visuel.
-      */}
       <img 
         src={optimizedUrl} 
         alt="" 
@@ -28,8 +25,7 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
         decoding="async"
         className="absolute inset-0 w-full h-full object-cover z-0"
         onLoad={() => {
-            // Une fois React chargé, on peut masquer le placeholder HTML si nécessaire
-            const ph = document.getElementById('lcp-hero-placeholder');
+            const ph = document.getElementById('lcp-placeholder');
             if (ph) ph.style.display = 'none';
         }}
       />
