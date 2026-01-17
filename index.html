@@ -13,7 +13,6 @@
         let query = '';
         let target = '';
         
-        // Détection de la page pour le LCP
         if (path === '/') {
           target = 'home';
           query = '*[_id == "homePageSettings"][0]{"u": heroBackgroundImage.asset->url}';
@@ -57,9 +56,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@700&display=swap" media="print" onload="this.media='all'">
 
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <!-- FAVICONS (Servis depuis /public) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon-32x32.png" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#b68d3d">
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
     <script>
