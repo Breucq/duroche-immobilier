@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import Hero from '../components/Hero';
@@ -42,6 +42,13 @@ const HomePage: React.FC = () => {
   const { data: content } = useQuery({ queryKey: ['homePageSettings'], queryFn: homePageSettingsService.getSettings });
   const { data: properties } = useQuery({ queryKey: ['activeProperties'], queryFn: propertyService.getActive });
 
+  // AFFICHAGE ALÉATOIRE : On mélange la liste des biens uniquement quand ils sont chargés
+  const shuffledProperties = useMemo(() => {
+    if (!properties) return [];
+    // Algorithme de tri aléatoire (Fisher-Yates simplifié)
+    return [...properties].sort(() => Math.random() - 0.5);
+  }, [properties]);
+
   if (!content) return <div className="py-48 text-center min-h-screen">Chargement...</div>;
 
   return (
@@ -58,7 +65,7 @@ const HomePage: React.FC = () => {
         setCurrentPage={(path) => navigate(path)}
         title={content.propertiesTitle}
         subtitle={content.propertiesSubtitle}
-        properties={properties || []}
+        properties={shuffledProperties}
       />
       <Estimation 
         setCurrentPage={(path) => navigate(path)}
