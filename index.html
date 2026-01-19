@@ -15,7 +15,7 @@
       body { margin: 0; background-color: var(--background); color: var(--primary-text); font-family: system-ui, -apple-system, sans-serif; }
       #root { min-height: 100vh; display: flex; flex-direction: column; }
       .lcp-wrap { position: relative; width: 100%; overflow: hidden; background: #1a1a1a; }
-      .lcp-home { height: 70vh; min-height: 500px; }
+      .lcp-home { height: 60vh; min-height: 450px; }
       .lcp-detail { aspect-ratio: 16/9; }
       .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
@@ -38,7 +38,8 @@
           fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-              const fullUrl = imgUrl + '?w=1200&q=65&auto=format';
+              // OPTIMISATION : w=1200 & h=675 (Ratio 16:9) + Recadrage serveur (fit=crop)
+              const fullUrl = imgUrl + '?w=1200&h=675&q=65&auto=format&fit=crop';
               window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
               const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);
@@ -67,6 +68,41 @@
 
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
     <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());</script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.12.0",
+    "@tanstack/react-query": "https://esm.sh/@tanstack/react-query@^5.90.18",
+    "react-helmet-async": "https://esm.sh/react-helmet-async@^2.0.5",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.3",
+    "react-hook-form": "https://esm.sh/react-hook-form@^7.71.1",
+    "@hookform/resolvers/": "https://esm.sh/@hookform/resolvers@^5.2.2/",
+    "zod": "https://esm.sh/zod@^4.3.5",
+    "@portabletext/react": "https://esm.sh/@portabletext/react@^6.0.2",
+    "vite": "https://esm.sh/vite@^7.3.1",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2",
+    "@sanity/client": "https://esm.sh/@sanity/client@^7.14.0",
+    "@sanity/image-url": "https://esm.sh/@sanity/image-url@^2.0.3",
+    "@sanity/image-url/": "https://esm.sh/@sanity/image-url@^2.0.3/",
+    "sanity": "https://esm.sh/sanity@^5.4.0",
+    "sanity/": "https://esm.sh/sanity@^5.4.0/",
+    "@sanity/vision": "https://esm.sh/@sanity/vision@^5.4.0",
+    "sanity-plugin-media": "https://esm.sh/sanity-plugin-media@^4.1.1",
+    "@sanity/icons": "https://esm.sh/@sanity/icons@^3.7.4",
+    "axios": "https://esm.sh/axios@^1.13.2",
+    "cheerio": "https://esm.sh/cheerio@^1.1.2",
+    "@sanity/ui": "https://esm.sh/@sanity/ui@^3.1.11",
+    "nanoid": "https://esm.sh/nanoid@^5.1.6",
+    "papaparse": "https://esm.sh/papaparse@^5.5.3",
+    "fs": "https://esm.sh/fs@^0.0.1-security",
+    "path": "https://esm.sh/path@^0.12.7",
+    "url": "https://esm.sh/url@^0.11.4"
+  }
+}
+</script>
 </head>
   <body class="antialiased">
     <div id="root">

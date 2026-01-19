@@ -15,7 +15,7 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
   const optimizedUrl = (window as any).__LCP_IMG_URL__ || heroBackgroundImage;
 
   return (
-    <section className="relative h-[70vh] sm:h-[60vh] min-h-[500px] sm:min-h-[450px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
+    <section className="relative h-[60vh] sm:h-[50vh] min-h-[450px] sm:min-h-[400px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
       <img 
         src={optimizedUrl} 
         alt="" 
