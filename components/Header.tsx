@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
@@ -84,7 +83,7 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
   };
 
   return (
-    <header className="bg-background/80 backdrop-blur-md sticky top-0 z-30 border-b border-border-color/75">
+    <header className="main-header bg-background/80 backdrop-blur-md sticky top-0 z-30 border-b border-border-color/75">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex-shrink-0">

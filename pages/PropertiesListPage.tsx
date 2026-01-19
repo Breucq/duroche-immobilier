@@ -308,11 +308,11 @@ const PropertiesListPage: React.FC = () => {
                     </ol>
                 </nav>
 
-                <header className="text-center mb-12">
+                <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Nos Biens Immobiliers à Vendre</h1>
                     <p className="mt-4 text-lg text-secondary-text max-w-2xl mx-auto">Trouvez la propriété qui correspond parfaitement à vos attentes dans le Vaucluse Nord.</p>
                      <Link to="/nos-biens-vendus" className="mt-4 inline-block text-sm font-medium text-accent hover:text-accent-dark transition-colors"> Voir nos biens récemment vendus &rarr; </Link>
-                </header>
+                </div>
                 
                 {/* Modification ici : ajout de z-30 et relative pour gérer le z-index du dropdown */}
                 <div className="bg-white/90 backdrop-blur-sm p-4 sm:p-6 rounded-xl shadow-2xl mb-12 border border-border-color/50 relative z-30">
@@ -343,8 +343,8 @@ const PropertiesListPage: React.FC = () => {
                                             className="px-4 py-2 hover:bg-background-alt cursor-pointer text-sm text-primary-text transition-colors flex items-center"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                             </svg>
                                             {city}
                                         </li>
