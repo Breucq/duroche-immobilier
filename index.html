@@ -4,27 +4,52 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- 1. PRÉCONNEXIONS (Critique pour éliminer les délais DNS) -->
+    <!-- 1. PRÉCONNEXIONS -->
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.sanity.io">
     
     <style>
-      /* CSS CRITIQUE RENFORCÉ : Évite tout décalage visuel (CLS) */
-      :root { --background: #FDFCFB; --primary-text: #333D4B; --accent: #b68d3d; }
-      body { margin: 0; background-color: var(--background); color: var(--primary-text); font-family: system-ui, -apple-system, sans-serif; }
+      /* CSS CRITIQUE : Contient tout ce qui est visible immédiatement (LCP) */
+      :root { 
+        --background: #FDFCFB; 
+        --primary-text: #333D4B; 
+        --accent: #b68d3d; 
+        --accent-dark: #9e7a32;
+        --secondary-text: #6B7A90;
+      }
+      body { 
+        margin: 0; 
+        background-color: var(--background); 
+        color: var(--primary-text); 
+        font-family: system-ui, -apple-system, 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
       #root { min-height: 100vh; display: flex; flex-direction: column; }
-      .lcp-wrap { position: relative; width: 100%; overflow: hidden; background: #1a1a1a; }
+      
+      /* Layout Header */
+      header { height: 80px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #E0E6ED; position: sticky; top: 0; z-index: 30; }
+      .nav-placeholder { height: 80px; width: 100%; }
+      
+      /* Hero Skeleton */
+      .lcp-wrap { position: relative; width: 100%; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
       .lcp-home { height: 60vh; min-height: 450px; }
       .lcp-detail { aspect-ratio: 16/9; }
+      
+      .hero-content-placeholder { text-align: center; color: white; z-index: 10; padding: 0 20px; }
+      .hero-h1-placeholder { height: 48px; width: 300px; background: rgba(255,255,255,0.2); margin: 0 auto 20px; border-radius: 8px; }
+      
       .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
       @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-      header { height: 80px; background: white; border-bottom: 1px solid #eee; }
+      
+      /* Stratégie de déblocage CSS */
+      .css-async { display: none; }
     </style>
     
     <script>
-      /* SCRIPT LCP ULTRA-RAPIDE : S'exécute avant même le téléchargement du JS principal */
+      /* SCRIPT DE DÉBLOCAGE CSS : S'exécute dès que possible */
       (function() {
+        // 1. Gestion du LCP Image
         const pId = 'jvrtf17r';
         const path = window.location.pathname;
         let q = ''; let t = '';
@@ -38,7 +63,6 @@
           fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-              // OPTIMISATION : w=1200 & h=675 (Ratio 16:9) + Recadrage serveur (fit=crop)
               const fullUrl = imgUrl + '?w=1200&h=675&q=65&auto=format&fit=crop';
               window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
               const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
@@ -47,6 +71,21 @@
             }
           }).catch(()=>{});
         }
+
+        // 2. Déblocage asynchrone du CSS injecté par Vite
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+              if (node.nodeName === 'LINK' && node.rel === 'stylesheet' && !node.getAttribute('data-async')) {
+                // On transforme le link bloquant en non-bloquant
+                node.media = 'print';
+                node.setAttribute('data-async', 'true');
+                node.onload = function() { this.media = 'all'; };
+              }
+            });
+          });
+        });
+        observer.observe(document.head, { childList: true });
       })();
     </script>
 
@@ -56,8 +95,6 @@
     <title>Duroche Immobilier</title>
     
     <!-- Polices non-bloquantes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@700&display=swap" media="print" onload="this.media='all'">
 
     <link rel="icon" href="/favicon.ico" sizes="any">
@@ -109,6 +146,10 @@
         <header></header>
         <div id="lcp-placeholder" class="lcp-wrap animate-pulse">
             <img id="lcp-img" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 0.3s;" fetchpriority="high">
+            <div class="hero-content-placeholder">
+                <div class="hero-h1-placeholder"></div>
+                <div style="height:20px; width:200px; background:rgba(255,255,255,0.1); margin:0 auto; border-radius:4px;"></div>
+            </div>
         </div>
         <script>
             (function() {
