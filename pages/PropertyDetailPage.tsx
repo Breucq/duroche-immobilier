@@ -166,7 +166,7 @@ const PropertyDetailPage: React.FC = () => {
     const decodedRef = decodeURIComponent(reference || '');
     const isTargetMatch = preloadedTarget === decodedRef || preloadedTarget === property._id;
     
-    const firstImageUrl = (isTargetMatch && preloadedUrl) ? preloadedUrl : urlFor(allImages[0]).width(1280).quality(60).url();
+    const firstImageUrl = (isTargetMatch && preloadedUrl) ? preloadedUrl : urlFor(allImages[0]).width(1280).quality(85).url();
     
     if (window && (window as any).__LCP_IMG_URL__) {
         (window as any).__LCP_IMG_URL__ = null;
@@ -176,11 +176,11 @@ const PropertyDetailPage: React.FC = () => {
     // OPTIMISATION : Les images secondaires (vignettes) doivent avoir un width(400) sinon on charge l'original
     const imageUrls = [
         firstImageUrl,
-        ...allImages.slice(1).map(img => urlFor(img).width(1280).auto('format').quality(70).url())
+        ...allImages.slice(1).map(img => urlFor(img).width(1280).auto('format').quality(80).url())
     ];
     
     // Vignettes secondaires limitées à 400px de large
-    const thumbUrls = allImages.map(img => urlFor(img).width(400).height(300).fit('crop').quality(60).url());
+    const thumbUrls = allImages.map(img => urlFor(img).width(400).height(300).fit('crop').quality(75).url());
 
     const openLightbox = (index: number) => { setCurrentImageIndex(index); setIsLightboxOpen(true); };
     const closeLightbox = () => setIsLightboxOpen(false);

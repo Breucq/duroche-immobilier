@@ -1,4 +1,3 @@
-
 import React from 'react';
 import type { Article } from '../types';
 import { urlFor } from '../services/sanityClient';
@@ -18,8 +17,8 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, setCurrentPage }) =>
   });
 
   const detailPath = `/blog/${article.slug.current}`;
-  // OPTIMISATION : Limitation de la largeur à 400px et qualité 60
-  const imageUrl = urlFor(article.image).width(400).height(300).quality(60).url();
+  // OPTIMISATION : Qualité 75 et largeur 600px pour un bon compromis poids/netteté
+  const imageUrl = urlFor(article.image).width(600).height(450).quality(75).url();
 
   return (
     <div 

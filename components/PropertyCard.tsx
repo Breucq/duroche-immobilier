@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useFavorites } from '../context/FavoritesContext';
@@ -71,10 +70,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // FIX PageSpeed: 380px est optimal pour le mobile et les grilles. Qualité 50 (invisible mais 3x plus léger).
+  // OPTIMISATION : Largeur 600px et qualité 75 pour un rendu net sur mobile tout en restant léger
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(380).height(214).quality(50).auto('format').url());
+    .map(img => urlFor(img).width(600).height(338).quality(75).auto('format').url());
   
   const hasMultipleImages = imageUrls.length > 1;
 
