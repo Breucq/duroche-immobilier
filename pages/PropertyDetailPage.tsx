@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
@@ -86,6 +85,17 @@ const PropertyDetailPage: React.FC = () => {
                 setProperty(prop);
                 
                 if (prop) {
+                    // LOGIQUE DE REDIRECTION SEO : 
+                    // Si l'utilisateur arrive sur le bien via son ID technique ou une ancienne référence
+                    // alors qu'une nouvelle référence "propre" existe, on redirige vers l'URL officielle.
+                    const hasCleanRef = prop.reference && /^[a-zA-Z0-9\-_]+$/.test(prop.reference);
+                    const officialSlug = hasCleanRef ? prop.reference : prop._id;
+                    
+                    if (decodedRef !== officialSlug) {
+                        console.log(`SEO Redirect: ${decodedRef} -> ${officialSlug}`);
+                        navigate(`/properties/${officialSlug}`, { replace: true });
+                    }
+
                     const similar = await propertyService.getSimilar(prop);
                     setSimilarProperties(similar);
                 }
@@ -96,7 +106,7 @@ const PropertyDetailPage: React.FC = () => {
             }
         };
         fetchProperty();
-    }, [reference]);
+    }, [reference, navigate]);
 
     useEffect(() => { const handleKeyDown = (e: KeyboardEvent) => { if (!isLightboxOpen || !property || !property.images || property.images.length === 0) return; if (e.key === 'Escape') { closeLightbox(); } else if (e.key === 'ArrowRight') { showNextImage(); } else if (e.key === 'ArrowLeft') { showPrevImage(); } }; window.addEventListener('keydown', handleKeyDown); return () => window.removeEventListener('keydown', handleKeyDown); }, [isLightboxOpen, currentImageIndex, property]);
 
