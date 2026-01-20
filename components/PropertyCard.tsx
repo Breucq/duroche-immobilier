@@ -40,7 +40,7 @@ const DPEBadge: React.FC<{ classification: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | '
     const dpeConfig = { A: { color: 'bg-green-700' }, B: { color: 'bg-green-500' }, C: { color: 'bg-lime-400' }, D: { color: 'bg-yellow-300' }, E: { color: 'bg-orange-400' }, F: { color: 'bg-red-500' }, G: { color: 'bg-red-700' }, };
     const config = dpeConfig[classification];
     return (
-        <div className="absolute bottom-2 right-2 flex items-center bg-gray-800/70 p-1 rounded-sm shadow-lg text-white font-sans z-10" title={`Classe énergie : ${classification}`}>
+        <div className="absolute bottom-10 right-2 flex items-center bg-gray-800/70 p-1 rounded-sm shadow-lg text-white font-sans z-10" title={`Classe énergie : ${classification}`}>
             <span className="text-xs mr-1.5">DPE</span>
             <span className={`w-5 h-5 flex items-center justify-center font-bold text-sm rounded-sm ${config.color}`}>
                 {classification}
