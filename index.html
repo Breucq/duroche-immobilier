@@ -27,7 +27,6 @@
       }
       #root { min-height: 100vh; display: flex; flex-direction: column; }
       
-      /* FIX: Sélecteur spécifique pour ne pas impacter les headers de contenu */
       header.main-header { height: 80px; background: rgba(255,255,255,0.8); backdrop-filter: blur(10px); border-bottom: 1px solid #E0E6ED; position: sticky; top: 0; z-index: 30; }
       
       .lcp-wrap { position: relative; width: 100%; overflow: hidden; background: #1a1a1a; display: flex; align-items: center; justify-content: center; }
@@ -70,19 +69,6 @@
             }
           }).catch(()=>{});
         }
-
-        const observer = new MutationObserver((mutations) => {
-          mutations.forEach((mutation) => {
-            mutation.addedNodes.forEach((node) => {
-              if (node.nodeName === 'LINK' && node.rel === 'stylesheet' && !node.getAttribute('data-async')) {
-                node.media = 'print';
-                node.setAttribute('data-async', 'true');
-                node.onload = function() { this.media = 'all'; };
-              }
-            });
-          });
-        });
-        observer.observe(document.head, { childList: true });
       })();
     </script>
 
@@ -99,8 +85,25 @@
     <link rel="manifest" href="/site.webmanifest">
     <meta name="theme-color" content="#b68d3d">
 
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET"></script>
-    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());</script>
+    <!-- OPTIMISATION ANALYTICS : Chargement retardé (non-bloquant) -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      
+      const loadGA = () => {
+        const script = document.createElement('script');
+        script.async = true;
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-V83SQRDZET";
+        document.head.appendChild(script);
+      };
+
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(() => setTimeout(loadGA, 2000));
+      } else {
+        setTimeout(loadGA, 3000);
+      }
+    </script>
 </head>
   <body class="antialiased">
     <div id="root">

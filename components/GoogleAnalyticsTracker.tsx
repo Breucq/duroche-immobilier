@@ -8,21 +8,20 @@ const GoogleAnalyticsTracker: React.FC = () => {
     const location = useLocation();
 
     useEffect(() => {
-        // Vérifie si gtag est disponible
-        if (typeof window.gtag !== 'undefined') {
-            // Nous utilisons un timeout pour laisser le temps à 'react-helmet-async' 
-            // de mettre à jour la balise <title> du navigateur.
-            // Sans ce délai, GA4 risquerait d'enregistrer la nouvelle URL avec l'ancien titre de la page précédente.
-            const timeoutId = setTimeout(() => {
+        // Vérifie si gtag est disponible. Avec le chargement retardé dans index.html,
+        // cette fonction s'exécutera une fois que le script sera injecté.
+        const sendPageView = () => {
+            if (typeof window.gtag === 'function') {
                 window.gtag('config', GA_MEASUREMENT_ID, {
                     page_path: location.pathname + location.search,
                     page_location: window.location.href,
-                    page_title: document.title, // Envoie le titre visible dans l'onglet (ex: "Contact | Duroche Immobilier")
+                    page_title: document.title,
                 });
-            }, 500); // 500ms de délai
+            }
+        };
 
-            return () => clearTimeout(timeoutId);
-        }
+        const timeoutId = setTimeout(sendPageView, 500);
+        return () => clearTimeout(timeoutId);
     }, [location]);
 
     return null;

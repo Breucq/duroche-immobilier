@@ -26,8 +26,16 @@ const Header: React.FC<HeaderProps> = ({ settings, dynamicPages }) => {
   
   const renderLogo = () => {
     if (settings.logo) {
-      // FIX CLS: Dimensions explicites
-      return <img src={settings.logo} alt={settings.title} width="220" height="48" className="h-12 w-auto max-w-[220px] object-contain" />;
+      return (
+        <img 
+            src={settings.logo} 
+            alt={settings.title} 
+            width="220" 
+            height="48" 
+            className="h-12 w-auto max-w-[220px] object-contain" 
+            fetchPriority="high"
+        />
+      );
     }
     const titleParts = settings.title.split(' ');
     const firstWord = titleParts[0] || '';
