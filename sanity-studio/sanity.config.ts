@@ -37,6 +37,7 @@ export default defineConfig({
             // Regular document types
             S.documentTypeListItem('property').title('Biens Immobiliers'),
             S.documentTypeListItem('article').title('Articles de Blog'),
+            S.documentTypeListItem('review').title('Avis Clients'),
             S.documentTypeListItem('page').title('Pages'),
           ]),
     }),

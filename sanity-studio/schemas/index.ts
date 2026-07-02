@@ -5,6 +5,7 @@ import siteSettings from './siteSettings'
 import homePageSettings from './homePageSettings'
 import footerSettings from './footerSettings'
 import estimationPageSettings from './estimationPageSettings'
+import review from './review'
 
 export const schemaTypes = [
   property,
@@ -14,4 +15,5 @@ export const schemaTypes = [
   homePageSettings,
   footerSettings,
   estimationPageSettings,
+  review,
 ]

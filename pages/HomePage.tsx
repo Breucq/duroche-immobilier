@@ -8,6 +8,7 @@ import Properties from '../components/Properties';
 import ContactForm from '../components/ContactForm';
 import Estimation from '../components/Estimation';
 import Portals from '../components/Portals';
+import ReviewsSection from '../components/ReviewsSection';
 import { homePageSettingsService } from '../services/homePageSettingsService';
 import { propertyService } from '../services/propertyService';
 
@@ -84,6 +85,7 @@ const HomePage: React.FC = () => {
         subtitle={content.zonesSubtitle}
         zones={content.zones}
       />
+      <ReviewsSection />
       <Portals />
       <ContactForm 
         title={content.contactTitle}

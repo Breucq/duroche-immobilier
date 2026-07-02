@@ -219,3 +219,16 @@ export interface SanityImage {
     _type: 'reference';
   };
 }
+
+/**
+ * Représente un avis client / avis Google
+ */
+export interface Review {
+  _id: string;
+  author: string;
+  role?: string;
+  rating: number;
+  text: string;
+  date?: string;
+  isGoogleReview?: boolean;
+}
