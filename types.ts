@@ -119,6 +119,7 @@ export interface SiteSettings {
     footerLogo: string; // URL de l'image
     favicon: string; // URL de l'image
     maintenanceMode?: boolean;
+    googleReviewUrl?: string;
 }
 
 /**

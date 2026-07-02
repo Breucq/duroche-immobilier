@@ -35,5 +35,11 @@ export default {
       type: 'boolean',
       initialValue: false,
     },
+    {
+      name: 'googleReviewUrl',
+      title: 'Lien Google pour laisser un avis',
+      description: 'Le lien généré par Google Business pour que vos clients puissent laisser un avis directement.',
+      type: 'url',
+    },
   ],
 }
