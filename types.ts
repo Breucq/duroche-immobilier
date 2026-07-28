@@ -31,8 +31,10 @@ export interface Property {
   description: string | any[]; // String (Legacy) ou PortableText Array
   virtualTourUrl?: string;
   
-  status?: 'Disponible' | 'Nouveautés' | 'Sous offre' | 'Vendu';
+  status?: 'Disponible' | 'Nouveautés' | 'Sous offre' | 'Vendu' | 'Privé';
   isHidden?: boolean;
+  isPrivate?: boolean;
+  accessPassword?: string;
 
   details?: {
     yearBuilt: number;

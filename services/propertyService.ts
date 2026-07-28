@@ -21,6 +21,8 @@ const propertyFields = `
   virtualTourUrl,
   status,
   isHidden,
+  isPrivate,
+  accessPassword,
   details,
   dpe,
   ges,
@@ -47,6 +49,8 @@ const propertyCardFields = `
   landArea,
   status,
   isHidden,
+  isPrivate,
+  accessPassword,
   dpe,
   characteristics // Utile pour les filtres (piscine, etc.)
 `;

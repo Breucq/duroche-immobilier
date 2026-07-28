@@ -65,7 +65,13 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       toggleFavorite(property._id);
   };
 
-  const statusConfig = { Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-400 text-gray-800' }, 'Sous offre': { text: 'Sous offre', className: 'bg-blue-200 text-blue-800' }, Vendu: { text: 'Vendu', className: 'bg-gray-500 text-white' } };
+  const isConfidential = property.isPrivate || property.status === 'Privé' || Boolean(property.accessPassword);
+  const statusConfig = { 
+    Nouveautés: { text: 'Nouveautés', className: 'bg-yellow-400 text-gray-800' }, 
+    'Sous offre': { text: 'Sous offre', className: 'bg-blue-200 text-blue-800' }, 
+    Vendu: { text: 'Vendu', className: 'bg-gray-500 text-white' },
+    Privé: { text: 'Confidentiel', className: 'bg-gray-900 text-amber-300 border border-amber-400/40' }
+  };
   const statusInfo = property.status && property.status !== 'Disponible' ? statusConfig[property.status as keyof typeof statusConfig] : null;
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -114,7 +120,14 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
         )}
 
         <div className="absolute bottom-2 left-2 bg-accent text-white px-3 py-1 rounded-full text-sm font-semibold z-10">{property.type}</div>
-        {statusInfo && <div className={`absolute top-2 left-2 px-3 py-1 rounded-full text-sm font-semibold ${statusInfo.className} z-10`}>{statusInfo.text}</div>}
+        {statusInfo ? (
+          <div className={`absolute top-2 left-2 px-3 py-1 rounded-full text-sm font-semibold ${statusInfo.className} z-10`}>{statusInfo.text}</div>
+        ) : isConfidential ? (
+          <div className="absolute top-2 left-2 px-3 py-1 rounded-full text-xs font-semibold bg-gray-900/90 text-amber-300 border border-amber-400/40 flex items-center gap-1.5 backdrop-blur-md shadow-md z-10">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <span>Off-Market</span>
+          </div>
+        ) : null}
          <button onClick={handleFavoriteClick} className="absolute top-2 right-2 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 z-10" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
               {isFavorite ? <HeartIconSolid className="w-6 h-6 text-red-500" /> : <HeartIconOutline className="w-6 h-6 text-primary-text" />}
           </button>

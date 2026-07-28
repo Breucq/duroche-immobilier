@@ -22,7 +22,7 @@ export default {
       title: 'Statut du mandat',
       type: 'string',
       options: {
-        list: ['Disponible', 'Nouveautés', 'Sous offre', 'Vendu'],
+        list: ['Disponible', 'Nouveautés', 'Sous offre', 'Vendu', 'Privé'],
         layout: 'radio',
         direction: 'horizontal',
       },
@@ -37,6 +37,22 @@ export default {
       type: 'boolean',
       initialValue: false,
       group: 'main',
+    },
+    {
+      name: 'isPrivate',
+      title: 'Bien Privé / Confidentiel (Off-Market)',
+      description: 'Cochez si la fiche détaillée de ce bien est protégée par un mot de passe.',
+      type: 'boolean',
+      initialValue: false,
+      group: 'main',
+    },
+    {
+      name: 'accessPassword',
+      title: 'Mot de passe d\'accès au bien',
+      description: 'Définissez le mot de passe requis pour déverrouiller la fiche de ce bien.',
+      type: 'string',
+      group: 'main',
+      hidden: ({document}: any) => !document?.isPrivate && document?.status !== 'Privé',
     },
 
     // --- Ligne 2 : Caractéristiques clés ---

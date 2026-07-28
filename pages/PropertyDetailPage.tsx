@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
+import { Lock, Eye, EyeOff, AlertCircle, Key } from 'lucide-react';
 import { propertyService } from '../services/propertyService';
 import DPEChart from '../components/DPEChart';
 import CharacteristicIcon from '../components/CharacteristicIcon';
@@ -75,6 +76,36 @@ const PropertyDetailPage: React.FC = () => {
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+    const [passwordInput, setPasswordInput] = useState('');
+    const [passwordError, setPasswordError] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [isUnlocked, setIsUnlocked] = useState(false);
+
+    useEffect(() => {
+        if (property?._id) {
+            const saved = sessionStorage.getItem(`unlocked_property_${property._id}`);
+            if (saved === 'true') {
+                setIsUnlocked(true);
+            } else {
+                setIsUnlocked(false);
+            }
+        }
+    }, [property]);
+
+    const handlePasswordSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!property?.accessPassword) return;
+        if (passwordInput.trim() === property.accessPassword.trim()) {
+            setIsUnlocked(true);
+            setPasswordError(false);
+            if (property._id) {
+                sessionStorage.setItem(`unlocked_property_${property._id}`, 'true');
+            }
+        } else {
+            setPasswordError(true);
+        }
+    };
+
     useEffect(() => {
         const fetchProperty = async () => {
             if (!reference) { setIsLoading(false); return; }
@@ -116,6 +147,91 @@ const PropertyDetailPage: React.FC = () => {
 
     if (!property) {
         return ( <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center min-h-screen flex flex-col justify-center items-center"> <h1 className="text-3xl font-bold font-heading text-primary-text">Bien non trouvé</h1> <p className="mt-4 text-secondary-text">Le bien que vous cherchez n'existe pas ou a été retiré.</p> <button onClick={() => setCurrentPage('/properties')} className="mt-8 inline-block px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-accent hover:bg-accent-dark"> Retour à la liste des biens </button> </div> );
+    }
+
+    const isConfidential = Boolean(property.isPrivate || property.status === 'Privé' || property.accessPassword);
+
+    // Si le bien a un mot de passe et n'a pas encore été déverrouillé
+    if (isConfidential && property.accessPassword && !isUnlocked) {
+        return (
+            <div className="min-h-[75vh] flex items-center justify-center py-16 px-4 bg-background-alt">
+                <Helmet>
+                    <title>Bien Confidentiel | Duroche Immobilier</title>
+                </Helmet>
+                <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-border-color p-8 text-center relative overflow-hidden">
+                    <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-amber-500 via-accent to-amber-600"></div>
+                    
+                    <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center mx-auto mb-5 text-amber-600 border border-amber-200 shadow-inner">
+                        <Lock className="w-8 h-8" />
+                    </div>
+
+                    <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-gray-900 text-amber-300 mb-3 border border-amber-400/30">
+                        Off-Market & Confidentiel
+                    </span>
+
+                    <h1 className="text-2xl font-bold text-primary-text font-heading mb-2">
+                        Accès Réservé
+                    </h1>
+
+                    <p className="text-sm text-secondary-text mb-6 leading-relaxed">
+                        Ce bien fait l'objet d'une diffusion confidentielle. Veuillez saisir le mot de passe fourni par votre conseiller Duroche Immobilier.
+                    </p>
+
+                    <form onSubmit={handlePasswordSubmit} className="space-y-4">
+                        <div className="relative">
+                            <input
+                                type={showPassword ? "text" : "password"}
+                                value={passwordInput}
+                                onChange={(e) => {
+                                    setPasswordInput(e.target.value);
+                                    setPasswordError(false);
+                                }}
+                                placeholder="Mot de passe d'accès"
+                                className={`w-full px-4 py-3 pr-12 rounded-xl border text-sm font-medium focus:outline-none transition-all ${
+                                    passwordError 
+                                        ? "border-red-500 ring-2 ring-red-100 bg-red-50/30" 
+                                        : "border-gray-300 focus:border-accent focus:ring-2 focus:ring-accent/10"
+                                }`}
+                                autoFocus
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 cursor-pointer"
+                                aria-label={showPassword ? "Masquer le mot de passe" : "Afficher le mot de passe"}
+                            >
+                                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                            </button>
+                        </div>
+
+                        {passwordError && (
+                            <p className="text-xs text-red-600 font-medium text-left flex items-center gap-1.5">
+                                <AlertCircle className="w-4 h-4 shrink-0" />
+                                Mot de passe incorrect. Veuillez vérifier la saisie.
+                            </p>
+                        )}
+
+                        <button
+                            type="submit"
+                            className="w-full py-3 px-6 bg-accent hover:bg-accent-dark text-white font-semibold rounded-xl text-sm transition-all shadow-md hover:shadow-lg cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <span>Accéder à la fiche du bien</span>
+                            <Key className="w-4 h-4" />
+                        </button>
+                    </form>
+
+                    <div className="mt-8 pt-6 border-t border-gray-100 text-xs text-secondary-text">
+                        <p className="mb-2">Vous souhaitez obtenir le mot de passe de ce bien ?</p>
+                        <button
+                            onClick={() => setCurrentPage('/contact')}
+                            className="text-accent font-semibold hover:underline inline-flex items-center gap-1 cursor-pointer"
+                        >
+                            Contactez l'agence Duroche Immobilier
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
     
     // SEO Data Calculation
