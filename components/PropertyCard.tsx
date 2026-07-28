@@ -81,7 +81,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
     .filter(Boolean)
     .map(img => urlFor(img).width(600).height(338).quality(75).auto('format').url());
   
-  const hasMultipleImages = imageUrls.length > 1;
+  const hasMultipleImages = imageUrls.length > 1 && !isConfidential;
 
   const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
   const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
@@ -92,17 +92,32 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
       className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 group flex flex-col border border-border-color/50"
       aria-label={`Voir ${property.type} à ${property.location} - ${formattedPrice}`}
     >
-      <div className="relative overflow-hidden aspect-video bg-gray-100">
+      <div className="relative overflow-hidden aspect-video bg-gray-900">
         <div
-            className="flex h-full transition-transform duration-300 ease-in-out"
+            className={`flex h-full transition-transform duration-300 ease-in-out ${isConfidential ? 'blur-md scale-105 opacity-60' : ''}`}
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
-            {imageUrls.map((imgUrl, index) => (
+            {(isConfidential ? [imageUrls[0]] : imageUrls).filter(Boolean).map((imgUrl, index) => (
                 <div key={index} className="w-full h-full flex-shrink-0">
                     <ImageWithSkeleton src={imgUrl} alt={`${property.type} à ${property.location}`} className="w-full h-full" loading="lazy" />
                 </div>
             ))}
         </div>
+
+        {/* Overlay pour les biens confidentiels / Off-Market */}
+        {isConfidential && (
+          <div className="absolute inset-0 bg-gray-950/40 backdrop-blur-[2px] flex flex-col items-center justify-center p-4 text-center z-20">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shadow-lg mb-2 group-hover:scale-110 transition-transform">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </div>
+            <span className="text-xs font-semibold text-amber-300 bg-gray-900/90 px-3 py-1 rounded-full border border-amber-400/30 shadow-md">
+              Bien Confidentiel
+            </span>
+            <p className="text-[11px] text-gray-200 mt-1.5 font-medium">
+              Mot de passe requis pour voir la fiche
+            </p>
+          </div>
+        )}
 
         {hasMultipleImages && (
             <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none z-10">
@@ -131,7 +146,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
          <button onClick={handleFavoriteClick} className="absolute top-2 right-2 p-2 bg-white/75 rounded-full backdrop-blur-sm transition-transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-red-500 z-10" aria-label={isFavorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}>
               {isFavorite ? <HeartIconSolid className="w-6 h-6 text-red-500" /> : <HeartIconOutline className="w-6 h-6 text-primary-text" />}
           </button>
-        {property.dpe?.class && <DPEBadge classification={property.dpe.class} />}
+        {!isConfidential && property.dpe?.class && <DPEBadge classification={property.dpe.class} />}
       </div>
       <div className="p-6 flex flex-col flex-grow">
         <p className="text-2xl font-bold font-heading text-primary-text mb-1">{formattedPrice}</p>
