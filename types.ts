@@ -235,3 +235,25 @@ export interface Review {
   date?: string;
   isGoogleReview?: boolean;
 }
+
+/**
+ * Représente un guide de présentation SEO / GEO d'une ville (Sanity)
+ */
+export interface CityGuide {
+  _id: string;
+  cityName: string;
+  slug?: { current: string };
+  postalCode?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  title: string;
+  subtitle?: string;
+  coverImage?: SanityImage;
+  intro?: string;
+  content?: any; // PortableText
+  keyPoints?: string[];
+  faqs?: Array<{
+    question: string;
+    answer: string;
+  }>;
+}

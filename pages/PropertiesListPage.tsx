@@ -3,6 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
 import PropertyCard from '../components/PropertyCard';
+import CityGuideSection from '../components/CityGuideSection';
 import type { Property } from '../types';
 
 // --- ICONS ---
@@ -393,6 +394,15 @@ const PropertiesListPage: React.FC = () => {
                         <h2 className="text-2xl font-semibold text-primary-text">Aucun bien ne correspond à vos critères</h2>
                         <p className="mt-2 text-secondary-text">Essayez d'élargir votre recherche ou créez une alerte pour être notifié des nouveautés.</p>
                     </div>
+                )}
+
+                {/* Bloc SEO / GEO Guide Ville en bas de page lorsque filtré par ville */}
+                {locationFilter && locationFilter.trim() !== '' && (
+                    <CityGuideSection 
+                        cityName={locationFilter} 
+                        activePropertiesCount={filteredProperties.length} 
+                        onOpenAlertModal={() => setIsAlertModalOpen(true)} 
+                    />
                 )}
             </div>
         </div>

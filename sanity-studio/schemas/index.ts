@@ -6,6 +6,7 @@ import homePageSettings from './homePageSettings'
 import footerSettings from './footerSettings'
 import estimationPageSettings from './estimationPageSettings'
 import review from './review'
+import cityGuide from './cityGuide'
 
 export const schemaTypes = [
   property,
@@ -16,4 +17,5 @@ export const schemaTypes = [
   footerSettings,
   estimationPageSettings,
   review,
+  cityGuide,
 ]
