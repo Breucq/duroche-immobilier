@@ -36,6 +36,7 @@ export default defineConfig({
             S.divider(),
             // Regular document types
             S.documentTypeListItem('property').title('Biens Immobiliers'),
+            S.documentTypeListItem('cityGuide').title('Pages Villes (SEO / GEO)'),
             S.documentTypeListItem('article').title('Articles de Blog'),
             S.documentTypeListItem('review').title('Avis Clients'),
             S.documentTypeListItem('page').title('Pages'),
