@@ -63,8 +63,8 @@
             const imgUrl = d?.result?.u;
             if (imgUrl) {
               const fullUrl = isMobile
-                ? imgUrl + '?w=640&h=480&q=70&auto=format&fit=crop'
-                : imgUrl + '?w=1200&h=675&q=75&auto=format&fit=crop';
+                ? imgUrl + '?w=960&h=640&q=82&auto=format&fit=crop'
+                : imgUrl + '?w=1920&h=1080&q=85&auto=format&fit=crop';
               window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
               const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);

@@ -14,11 +14,11 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
   // Extraction de l'URL de base propre Sanity
   const rawBaseUrl = (heroBackgroundImage || '').split('?')[0];
 
-  const smallUrl = rawBaseUrl ? `${rawBaseUrl}?w=640&h=480&fit=crop&q=70&auto=format` : '';
-  const mediumUrl = rawBaseUrl ? `${rawBaseUrl}?w=1024&h=576&fit=crop&q=75&auto=format` : '';
-  const largeUrl = rawBaseUrl ? `${rawBaseUrl}?w=1440&h=810&fit=crop&q=75&auto=format` : '';
+  const smallUrl = rawBaseUrl ? `${rawBaseUrl}?w=960&h=640&fit=crop&q=82&auto=format` : '';
+  const mediumUrl = rawBaseUrl ? `${rawBaseUrl}?w=1280&h=720&fit=crop&q=82&auto=format` : '';
+  const largeUrl = rawBaseUrl ? `${rawBaseUrl}?w=1920&h=1080&fit=crop&q=85&auto=format` : '';
 
-  const fallbackUrl = (window as any).__LCP_IMG_URL__ || mediumUrl || heroBackgroundImage;
+  const fallbackUrl = (window as any).__LCP_IMG_URL__ || largeUrl || heroBackgroundImage;
 
   return (
     <section className="relative h-[60vh] sm:h-[50vh] min-h-[450px] sm:min-h-[400px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
@@ -26,15 +26,15 @@ const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText
         <picture className="absolute inset-0 w-full h-full z-0 pointer-events-none">
           <source
             media="(max-width: 640px)"
-            srcSet={`${rawBaseUrl}?w=640&h=480&fit=crop&q=70&auto=format`}
+            srcSet={`${rawBaseUrl}?w=960&h=640&fit=crop&q=82&auto=format`}
           />
           <source
             media="(max-width: 1024px)"
-            srcSet={`${rawBaseUrl}?w=1024&h=576&fit=crop&q=75&auto=format`}
+            srcSet={`${rawBaseUrl}?w=1280&h=720&fit=crop&q=82&auto=format`}
           />
           <img 
             src={fallbackUrl}
-            srcSet={`${smallUrl} 640w, ${mediumUrl} 1024w, ${largeUrl} 1440w`}
+            srcSet={`${smallUrl} 960w, ${mediumUrl} 1280w, ${largeUrl} 1920w`}
             sizes="100vw"
             alt="" 
             role="presentation"

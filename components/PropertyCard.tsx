@@ -76,14 +76,25 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // OPTIMISATION : Largeur 400px et qualité 65 avec auto=format pour un poids plume (<20Ko par image sur mobile)
-  const imageUrls = [property.image, ...(property.images || [])]
+  // RENDU HAUTE FIDÉLITÉ (Retina / Écrans modernes) :
+  // Génération d'une source nette avec srcset responsive (480w, 800w, 1200w) pour garantir une image ultra-nette sans pixelation
+  const imageSources = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(400).height(225).quality(65).auto('format').fit('crop').url());
+    .map(img => {
+      try {
+        const base = urlFor(img);
+        const src = base.width(800).height(450).quality(82).auto('format').fit('crop').url();
+        const srcSet = `${base.width(480).height(270).quality(80).auto('format').fit('crop').url()} 480w, ${base.width(800).height(450).quality(82).auto('format').fit('crop').url()} 800w, ${base.width(1200).height(675).quality(85).auto('format').fit('crop').url()} 1200w`;
+        return { src, srcSet };
+      } catch (e) {
+        return null;
+      }
+    })
+    .filter(Boolean) as { src: string; srcSet: string }[];
   
-  const hasMultipleImages = imageUrls.length > 1 && !isConfidential;
+  const hasMultipleImages = imageSources.length > 1 && !isConfidential;
 
-  const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageUrls.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
+  const handleNextClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex < imageSources.length - 1) { setCurrentImageIndex(prev => prev + 1); } };
   const handlePrevClick = (e: React.MouseEvent) => { e.preventDefault(); e.stopPropagation(); if(currentImageIndex > 0) { setCurrentImageIndex(prev => prev - 1); } };
 
   return (
@@ -97,9 +108,16 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
             className={`flex h-full transition-transform duration-300 ease-in-out ${isConfidential ? 'blur-md scale-105 opacity-60' : ''}`}
             style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
           >
-            {(isConfidential ? [imageUrls[0]] : imageUrls).filter(Boolean).map((imgUrl, index) => (
+            {(isConfidential ? [imageSources[0]] : imageSources).filter(Boolean).map((imgItem, index) => (
                 <div key={index} className="w-full h-full flex-shrink-0">
-                    <ImageWithSkeleton src={imgUrl} alt={`${property.type} à ${property.location}`} className="w-full h-full" loading="lazy" />
+                    <ImageWithSkeleton 
+                      src={imgItem.src} 
+                      srcSet={imgItem.srcSet}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                      alt={`${property.type} à ${property.location}`} 
+                      className="w-full h-full" 
+                      loading="lazy" 
+                    />
                 </div>
             ))}
         </div>
