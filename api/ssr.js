@@ -369,11 +369,14 @@ export default async function handler(request, response) {
       }
     }
 
-    // 4. Lecture du fichier index.html de base
+    // 4. Lecture du fichier index.html de base (dist ou root)
     let html = '';
-    const indexPath = path.join(process.cwd(), 'index.html');
-    if (fs.existsSync(indexPath)) {
-      html = fs.readFileSync(indexPath, 'utf8');
+    const distIndexPath = path.join(process.cwd(), 'dist', 'index.html');
+    const rootIndexPath = path.join(process.cwd(), 'index.html');
+    if (fs.existsSync(distIndexPath)) {
+      html = fs.readFileSync(distIndexPath, 'utf8');
+    } else if (fs.existsSync(rootIndexPath)) {
+      html = fs.readFileSync(rootIndexPath, 'utf8');
     } else {
       html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head><body><div id="root"></div></body></html>`;
     }
@@ -418,6 +421,19 @@ export default async function handler(request, response) {
 
     // Insertion directe dans <head>
     html = html.replace('</head>', `${headInjection}\n</head>`);
+
+    // Pré-rendu du contenu dans <div id="root"> pour l'indexation textuelle immédiate des robots
+    const botContent = `
+      <header class="main-header"></header>
+      <main style="padding: 40px 20px; max-width: 1200px; margin: 0 auto; font-family: sans-serif;">
+        <h1>${escapeHtml(title)}</h1>
+        <p>${escapeHtml(description)}</p>
+        <p><a href="https://www.duroche.fr">Duroche Immobilier</a> - Agence immobilière Orange et Vaucluse Nord</p>
+      </main>
+    `;
+    if (html.includes('<div id="root"></div>')) {
+      html = html.replace('<div id="root"></div>', `<div id="root">${botContent}</div>`);
+    }
 
     // 6. Envoi de la réponse avec headers de cache optimisés
     response.setHeader('Content-Type', 'text/html; charset=utf-8');

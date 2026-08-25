@@ -11,7 +11,18 @@
     },
     {
       "source": "/((?!api|.*\\.).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(googlebot|bingbot|yandex|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|rogerbot|linkedinbot|embedly|quora link preview|showyoubot|outbrain|pinterest|slackbot|vkShare|W3C_Validator|whatsapp|telegrambot|applebot|screaming frog|semrush|ahrefs).*"
+        }
+      ],
       "destination": "/api/ssr?path=$1"
+    },
+    {
+      "source": "/((?!api|.*\\.).*)",
+      "destination": "/index.html"
     }
   ]
 }
