@@ -201,9 +201,10 @@ export default async function handler(request, response) {
       description = 'Découvrez les maisons, villas et appartements récemment vendus par Duroche Immobilier à Orange, Caderousse, Piolenc et environs.';
     } else if (cleanPath.startsWith('properties/')) {
       // --- FICHE DÉTAIL BIEN ---
-      const ref = cleanPath.split('/')[1];
+      const rawRef = cleanPath.split('/')[1] || '';
+      const ref = decodeURIComponent(rawRef).trim();
       const property = await client.fetch(
-        `*[_type == "property" && (reference == $ref || _id == $ref)][0]{
+        `*[_type == "property" && (reference == $ref || _id == $ref || reference == $refUpper || reference == $refLower)][0]{
           _id,
           reference,
           type,
@@ -216,7 +217,7 @@ export default async function handler(request, response) {
           characteristics,
           dpe
         }`,
-        { ref }
+        { ref, refUpper: ref.toUpperCase(), refLower: ref.toLowerCase() }
       );
 
       if (property) {
