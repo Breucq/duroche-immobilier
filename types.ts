@@ -207,6 +207,41 @@ export interface EstimationPageSettings {
 }
 
 /**
+ * Paramètres de contenu de la page Vendre tel que retourné par Sanity.
+ */
+export interface SellingPageSettings {
+    metaTitle?: string;
+    metaDescription?: string;
+    heroBadge?: string;
+    heroTitle?: string;
+    heroSubtitle?: string;
+    heroStats?: Array<{
+        value: string;
+        label: string;
+    }>;
+    pillarsTitle?: string;
+    pillarsSubtitle?: string;
+    pillars?: Array<{
+        title: string;
+        description: string;
+        icon?: string;
+    }>;
+    stepsTitle?: string;
+    stepsSubtitle?: string;
+    steps?: Array<{
+        stepNumber: string;
+        title: string;
+        description: string;
+    }>;
+    faqTitle?: string;
+    faqSubtitle?: string;
+    faq?: Array<{
+        question: string;
+        answer: string;
+    }>;
+}
+
+/**
  * Représente une alerte e-mail (gérée localement).
  */
 export interface Alert {
