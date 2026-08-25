@@ -281,17 +281,17 @@ const CityPropertiesPage: React.FC<CityPropertiesPageProps> = ({ citySlug: propC
       <div className="bg-gradient-to-b from-white to-background border-b border-border-color/60 pt-28 pb-10 sm:pb-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Fil d'Ariane / Breadcrumbs */}
-          <nav aria-label="Fil d'ariane" className="mb-6">
-            <ol className="flex items-center space-x-2 text-xs sm:text-sm text-secondary-text">
-              <li>
+          <nav aria-label="Fil d'ariane" className="mb-6 overflow-x-auto scrollbar-hide py-1 -mx-4 px-4 sm:mx-0 sm:px-0">
+            <ol className="flex items-center space-x-1.5 sm:space-x-2 text-xs sm:text-sm text-secondary-text whitespace-nowrap min-w-0">
+              <li className="shrink-0">
                 <Link to="/" className="hover:text-accent transition-colors">Accueil</Link>
               </li>
-              <li className="text-gray-400">/</li>
-              <li>
+              <li className="text-gray-400 shrink-0">/</li>
+              <li className="shrink-0">
                 <Link to="/properties" className="hover:text-accent transition-colors">Nos Biens</Link>
               </li>
-              <li className="text-gray-400">/</li>
-              <li className="text-primary-text font-semibold truncate" aria-current="page">
+              <li className="text-gray-400 shrink-0">/</li>
+              <li className="text-primary-text font-semibold shrink-0" aria-current="page">
                 Immobilier {cityName}
               </li>
             </ol>

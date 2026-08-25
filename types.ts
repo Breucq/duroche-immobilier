@@ -185,8 +185,25 @@ export interface FooterSettings {
  * Paramètres de contenu de la page d'estimation tel que retourné par Sanity.
  */
 export interface EstimationPageSettings {
+    metaTitle?: string;
+    metaDescription?: string;
     title: string;
     subtitle: string;
+    reassuranceBadge?: string;
+    whyUsCards?: Array<{
+        title: string;
+        description: string;
+        icon?: string;
+    }>;
+    steps?: Array<{
+        stepNumber: string;
+        title: string;
+        description: string;
+    }>;
+    faq?: Array<{
+        question: string;
+        answer: string;
+    }>;
 }
 
 /**
