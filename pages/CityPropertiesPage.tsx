@@ -106,9 +106,14 @@ const AlertModal: React.FC<{ isOpen: boolean; onClose: () => void; onSave: (emai
   );
 };
 
-const CityPropertiesPage: React.FC = () => {
-  const { citySlug = '' } = useParams<{ citySlug: string }>();
-  const normalizedSlug = slugifyCity(citySlug);
+interface CityPropertiesPageProps {
+  citySlug?: string;
+}
+
+const CityPropertiesPage: React.FC<CityPropertiesPageProps> = ({ citySlug: propCitySlug }) => {
+  const { citySlug: paramCitySlug = '' } = useParams<{ citySlug: string }>();
+  const rawCitySlug = propCitySlug || paramCitySlug;
+  const normalizedSlug = slugifyCity(rawCitySlug);
 
   // 1. Récupération des guides ville Sanity
   const { data: cityGuide } = useQuery<CityGuide | null>({

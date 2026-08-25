@@ -198,9 +198,21 @@ const Layout: React.FC = () => {
     );
 };
 
-const GenericPageWrapper: React.FC = () => {
+const DynamicSlugDispatcher: React.FC = () => {
     const location = useLocation();
     const slug = location.pathname.substring(1);
+
+    if (slug.startsWith('immobilier-')) {
+        const citySlug = slug.slice('immobilier-'.length);
+        return <CityPropertiesPage citySlug={citySlug} />;
+    }
+
+    return <GenericPageWrapper slug={slug} />;
+};
+
+const GenericPageWrapper: React.FC<{ slug?: string }> = ({ slug: propSlug }) => {
+    const location = useLocation();
+    const slug = propSlug || location.pathname.substring(1);
     const { data: page, isLoading } = useQuery({
         queryKey: ['page', slug],
         queryFn: () => pageService.getBySlug(slug),
@@ -227,9 +239,8 @@ const App: React.FC = () => {
                 <Route path="contact/:reference" element={<ContactPage />} />
                 <Route path="estimation" element={<EstimationPage />} />
                 <Route path="vendre" element={<SellingPage />} />
-                <Route path="immobilier-:citySlug" element={<CityPropertiesPage />} />
                 <Route path="immobilier/:citySlug" element={<CityPropertiesPage />} />
-                <Route path=":slug" element={<GenericPageWrapper />} />
+                <Route path=":slug" element={<DynamicSlugDispatcher />} />
             </Route>
         </Routes>
     );
