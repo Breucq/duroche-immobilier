@@ -22,6 +22,7 @@ const ArticleDetailPage = React.lazy(() => import('./pages/ArticleDetailPage'));
 const EstimationPage = React.lazy(() => import('./pages/EstimationPage'));
 const SellingPage = React.lazy(() => import('./pages/SellingPage'));
 const GenericPage = React.lazy(() => import('./pages/GenericPage'));
+const CityPropertiesPage = React.lazy(() => import('./pages/CityPropertiesPage'));
 
 const PageLoader = () => (
     <div className="min-h-[60vh] flex items-center justify-center">
@@ -226,6 +227,8 @@ const App: React.FC = () => {
                 <Route path="contact/:reference" element={<ContactPage />} />
                 <Route path="estimation" element={<EstimationPage />} />
                 <Route path="vendre" element={<SellingPage />} />
+                <Route path="immobilier-:citySlug" element={<CityPropertiesPage />} />
+                <Route path="immobilier/:citySlug" element={<CityPropertiesPage />} />
                 <Route path=":slug" element={<GenericPageWrapper />} />
             </Route>
         </Routes>

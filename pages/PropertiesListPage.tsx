@@ -1,9 +1,11 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Helmet } from 'react-helmet-async';
 import { propertyService } from '../services/propertyService';
 import PropertyCard from '../components/PropertyCard';
 import CityGuideSection from '../components/CityGuideSection';
+import { slugifyCity } from '../utils/cityHelper';
 import type { Property } from '../types';
 
 // --- ICONS ---
@@ -274,8 +276,15 @@ const PropertiesListPage: React.FC = () => {
         );
     };
 
+    const canonicalUrl = locationFilter 
+        ? `https://www.duroche.fr/immobilier-${slugifyCity(locationFilter)}`
+        : 'https://www.duroche.fr/properties';
+
     return (
         <div className="bg-background min-h-screen">
+            <Helmet>
+                <link rel="canonical" href={canonicalUrl} />
+            </Helmet>
             <AlertModal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)} onSave={handleSaveAlert} criteriaSummary={getCriteriaSummary()} />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 
@@ -308,6 +317,28 @@ const PropertiesListPage: React.FC = () => {
                         )}
                     </ol>
                 </nav>
+
+                {/* Bannière de redirection / lien vers la page statique de ville pour le SEO */}
+                {locationFilter && (
+                    <div className="mb-8 p-4 bg-accent/10 border border-accent/20 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm text-primary-text">
+                        <div className="flex items-center gap-2.5">
+                            <span className="p-1.5 bg-accent text-white rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </span>
+                            <span>
+                                Vous consultez les biens à <strong>{locationFilter}</strong>. Découvrez notre guide dédié et l'analyse du marché local.
+                            </span>
+                        </div>
+                        <Link
+                            to={`/immobilier-${slugifyCity(locationFilter)}`}
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-dark transition-colors shrink-0"
+                        >
+                            Voir la page dédiée à {locationFilter} &rarr;
+                        </Link>
+                    </div>
+                )}
 
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Nos Biens Immobiliers à Vendre</h1>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { propertyService } from '../services/propertyService';
+import { slugifyCity } from '../utils/cityHelper';
 
 interface SearchBarProps {
   setCurrentPage: (page: string) => void;
@@ -50,6 +51,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ setCurrentPage }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Si une ville est sélectionnée sans type spécifique, redirection directe vers l'URL statique SEO
+    if (location && (!type || type === 'all')) {
+      const citySlug = slugifyCity(location);
+      setCurrentPage(`/immobilier-${citySlug}`);
+      setShowSuggestions(false);
+      return;
+    }
+
     const params = new URLSearchParams();
     if (type && type !== 'all') params.append('type', type);
     if (location) params.append('location', location);

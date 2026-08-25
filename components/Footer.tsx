@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { footerSettingsService } from '../services/footerSettingsService';
 import { propertyService } from '../services/propertyService';
+import { slugifyCity, KNOWN_CITIES } from '../utils/cityHelper';
 import type { SiteSettings, Page } from '../types';
 
 const SocialIcon: React.FC<{ href: string, children: React.ReactNode, "aria-label": string }> = ({ href, children, "aria-label": ariaLabel }) => (
@@ -22,30 +23,39 @@ const Footer: React.FC<FooterProps> = ({ settings, dynamicPages }) => {
     
     const footerPages = dynamicPages.filter(p => p.showInFooter);
 
-    // LOGIQUE DE MAILLAGE SEO : Génère des liens dynamiques basés sur le stock réel
+    // LOGIQUE DE MAILLAGE SEO : Liens statiques propres vers les villes et recherches phares
     const popularSearches = useMemo(() => {
-        if (!allProperties) return [];
-        const uniqueKeys = new Set<string>();
         const results: { label: string, path: string }[] = [];
-        
-        const activeProperties = allProperties.filter(p => !p.isHidden && p.status !== 'Vendu');
-        
-        activeProperties.forEach(prop => {
-            const city = prop.location.split(',')[0].trim();
-            const type = prop.type;
-            const key = `${type}-${city}`;
-            
-            if (!uniqueKeys.has(key)) {
-                uniqueKeys.add(key);
+        const uniqueCities = new Set<string>();
+
+        // 1. Villes avec biens réels
+        if (allProperties) {
+            const activeProperties = allProperties.filter(p => !p.isHidden && p.status !== 'Vendu');
+            activeProperties.forEach(prop => {
+                const city = prop.location.split(',')[0].trim();
+                const slug = slugifyCity(city);
+                if (slug && !uniqueCities.has(slug)) {
+                    uniqueCities.add(slug);
+                    results.push({
+                        label: `Immobilier ${city}`,
+                        path: `/immobilier-${slug}`
+                    });
+                }
+            });
+        }
+
+        // 2. Compléter avec les villes phares du secteur si besoin
+        KNOWN_CITIES.forEach(c => {
+            if (!uniqueCities.has(c.slug) && results.length < 12) {
+                uniqueCities.add(c.slug);
                 results.push({
-                    label: `${type} à ${city}`,
-                    path: `/properties?location=${encodeURIComponent(city)}&type=${encodeURIComponent(type)}`
+                    label: `Immobilier ${c.name}`,
+                    path: `/immobilier-${c.slug}`
                 });
             }
         });
         
-        // On limite à 12 liens pour ne pas surcharger le footer
-        return results.sort((a, b) => a.label.localeCompare(b.label)).slice(0, 12);
+        return results.slice(0, 10);
     }, [allProperties]);
     
     const renderLogo = () => {

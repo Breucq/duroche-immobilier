@@ -18,6 +18,7 @@ export default async function handler(request, response) {
       "properties": *[_type == "property" && status != "Vendu" && isHidden != true] { 
         "ref": reference, 
         _id, 
+        location,
         _updatedAt 
       },
       "articles": *[_type == "article"] { 
@@ -27,10 +28,84 @@ export default async function handler(request, response) {
       "pages": *[_type == "page"] { 
         "slug": slug.current, 
         _updatedAt 
+      },
+      "cityGuides": *[_type == "cityGuide"] {
+        "slug": slug.current,
+        cityName,
+        _updatedAt
       }
     }`;
 
     const data = await client.fetch(query);
+
+    // Fonction de slugification pour les villes
+    const slugify = (str) => {
+      if (!str) return '';
+      return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    };
+
+    // Villes majeures du secteur d'intervention (Vaucluse Nord & Environs)
+    const coreSectorSlugs = [
+      'piolenc',
+      'camaret-sur-aigues',
+      'orange',
+      'caderousse',
+      'serignan-du-comtat',
+      'mornas',
+      'sainte-cecile-les-vignes',
+      'bollene',
+      'uchaux',
+      'jonquieres',
+      'mondragon',
+      'courthezon',
+      'chateauneuf-du-pape',
+      'violes',
+      'travaillan',
+      'rasteau',
+      'cairanne',
+      'lapalud',
+      'lamotte-du-rhone',
+      'lagarde-pareol',
+      'vaison-la-romaine'
+    ];
+
+    // Collecter l'ensemble des slugs de villes uniques
+    const citySlugMap = new Map();
+
+    // 1) Villes du secteur de base
+    coreSectorSlugs.forEach(slug => {
+      citySlugMap.set(slug, currentDate);
+    });
+
+    // 2) Villes des guides Sanity
+    if (data.cityGuides && Array.isArray(data.cityGuides)) {
+      data.cityGuides.forEach(cg => {
+        const slug = cg.slug || slugify(cg.cityName);
+        if (slug) {
+          const updateDate = cg._updatedAt ? cg._updatedAt.split('T')[0] : currentDate;
+          citySlugMap.set(slug, updateDate);
+        }
+      });
+    }
+
+    // 3) Villes extraites des annonces actives
+    if (data.properties && Array.isArray(data.properties)) {
+      data.properties.forEach(p => {
+        if (p.location) {
+          const rawCity = p.location.split(',')[0].trim();
+          const slug = slugify(rawCity);
+          if (slug && !citySlugMap.has(slug)) {
+            const updateDate = p._updatedAt ? p._updatedAt.split('T')[0] : currentDate;
+            citySlugMap.set(slug, updateDate);
+          }
+        }
+      });
+    }
 
     // 2. Définition des pages statiques avec priorités fortes
     const staticPages = [
@@ -59,6 +134,19 @@ export default async function handler(request, response) {
         })
         .join('')}
       
+      ${Array.from(citySlugMap.entries())
+        .map(([slug, updateDate]) => {
+          return `
+            <url>
+              <loc>${baseUrl}/immobilier-${slug}</loc>
+              <lastmod>${updateDate}</lastmod>
+              <changefreq>weekly</changefreq>
+              <priority>0.9</priority>
+            </url>
+          `;
+        })
+        .join('')}
+
       ${data.properties
         .map((property) => {
           // Logique pour l'URL : ref ou ID (idem App.tsx)
