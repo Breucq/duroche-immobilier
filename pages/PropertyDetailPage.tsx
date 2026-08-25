@@ -264,12 +264,9 @@ const PropertyDetailPage: React.FC = () => {
     const shareImageUrl = property.image ? urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url() : '';
     const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
     
-    // --- CALCUL DE L'URL CANONIQUE OFFICIELLE ---
+    // --- CALCUL DE L'URL CANONIQUE OFFICIELLE & PARTAGE ---
     const officialSlug = hasCleanRef ? property.reference : property._id;
     const canonicalUrl = `https://www.duroche.fr/properties/${officialSlug}`;
-
-    const shareRef = hasCleanRef ? property.reference : property._id;
-    const smartShareUrl = `https://www.duroche.fr/api/share?ref=${shareRef}`;
 
     const isFavorite = favoriteIds.includes(property._id);
     const pluralType = property.type === 'Autre' ? 'Autres biens' : property.type.endsWith('s') ? property.type : `${property.type}s`;
@@ -530,7 +527,7 @@ const PropertyDetailPage: React.FC = () => {
                             <div className="print:hidden">
                                 {property.status === 'Vendu' ? ( <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Ce bien a été vendu</h3> <p className="text-secondary-text mt-2">Ce bien a trouvé preneur grâce à notre agence.</p> </div> ) : ( <> <div className="text-center mt-6"> <h3 className="text-xl font-heading font-semibold text-primary-text">Intéressé par ce bien ?</h3> </div> <div className="space-y-4 text-center mt-6"> <a href="tel:0756874788" className="block text-2xl font-bold text-accent-dark hover:underline">07 56 87 47 88</a> <button onClick={() => setCurrentPage(contactPath)} className="w-full text-center px-6 py-4 border border-transparent text-lg font-bold rounded-lg shadow-sm text-white bg-accent hover:bg-accent-dark focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent transition-colors"> Nous contacter </button> </div> </> )} 
                                 <div className="my-6"> 
-                                    <ShareButtons shareUrl={smartShareUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> 
+                                    <ShareButtons shareUrl={canonicalUrl} title={`${property.type} à vendre à ${property.location} - ${formattedPrice}`} heading="Partager ce bien" className="flex flex-col items-center" /> 
                                     <button onClick={() => window.print()} className="flex items-center justify-center gap-2 mt-4 text-sm text-secondary-text hover:text-accent transition-colors w-full mx-auto"><PrinterIcon className="w-5 h-5" /><span className="underline">Imprimer la fiche</span></button>
                                 </div> 
                             </div>
