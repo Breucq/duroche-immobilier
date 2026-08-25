@@ -381,8 +381,13 @@ export default async function handler(request, response) {
       html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /></head><body><div id="root"></div></body></html>`;
     }
 
-    // Nettoyage des balises temporaires de titre
-    html = html.replace(/<title>.*?<\/title>/gi, '');
+    // Nettoyage des balises temporaires pour éviter les doublons
+    html = html
+      .replace(/<title>.*?<\/title>/gi, '')
+      .replace(/<meta\s+name=["']description["'][^>]*>/gi, '')
+      .replace(/<meta\s+property=["']og:[^"']*["'][^>]*>/gi, '')
+      .replace(/<meta\s+name=["']twitter:[^"']*["'][^>]*>/gi, '')
+      .replace(/<link\s+rel=["']canonical["'][^>]*>/gi, '');
 
     // 5. Construction du bloc SEO injecté dans le <head> avant le JS
     const headInjection = `
@@ -399,8 +404,12 @@ export default async function handler(request, response) {
     <meta property="og:title" content="${escapeHtml(title)}" />
     <meta property="og:description" content="${escapeHtml(description)}" />
     <meta property="og:image" content="${ogImage}" />
+    <meta property="og:image:secure_url" content="${ogImage}" />
+    <meta property="og:image:type" content="image/jpeg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="${escapeHtml(title)}" />
+    <meta property="og:locale" content="fr_FR" />
 
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
