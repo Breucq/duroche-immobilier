@@ -41,10 +41,11 @@
     </style>
     
     <script>
-      /* SCRIPT LCP V3 : Parallélisation Logo + Hero Image */
+      /* SCRIPT LCP V4 : Préchauffage LCP responsive (mobile 640px / desktop 1200px) */
       (function() {
         const pId = 'jvrtf17r';
         const path = window.location.pathname;
+        const isMobile = window.innerWidth <= 640;
 
         const logoUrl = "https://cdn.sanity.io/images/"+pId+"/production/fcfe23f10ab906658ab09e12607b30e2afa6e0f2-495x119.png?w=220&q=50&auto=format";
         const lLink = document.createElement('link'); lLink.rel = 'preload'; lLink.as = 'image'; lLink.href = logoUrl; lLink.fetchPriority = 'high';
@@ -61,7 +62,9 @@
           fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
             const imgUrl = d?.result?.u;
             if (imgUrl) {
-              const fullUrl = imgUrl + '?w=1200&h=675&q=50&auto=format&fit=crop';
+              const fullUrl = isMobile
+                ? imgUrl + '?w=640&h=480&q=70&auto=format&fit=crop'
+                : imgUrl + '?w=1200&h=675&q=75&auto=format&fit=crop';
               window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
               const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
               document.head.appendChild(l);
