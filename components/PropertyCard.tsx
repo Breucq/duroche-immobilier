@@ -76,10 +76,10 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
-  // OPTIMISATION : Largeur 600px et qualité 75 pour un rendu net sur mobile tout en restant léger
+  // OPTIMISATION : Largeur 400px et qualité 65 avec auto=format pour un poids plume (<20Ko par image sur mobile)
   const imageUrls = [property.image, ...(property.images || [])]
     .filter(Boolean)
-    .map(img => urlFor(img).width(600).height(338).quality(75).auto('format').url());
+    .map(img => urlFor(img).width(400).height(225).quality(65).auto('format').fit('crop').url());
   
   const hasMultipleImages = imageUrls.length > 1 && !isConfidential;
 

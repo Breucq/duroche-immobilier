@@ -11,25 +11,59 @@ interface HeroProps {
 }
 
 const Hero: React.FC<HeroProps> = ({ setCurrentPage, title, subtitle, buttonText, heroBackgroundImage }) => {
-  // On utilise l'URL préchargée si elle existe, sinon on prend l'originale
-  const optimizedUrl = (window as any).__LCP_IMG_URL__ || heroBackgroundImage;
+  // Extraction de l'URL de base propre Sanity
+  const rawBaseUrl = (heroBackgroundImage || '').split('?')[0];
+
+  const smallUrl = rawBaseUrl ? `${rawBaseUrl}?w=640&h=480&fit=crop&q=70&auto=format` : '';
+  const mediumUrl = rawBaseUrl ? `${rawBaseUrl}?w=1024&h=576&fit=crop&q=75&auto=format` : '';
+  const largeUrl = rawBaseUrl ? `${rawBaseUrl}?w=1440&h=810&fit=crop&q=75&auto=format` : '';
+
+  const fallbackUrl = (window as any).__LCP_IMG_URL__ || mediumUrl || heroBackgroundImage;
 
   return (
     <section className="relative h-[60vh] sm:h-[50vh] min-h-[450px] sm:min-h-[400px] pt-20 pb-32 sm:pb-24 flex items-center justify-center text-white">
-      <img 
-        src={optimizedUrl} 
-        alt="" 
-        role="presentation"
-        fetchPriority="high"
-        loading="eager"
-        decoding="async"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        onLoad={() => {
-            const ph = document.getElementById('lcp-placeholder');
-            if (ph) ph.style.display = 'none';
-        }}
-      />
-      <div className="absolute inset-0 bg-black opacity-50 z-0"></div>
+      {rawBaseUrl ? (
+        <picture className="absolute inset-0 w-full h-full z-0 pointer-events-none">
+          <source
+            media="(max-width: 640px)"
+            srcSet={`${rawBaseUrl}?w=640&h=480&fit=crop&q=70&auto=format`}
+          />
+          <source
+            media="(max-width: 1024px)"
+            srcSet={`${rawBaseUrl}?w=1024&h=576&fit=crop&q=75&auto=format`}
+          />
+          <img 
+            src={fallbackUrl}
+            srcSet={`${smallUrl} 640w, ${mediumUrl} 1024w, ${largeUrl} 1440w`}
+            sizes="100vw"
+            alt="" 
+            role="presentation"
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            className="w-full h-full object-cover"
+            onLoad={() => {
+                const ph = document.getElementById('lcp-placeholder');
+                if (ph) ph.style.display = 'none';
+            }}
+          />
+        </picture>
+      ) : (
+        <img 
+          src={fallbackUrl}
+          alt="" 
+          role="presentation"
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          onLoad={() => {
+              const ph = document.getElementById('lcp-placeholder');
+              if (ph) ph.style.display = 'none';
+          }}
+        />
+      )}
+      <div className="absolute inset-0 bg-black opacity-50 z-0 pointer-events-none"></div>
       
       <div className="relative z-10 text-center px-4">
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-heading leading-tight mb-4 text-shadow-lg">

@@ -17,8 +17,8 @@ const ImageWithSkeleton: React.FC<ImageWithSkeletonProps> = ({ className, fetchP
             )}
             <img
                 {...props}
-                // Corrected: pass fetchPriority correctly to the img element
                 fetchPriority={fetchPriority}
+                decoding="async"
                 onLoad={() => setIsLoaded(true)}
                 className={`transition-opacity duration-500 ease-in-out ${isLoaded ? 'opacity-100' : 'opacity-0'} w-full h-full object-cover`}
             />
