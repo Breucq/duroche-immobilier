@@ -245,7 +245,7 @@ export default async function handler(request, response) {
 
         if (property.image) {
           try {
-            ogImage = urlFor(property.image).width(1200).height(630).fit('crop').url();
+            ogImage = urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url();
           } catch (e) {}
         }
 
@@ -317,7 +317,7 @@ export default async function handler(request, response) {
         ogType = 'article';
         if (article.image) {
           try {
-            ogImage = urlFor(article.image).width(1200).height(630).fit('crop').url();
+            ogImage = urlFor(article.image).width(1200).height(630).fit('crop').format('jpg').url();
           } catch (e) {}
         }
 
