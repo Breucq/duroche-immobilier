@@ -1,5 +1,8 @@
 {
   "name": "Duroche Immobilier",
   "description": "Un site web d'agence immobilière moderne et élégant pour présenter les services, mettre en avant les biens immobiliers et faciliter le contact client.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

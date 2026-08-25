@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { PortableText, PortableTextComponents } from '@portabletext/react';
+import { Helmet } from 'react-helmet-async';
 import type { Page } from '../types';
 import { urlFor } from '../services/sanityClient';
 
@@ -40,8 +41,30 @@ const GenericPage: React.FC<GenericPageProps> = ({ page }) => {
     },
   };
 
+  const seoTitle = page.metaTitle || `${page.title} | Duroche Immobilier`;
+  const seoDescription = page.metaDescription || page.subtitle || '';
+  const shareImageUrl = page.coverImage ? urlFor(page.coverImage).width(1200).height(630).fit('crop').url() : '';
+  const canonicalUrl = `https://www.duroche.fr/${page.slug?.current || ''}`;
+
   return (
     <div className="bg-background min-h-screen">
+        <Helmet>
+            <title>{seoTitle}</title>
+            {seoDescription && <meta name="description" content={seoDescription} />}
+            {page.metaKeywords && <meta name="keywords" content={page.metaKeywords} />}
+            <link rel="canonical" href={canonicalUrl} />
+            
+            <meta property="og:type" content="website" />
+            <meta property="og:url" content={canonicalUrl} />
+            <meta property="og:title" content={seoTitle} />
+            <meta property="og:description" content={seoDescription} />
+            {shareImageUrl && <meta property="og:image" content={shareImageUrl} />}
+            
+            <meta name="twitter:title" content={seoTitle} />
+            <meta name="twitter:description" content={seoDescription} />
+            {shareImageUrl && <meta name="twitter:image" content={shareImageUrl} />}
+        </Helmet>
+
         {/* Header de la page */}
         <div className="relative bg-primary-text py-20 sm:py-28 overflow-hidden">
              {coverImageUrl && (

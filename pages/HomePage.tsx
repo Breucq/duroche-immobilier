@@ -2,6 +2,7 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
 import Properties from '../components/Properties';
@@ -52,8 +53,20 @@ const HomePage: React.FC = () => {
 
   if (!content) return <div className="py-48 text-center min-h-screen">Chargement...</div>;
 
+  const homeMetaTitle = content.metaTitle || "Duroche Immobilier | Agence Immobilière Orange & Vaucluse Nord";
+  const homeMetaDescription = content.metaDescription || "Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation offerte. Découvrez nos maisons et appartements à Orange, Caderousse, Piolenc et environs.";
+
   return (
     <>
+      <Helmet>
+        <title>{homeMetaTitle}</title>
+        <meta name="description" content={homeMetaDescription} />
+        <link rel="canonical" href="https://www.duroche.fr" />
+        <meta property="og:title" content={homeMetaTitle} />
+        <meta property="og:description" content={homeMetaDescription} />
+        <meta property="og:url" content="https://www.duroche.fr" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       <Hero 
         setCurrentPage={(path) => navigate(path)}
         title={content.heroTitle} 

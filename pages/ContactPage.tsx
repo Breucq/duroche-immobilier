@@ -13,6 +13,10 @@ const ContactPage: React.FC = () => {
                 <title>Contactez-nous | Duroche Immobilier</title>
                 <meta name="description" content="Contactez Duroche Immobilier, votre expert de l'immobilier dans le Vaucluse Nord. Nous sommes à votre écoute pour vos projets d'achat, vente ou estimation." />
                 <link rel="canonical" href="https://www.duroche.fr/contact" />
+                <meta property="og:title" content="Contactez-nous | Duroche Immobilier" />
+                <meta property="og:description" content="Contactez Duroche Immobilier, votre expert de l'immobilier dans le Vaucluse Nord. Nous sommes à votre écoute pour vos projets d'achat, vente ou estimation." />
+                <meta property="og:url" content="https://www.duroche.fr/contact" />
+                <meta property="og:type" content="website" />
             </Helmet>
              <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                  <div className="text-center pt-8 mb-12">

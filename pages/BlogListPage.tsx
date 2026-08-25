@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { articleService } from '../services/articleService';
 import { Article } from '../types';
 import ArticleCard from '../components/ArticleCard';
@@ -26,6 +27,15 @@ const BlogListPage: React.FC = () => {
 
     return (
         <div className="bg-background min-h-screen">
+            <Helmet>
+                <title>Blog & Conseils Immobiliers dans le Vaucluse | Duroche Immobilier</title>
+                <meta name="description" content="Découvrez nos conseils d'experts, guides d'achat et de vente, et analyses du marché immobilier à Orange et dans le Haut-Vaucluse." />
+                <link rel="canonical" href="https://www.duroche.fr/blog" />
+                <meta property="og:title" content="Blog & Conseils Immobiliers | Duroche Immobilier" />
+                <meta property="og:description" content="Découvrez nos conseils d'experts, guides d'achat et de vente, et analyses du marché immobilier à Orange et dans le Haut-Vaucluse." />
+                <meta property="og:url" content="https://www.duroche.fr/blog" />
+                <meta property="og:type" content="website" />
+            </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">

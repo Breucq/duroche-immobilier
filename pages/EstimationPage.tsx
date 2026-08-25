@@ -172,7 +172,11 @@ const EstimationPage: React.FC = () => {
           name="description" 
           content={content?.metaDescription || "Obtenez une estimation précise, 100% gratuite et confidentielle de votre maison ou appartement à Orange, Caderousse, Piolenc et Haut-Vaucluse en 2 minutes."} 
         />
-        <link rel="canonical" href="https://duroche.fr/estimation" />
+        <link rel="canonical" href="https://www.duroche.fr/estimation" />
+        <meta property="og:title" content={content?.metaTitle || "Estimer votre bien immobilier à Orange et environs | Duroche Immobilier"} />
+        <meta property="og:description" content={content?.metaDescription || "Obtenez une estimation précise, 100% gratuite et confidentielle de votre maison ou appartement à Orange, Caderousse, Piolenc et Haut-Vaucluse en 2 minutes."} />
+        <meta property="og:url" content="https://www.duroche.fr/estimation" />
+        <meta property="og:type" content="website" />
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
         </script>

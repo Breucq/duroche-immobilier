@@ -280,10 +280,26 @@ const PropertiesListPage: React.FC = () => {
         ? `https://www.duroche.fr/immobilier-${slugifyCity(locationFilter)}`
         : 'https://www.duroche.fr/properties';
 
+    const pageTitle = locationFilter 
+        ? `Immobilier ${locationFilter} : Biens & Maisons à Vendre | Duroche Immobilier`
+        : propertyType !== 'all'
+        ? `${propertyType} à vendre dans le Vaucluse Nord | Duroche Immobilier`
+        : 'Nos Biens Immobiliers à Vendre dans le Vaucluse Nord | Duroche Immobilier';
+
+    const pageDescription = locationFilter
+        ? `Découvrez nos annonces immobilières à ${locationFilter} : maisons, appartements, terrains à vendre avec Duroche Immobilier.`
+        : "Consultez notre sélection de biens immobiliers à vendre dans le Vaucluse Nord (Orange, Caderousse, Piolenc...). Maisons de village, villas, appartements et terrains.";
+
     return (
         <div className="bg-background min-h-screen">
             <Helmet>
+                <title>{pageTitle}</title>
+                <meta name="description" content={pageDescription} />
                 <link rel="canonical" href={canonicalUrl} />
+                <meta property="og:title" content={pageTitle} />
+                <meta property="og:description" content={pageDescription} />
+                <meta property="og:url" content={canonicalUrl} />
+                <meta property="og:type" content="website" />
             </Helmet>
             <AlertModal isOpen={isAlertModalOpen} onClose={() => setIsAlertModalOpen(false)} onSave={handleSaveAlert} criteriaSummary={getCriteriaSummary()} />
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">

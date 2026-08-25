@@ -51,6 +51,8 @@ const FavoritesPage: React.FC = () => {
             <Helmet>
                 <title>Mes Favoris | Duroche Immobilier</title>
                 <meta name="description" content="Retrouvez vos biens immobiliers favoris." />
+                <meta name="robots" content="noindex, follow" />
+                <link rel="canonical" href="https://www.duroche.fr/favorites" />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
@@ -84,14 +86,15 @@ const SoldPropertiesListPage: React.FC = () => {
     return (
         <div className="bg-background min-h-screen">
             <Helmet>
-                <title>Nos Références - Biens Vendus | Duroche Immobilier</title>
-                <meta name="description" content="Découvrez une sélection de biens que nous avons récemment vendus dans le Vaucluse Nord." />
+                <title>Nos Références - Biens Vendus dans le Vaucluse Nord | Duroche Immobilier</title>
+                <meta name="description" content="Découvrez les maisons, villas et appartements récemment vendus par Duroche Immobilier à Orange, Caderousse, Piolenc et environs." />
+                <link rel="canonical" href="https://www.duroche.fr/nos-biens-vendus" />
             </Helmet>
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-24">
                 <div className="text-center pt-8 mb-12">
                     <h1 className="text-4xl font-bold font-heading text-primary-text sm:text-5xl">Nos Références - Biens Vendus</h1>
                     <p className="mt-4 text-lg text-secondary-text max-w-2xl mx-auto">
-                        Découvrez une sélection de biens que nous avons récemment vendus.
+                        Découvrez une sélection de biens que nous avons récemment vendus dans le secteur.
                     </p>
                 </div>
                 {soldProperties && soldProperties.length > 0 ? (

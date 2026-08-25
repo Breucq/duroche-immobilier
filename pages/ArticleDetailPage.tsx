@@ -59,7 +59,7 @@ const ArticleDetailPage: React.FC = () => {
 
     const imageUrl = article.image ? urlFor(article.image).width(1200).height(600).auto('format').quality(80).url() : '';
     const shareImageUrl = article.image ? urlFor(article.image).width(1200).height(630).fit('crop').url() : '';
-    const pageUrl = window.location.href;
+    const canonicalUrl = `https://www.duroche.fr/blog/${slug}`;
     const seoTitle = `${article.title} | Blog Duroche Immobilier`;
     const seoDescription = article.summary || '';
 
@@ -125,7 +125,7 @@ const ArticleDetailPage: React.FC = () => {
       "description": seoDescription,
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": pageUrl
+        "@id": canonicalUrl
       }
     };
 
@@ -134,11 +134,11 @@ const ArticleDetailPage: React.FC = () => {
              <Helmet>
                 <title>{seoTitle}</title>
                 <meta name="description" content={seoDescription} />
-                <link rel="canonical" href={pageUrl} />
+                <link rel="canonical" href={canonicalUrl} />
                 
                 {/* Open Graph / Facebook */}
                 <meta property="og:type" content="article" />
-                <meta property="og:url" content={pageUrl} />
+                <meta property="og:url" content={canonicalUrl} />
                 <meta property="og:title" content={seoTitle} />
                 <meta property="og:description" content={seoDescription} />
                 <meta property="og:image" content={shareImageUrl} />
@@ -147,7 +147,7 @@ const ArticleDetailPage: React.FC = () => {
                 
                 {/* Twitter */}
                 <meta property="twitter:card" content="summary_large_image" />
-                <meta property="twitter:url" content={pageUrl} />
+                <meta property="twitter:url" content={canonicalUrl} />
                 <meta property="twitter:title" content={seoTitle} />
                 <meta property="twitter:description" content={seoDescription} />
                 <meta property="twitter:image" content={shareImageUrl} />
