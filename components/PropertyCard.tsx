@@ -144,7 +144,7 @@ const PropertyCard: React.FC<PropertyCardProps> = ({ property }) => {
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                 ) : <div />}
-                {currentImageIndex < imageUrls.length - 1 && (
+                {currentImageIndex < imageSources.length - 1 && (
                     <button onClick={handleNextClick} aria-label="Image suivante" className="pointer-events-auto p-2 bg-white/80 rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-300 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-primary-text" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                     </button>
