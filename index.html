@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
-    <!-- 1. PRÉCONNEXIONS RENFORCÉES -->
+    <!-- PRÉCONNEXIONS ET PRÉCHARGEMENTS CRITIQUES -->
     <link rel="preconnect" href="https://jvrtf17r.api.sanity.io" crossorigin>
     <link rel="preconnect" href="https://cdn.sanity.io" crossorigin>
     <link rel="dns-prefetch" href="https://cdn.sanity.io">
+    
+    <!-- PRÉCHARGEMENT DIRECT DE L'IMAGE LCP (Hero par défaut, visible dès le premier octet HTML) -->
+    <link rel="preload" as="image" href="https://cdn.sanity.io/images/jvrtf17r/production/d94d9995986807b30e2afa6e0f274a169b1df718-1920x1080.jpg?w=960&h=640&fit=crop&q=82&auto=format" media="(max-width: 640px)" fetchpriority="high">
+    <link rel="preload" as="image" href="https://cdn.sanity.io/images/jvrtf17r/production/d94d9995986807b30e2afa6e0f274a169b1df718-1920x1080.jpg?w=1920&h=1080&fit=crop&q=85&auto=format" media="(min-width: 641px)" fetchpriority="high">
     
     <style>
       /* CSS CRITIQUE : Contient tout ce qui est visible immédiatement (LCP) */
@@ -41,36 +45,30 @@
     </style>
     
     <script>
-      /* SCRIPT LCP V4 : Préchauffage LCP responsive (mobile 640px / desktop 1200px) */
+      /* SCRIPT LCP DYNAMIQUE : Pour les pages de détail /properties/:id */
       (function() {
         const pId = 'jvrtf17r';
         const path = window.location.pathname;
         const isMobile = window.innerWidth <= 640;
 
-        const logoUrl = "https://cdn.sanity.io/images/"+pId+"/production/fcfe23f10ab906658ab09e12607b30e2afa6e0f2-495x119.png?w=220&q=50&auto=format";
-        const lLink = document.createElement('link'); lLink.rel = 'preload'; lLink.as = 'image'; lLink.href = logoUrl; lLink.fetchPriority = 'high';
-        document.head.appendChild(lLink);
-
-        let q = ''; let t = '';
-        if (path === '/') { t='home'; q='*[_id=="homePageSettings"][0]{"u":heroBackgroundImage.asset->url}'; }
-        else if (path.startsWith('/properties/')) {
+        if (path.startsWith('/properties/')) {
           const r = path.split('/').pop();
-          if (r) { t=r; q=`*[_type=="property" && (reference=="${r}"||_id=="${r}")][0]{"u":image.asset->url}`; }
-        }
-        if (q) {
-          const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${encodeURIComponent(q)}`;
-          fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
-            const imgUrl = d?.result?.u;
-            if (imgUrl) {
-              const fullUrl = isMobile
-                ? imgUrl + '?w=960&h=640&q=82&auto=format&fit=crop'
-                : imgUrl + '?w=1920&h=1080&q=85&auto=format&fit=crop';
-              window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = t;
-              const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
-              document.head.appendChild(l);
-              const bg = document.getElementById('lcp-img'); if (bg) { bg.src = fullUrl; bg.style.opacity = "1"; }
-            }
-          }).catch(()=>{});
+          if (r) {
+            const q = `*[_type=="property" && (reference=="${r}"||_id=="${r}")][0]{"u":image.asset->url}`;
+            const url = `https://${pId}.api.sanity.io/v2023-05-03/data/query/production?query=${encodeURIComponent(q)}`;
+            fetch(url, { priority: 'high' }).then(r => r.json()).then(d => {
+              const imgUrl = d?.result?.u;
+              if (imgUrl) {
+                const fullUrl = isMobile
+                  ? imgUrl + '?w=960&h=640&q=82&auto=format&fit=crop'
+                  : imgUrl + '?w=1920&h=1080&q=85&auto=format&fit=crop';
+                window.__LCP_IMG_URL__ = fullUrl; window.__LCP_TARGET__ = r;
+                const l = document.createElement('link'); l.rel = 'preload'; l.as = 'image'; l.href = fullUrl; l.fetchPriority = 'high';
+                document.head.appendChild(l);
+                const bg = document.getElementById('lcp-img'); if (bg) { bg.src = fullUrl; bg.style.opacity = "1"; }
+              }
+            }).catch(()=>{});
+          }
         }
       })();
     </script>
@@ -162,8 +160,12 @@
   <body class="antialiased">
     <div id="root">
         <header class="main-header"></header>
-        <div id="lcp-placeholder" class="lcp-wrap animate-pulse">
-            <img id="lcp-img" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity 0.3s;" fetchpriority="high">
+        <div id="lcp-placeholder" class="lcp-wrap">
+            <picture style="position:absolute; inset:0; width:100%; height:100%;">
+                <source media="(max-width: 640px)" srcset="https://cdn.sanity.io/images/jvrtf17r/production/d94d9995986807b30e2afa6e0f274a169b1df718-1920x1080.jpg?w=960&h=640&fit=crop&q=82&auto=format">
+                <img id="lcp-img" src="https://cdn.sanity.io/images/jvrtf17r/production/d94d9995986807b30e2afa6e0f274a169b1df718-1920x1080.jpg?w=1920&h=1080&fit=crop&q=85&auto=format" alt="" role="presentation" style="width:100%; height:100%; object-fit:cover;" fetchpriority="high">
+            </picture>
+            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.5);"></div>
             <div class="hero-content-placeholder">
                 <div class="hero-h1-placeholder"></div>
                 <div style="height:20px; width:200px; background:rgba(255,255,255,0.1); margin:0 auto; border-radius:4px;"></div>
