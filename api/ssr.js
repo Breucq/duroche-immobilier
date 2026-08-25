@@ -71,12 +71,20 @@ export default async function handler(request, response) {
     let rawPath = '';
     if (request.query && request.query.path) {
       rawPath = Array.isArray(request.query.path) ? request.query.path.join('/') : request.query.path;
-    } else if (request.url) {
-      const parsedUrl = new URL(request.url, 'https://www.duroche.fr');
-      rawPath = parsedUrl.pathname.replace(/^\/api\/ssr/, '').replace(/^\//, '');
+    }
+    if (!rawPath && request.url) {
+      try {
+        const parsedUrl = new URL(request.url, 'https://www.duroche.fr');
+        rawPath = parsedUrl.searchParams.get('path') || parsedUrl.pathname.replace(/^\/api\/ssr/, '').replace(/^\//, '');
+      } catch (e) {
+        const qIndex = request.url.indexOf('path=');
+        if (qIndex !== -1) {
+          rawPath = request.url.substring(qIndex + 5).split('&')[0];
+        }
+      }
     }
 
-    const cleanPath = rawPath.replace(/^\/+|\/+$/g, '');
+    const cleanPath = decodeURIComponent(rawPath || '').replace(/^\/+|\/+$/g, '');
     const baseUrl = 'https://www.duroche.fr';
     const canonicalUrl = cleanPath ? `${baseUrl}/${cleanPath}` : baseUrl;
 
@@ -204,7 +212,7 @@ export default async function handler(request, response) {
       const rawRef = cleanPath.split('/')[1] || '';
       const ref = decodeURIComponent(rawRef).trim();
       const property = await client.fetch(
-        `*[_type == "property" && (reference == $ref || _id == $ref || reference == $refUpper || reference == $refLower)][0]{
+        `*[_type == "property" && (reference == $ref || _id == $ref || reference == $refUpper || reference == $refLower || string(reference) == $ref || reference match $ref)][0]{
           _id,
           reference,
           type,
@@ -214,6 +222,7 @@ export default async function handler(request, response) {
           bedrooms,
           description,
           image,
+          images,
           characteristics,
           dpe
         }`,
@@ -222,15 +231,17 @@ export default async function handler(request, response) {
 
       if (property) {
         const city = property.location ? property.location.split(',')[0].trim() : 'Vaucluse';
-        const formattedPrice = new Intl.NumberFormat('fr-FR', {
-          style: 'currency',
-          currency: 'EUR',
-          minimumFractionDigits: 0,
-        }).format(property.price);
+        const formattedPrice = property.price
+          ? new Intl.NumberFormat('fr-FR', {
+              style: 'currency',
+              currency: 'EUR',
+              minimumFractionDigits: 0,
+            }).format(property.price)
+          : '';
 
-        title = `${property.type || 'Bien'} à ${city}${property.area ? ` - ${property.area}m²` : ''}${
+        title = `${property.type || 'Bien'} à ${city}${property.area ? ` - ${property.area} m²` : ''}${
           property.bedrooms ? ` - ${property.bedrooms} ch.` : ''
-        } | Duroche Immobilier`;
+        }${formattedPrice ? ` - ${formattedPrice}` : ''} | Duroche Immobilier`;
 
         let rawDesc = '';
         if (typeof property.description === 'string') {
@@ -242,11 +253,12 @@ export default async function handler(request, response) {
         description =
           cleanDesc.length > 160
             ? cleanDesc.substring(0, 157) + '...'
-            : cleanDesc || `Découvrez ce bien d'exception (${property.type}) à ${property.location} au prix de ${formattedPrice}.`;
+            : cleanDesc || `Découvrez ce bien immobilier (${property.type || 'Maison/Appartement'}) à ${property.location || 'Orange'}${formattedPrice ? ` proposé au prix de ${formattedPrice}` : ''}.`;
 
-        if (property.image) {
+        const mainImage = property.image || (Array.isArray(property.images) && property.images.length > 0 ? property.images[0] : null);
+        if (mainImage) {
           try {
-            ogImage = urlFor(property.image).width(1200).height(630).fit('crop').format('jpg').url();
+            ogImage = urlFor(mainImage).width(1200).height(630).fit('crop').format('jpg').url();
           } catch (e) {}
         }
 

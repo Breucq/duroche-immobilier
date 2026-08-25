@@ -1,5 +1,10 @@
 
 {
+  "functions": {
+    "api/ssr.js": {
+      "includeFiles": "dist/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/sitemap.xml",
@@ -10,18 +15,18 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/((?!api|.*\\.).*)",
+      "source": "/((?!api|.*\\..*).*)",
       "has": [
         {
           "type": "header",
           "key": "user-agent",
-          "value": ".*([Ff]acebook|[Ff]acebot|[Mm]eta|[Ww]hats[Aa]pp|[Gg]oogle|[Bb]ing|[Tt]witter|[Ll]inkedin|[Ss]lack|[Tt]elegram|[Aa]pplebot|[Bb]ot|[Ss]pider|[Cc]rawler|[Ss]craper).*"
+          "value": ".*(facebook|facebot|facebookexternalhit|facebookcatalog|meta-externalagent|whatsapp|twitter|twitterbot|linkedin|linkedinbot|slack|slackbot|telegram|telegrambot|applebot|google|googlebot|bing|bingbot|yandex|duckduckbot|baiduspider|rogerbot|embedly|quora|showyoubot|outbrain|pinterest|vkshare|w3c_validator|screaming frog|semrush|ahrefs|bot|crawler|spider|scraper).*"
         }
       ],
       "destination": "/api/ssr?path=$1"
     },
     {
-      "source": "/((?!api|.*\\.).*)",
+      "source": "/((?!api|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
