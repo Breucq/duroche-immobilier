@@ -242,29 +242,6 @@ export interface SellingPageSettings {
 }
 
 /**
- * Représente une alerte e-mail (gérée localement).
- */
-export interface Alert {
-    id: number;
-    email: string;
-    criteria: {
-        searchTerm: string;
-        propertyType: string;
-        maxPrice: string;
-        bedrooms: string;
-        minArea: string;
-        amenities: {
-            pool: boolean;
-            garden: boolean;
-            garage: boolean;
-            terrace: boolean;
-            cellar: boolean;
-        };
-    };
-    createdAt: string;
-}
-
-/**
  * Représente un objet image retourné par l'API de Sanity.
  */
 export interface SanityImage {
