@@ -4,6 +4,21 @@ export default {
   type: 'document',
   fields: [
     {
+      name: 'metaTitle',
+      title: 'Meta Titre (SEO Google)',
+      type: 'string',
+      description: 'Titre principal affiché dans Google (Ex: Duroche Immobilier | Conseillers Immobiliers Orange & Vaucluse Nord)',
+      initialValue: 'Duroche Immobilier | Conseillers Immobiliers Orange & Vaucluse Nord',
+    },
+    {
+      name: 'metaDescription',
+      title: 'Meta Description (SEO Google)',
+      type: 'text',
+      rows: 2,
+      description: 'Description affichée sous le titre dans les résultats Google',
+      initialValue: "Conseillers en immobilier dans le Vaucluse Nord. Achat, vente, estimation offerte. Découvrez nos maisons et appartements à Orange, Caderousse, Piolenc et environs.",
+    },
+    {
       name: 'heroTitle',
       title: 'Titre du Hero',
       type: 'string',

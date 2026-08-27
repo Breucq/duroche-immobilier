@@ -53,7 +53,7 @@ const HomePage: React.FC = () => {
 
   if (!content) return <div className="py-48 text-center min-h-screen">Chargement...</div>;
 
-  const homeMetaTitle = content.metaTitle || "Duroche Immobilier | Agence Immobilière Orange & Vaucluse Nord";
+  const homeMetaTitle = content.metaTitle || "Duroche Immobilier | Conseillers Immobiliers Orange & Vaucluse Nord";
   const homeMetaDescription = content.metaDescription || "Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation offerte. Découvrez nos maisons et appartements à Orange, Caderousse, Piolenc et environs.";
 
   return (

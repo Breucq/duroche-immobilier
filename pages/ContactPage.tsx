@@ -17,7 +17,7 @@ import { contactPageSettingsService } from '../services/contactPageSettingsServi
 import type { ContactPageSettings } from '../types';
 
 const defaultSettings: ContactPageSettings = {
-    metaTitle: 'Contact Agence Immobilière Duroche | Orange, Caderousse & Haut-Vaucluse',
+    metaTitle: 'Contact Duroche Immobilier | Conseillers Immobiliers Orange & Haut-Vaucluse',
     metaDescription: 'Besoin d\'un conseil ou d\'une estimation ? Contactez Sylvie Roche & Thomas Dubreucq (Duroche Immobilier). Accompagnement sur mesure à Orange, Caderousse et leurs environs.',
     title: 'Contactez votre Duo Immobilier dans le Haut-Vaucluse',
     introText: 'Vous avez un projet d\'achat, de vente ou besoin d\'un conseil technique sur votre bien ? Sylvie Roche et Thomas Dubreucq vous accompagnent à Orange, Caderousse, Piolenc, Courthézon et dans l\'ensemble du secteur du Haut-Vaucluse, ainsi qu\'à distance pour vos projets en Corse ou à Paris.\n\nRemplissez le formulaire ci-dessous ou contactez-nous directement par téléphone pour échanger sur vos besoins.',
@@ -26,12 +26,12 @@ const defaultSettings: ContactPageSettings = {
     advisors: [
         {
             name: 'Sylvie Roche',
-            role: 'Conseillère immobilier',
+            role: 'Expertise Bâtiment & Technique',
             email: 'sylvie.roche@duroche.fr',
         },
         {
             name: 'Thomas Dubreucq',
-            role: 'Conseiller immobilier',
+            role: 'Marketing & Commercialisation',
             email: 'thomas.dubreucq@duroche.fr',
         },
     ],

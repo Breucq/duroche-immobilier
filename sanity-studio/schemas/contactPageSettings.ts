@@ -8,7 +8,7 @@ export default {
       title: 'Meta Titre (SEO)',
       type: 'string',
       description: 'Titre apparaissant dans l\'onglet du navigateur et les résultats Google',
-      initialValue: 'Contact Agence Immobilière Duroche | Orange, Caderousse & Haut-Vaucluse',
+      initialValue: 'Contact Duroche Immobilier | Conseillers Immobiliers Orange & Haut-Vaucluse',
     },
     {
       name: 'metaDescription',

@@ -89,7 +89,7 @@ export default async function handler(request, response) {
     const canonicalUrl = cleanPath ? `${baseUrl}/${cleanPath}` : baseUrl;
 
     // 2. Définition des valeurs par défaut
-    let title = 'Duroche Immobilier | Agence Immobilière Orange & Vaucluse Nord';
+    let title = 'Duroche Immobilier | Conseillers Immobiliers Orange & Vaucluse Nord';
     let description = "Expert de l'immobilier dans le Vaucluse Nord. Achat, vente, estimation offerte. Découvrez nos maisons et appartements à Orange, Caderousse, Piolenc et environs.";
     let ogImage = 'https://cdn.sanity.io/images/jvrtf17r/production/b5a4529d38c642277c0827137f88467472097973-1920x1080.jpg?fm=jpg&w=1200&h=630&fit=crop';
     let ogType = 'website';
@@ -195,7 +195,7 @@ export default async function handler(request, response) {
       jsonLdSchemas.push(realEstateAgentSchema);
     } else if (cleanPath === 'contact') {
       // --- PAGE CONTACT ---
-      title = 'Contactez-nous | Duroche Immobilier - Agence Immobilière Orange';
+      title = 'Contactez-nous | Duroche Immobilier - Conseillers Immobiliers Orange';
       description = "Contactez Duroche Immobilier, votre expert de l'immobilier dans le Vaucluse Nord. Nous sommes à votre écoute pour vos projets d'achat, vente ou estimation.";
       jsonLdSchemas.push(realEstateAgentSchema);
     } else if (cleanPath === 'properties' || cleanPath === 'nos-biens') {
@@ -450,7 +450,7 @@ export default async function handler(request, response) {
       <main style="padding: 40px 20px; max-width: 1200px; margin: 0 auto; font-family: sans-serif;">
         <h1>${escapeHtml(title)}</h1>
         <p>${escapeHtml(description)}</p>
-        <p><a href="https://www.duroche.fr">Duroche Immobilier</a> - Agence immobilière Orange et Vaucluse Nord</p>
+        <p><a href="https://www.duroche.fr">Duroche Immobilier</a> - Conseillers immobiliers Orange et Vaucluse Nord</p>
       </main>
     `;
     if (html.includes('<div id="root"></div>')) {
