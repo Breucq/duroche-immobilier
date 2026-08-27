@@ -59,7 +59,7 @@ const PropertySlider: React.FC<PropertySliderProps> = ({ title, properties, seeA
 };
 
 
-const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={`${className} print:break-inside-avoid print:mb-2`}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2 print:text-base print:mb-1 print:border-b">{title}</h2> <div className="prose prose-lg max-w-none text-secondary-text leading-relaxed print:text-xs print:text-black print:leading-tight">{children}</div> </div> );
+const Section: React.FC<{ title: string, children: React.ReactNode, className?: string }> = ({ title, children, className }) => ( <div className={`${className} print:break-inside-avoid print:mb-2`}> <h2 className="text-2xl font-heading font-semibold text-primary-text mb-4 border-b-2 border-border-color pb-2 print:text-base print:mb-1 print:border-b">{title}</h2> <div className="max-w-none text-secondary-text leading-relaxed print:text-xs print:text-black print:leading-tight">{children}</div> </div> );
 const KeyFeature: React.FC<{ icon: React.ReactNode, label: string, value: string | number }> = ({ icon, label, value }) => ( <div className="flex flex-col items-center text-center p-4 bg-white rounded-lg shadow-sm border border-border-color/80 print:border-gray-200 print:p-1 print:shadow-none"> <div className="text-accent mb-2 print:text-black print:mb-0 print:scale-50">{icon}</div> <p className="text-xl sm:text-2xl font-bold font-heading text-primary-text print:text-sm">{value}</p> <p className="text-sm text-secondary-text print:text-[10px]">{label}</p> </div> );
 const CharacteristicSection: React.FC<{title: string, items?: string[]}> = ({title, items}) => { if (!items || items.length === 0) return null; return ( <div> <h4 className="text-md font-semibold text-primary-text mb-3 print:mb-1 print:text-xs print:font-bold">{title}</h4> <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-sm text-secondary-text print:grid-cols-3 print:gap-y-0.5 print:text-[10px]"> {items.map((char, index) => ( <li key={index} className="flex items-center"> <CharacteristicIcon characteristic={char} className="w-5 h-5 text-accent mr-3 flex-shrink-0 print:text-black print:w-2.5 print:h-2.5 print:mr-1" /> <span>{char}</span> </li> ))} </ul> </div> ); };
 
@@ -320,11 +320,125 @@ const PropertyDetailPage: React.FC = () => {
 
     const portableTextComponents: PortableTextComponents = {
         block: {
-            normal: ({ children }) => <p className="mb-4 text-justify whitespace-pre-line">{children}</p>,
+            normal: ({ children }) => (
+                <p className="mb-4 text-secondary-text leading-relaxed text-[15px] sm:text-base whitespace-pre-line last:mb-0">
+                    {children}
+                </p>
+            ),
+            h1: ({ children }) => (
+                <h3 className="text-xl sm:text-2xl font-heading font-semibold text-primary-text mt-6 mb-3 leading-snug tracking-tight first:mt-0">
+                    {children}
+                </h3>
+            ),
+            h2: ({ children }) => (
+                <h3 className="text-lg sm:text-xl font-heading font-semibold text-primary-text mt-6 mb-2.5 leading-snug tracking-tight first:mt-0">
+                    {children}
+                </h3>
+            ),
+            h3: ({ children }) => (
+                <h4 className="text-base sm:text-lg font-heading font-semibold text-primary-text mt-5 mb-2 leading-snug first:mt-0">
+                    {children}
+                </h4>
+            ),
+            h4: ({ children }) => (
+                <h5 className="text-base font-heading font-semibold text-primary-text mt-4 mb-2 leading-snug first:mt-0">
+                    {children}
+                </h5>
+            ),
+            h5: ({ children }) => (
+                <h6 className="text-sm sm:text-base font-heading font-semibold text-primary-text mt-3 mb-1.5 leading-snug first:mt-0">
+                    {children}
+                </h6>
+            ),
+            blockquote: ({ children }) => (
+                <blockquote className="border-l-4 border-accent pl-4 py-2.5 my-5 italic text-primary-text bg-accent/5 rounded-r-lg text-sm sm:text-base leading-relaxed">
+                    {children}
+                </blockquote>
+            ),
+        },
+        list: {
+            bullet: ({ children }) => (
+                <ul className="list-disc pl-5 mb-5 space-y-2 text-secondary-text marker:text-accent text-[15px] sm:text-base">
+                    {children}
+                </ul>
+            ),
+            number: ({ children }) => (
+                <ol className="list-decimal pl-5 mb-5 space-y-2 text-secondary-text marker:text-accent marker:font-semibold text-[15px] sm:text-base">
+                    {children}
+                </ol>
+            ),
+        },
+        listItem: {
+            bullet: ({ children }) => (
+                <li className="leading-relaxed pl-1">{children}</li>
+            ),
+            number: ({ children }) => (
+                <li className="leading-relaxed pl-1">{children}</li>
+            ),
         },
         marks: {
-            strong: ({ children }) => <strong className="font-bold text-primary-text">{children}</strong>,
-        }
+            strong: ({ children }) => (
+                <strong className="font-semibold text-primary-text">{children}</strong>
+            ),
+            em: ({ children }) => (
+                <em className="italic">{children}</em>
+            ),
+            link: ({ value, children }) => {
+                const target = (value?.href || '').startsWith('http') ? '_blank' : undefined;
+                return (
+                    <a
+                        href={value?.href}
+                        target={target}
+                        rel={target === '_blank' ? 'noopener noreferrer' : undefined}
+                        className="text-accent hover:text-accent-dark underline decoration-accent/40 hover:decoration-accent transition-colors font-medium"
+                    >
+                        {children}
+                    </a>
+                );
+            },
+        },
+    };
+
+    const renderStringDescription = (text: string) => {
+        if (!text) return null;
+        const lines = text.split('\n');
+        return (
+            <div className="space-y-3">
+                {lines.map((line, idx) => {
+                    const trimmed = line.trim();
+                    if (!trimmed) return <div key={idx} className="h-1" />;
+                    if (trimmed.startsWith('### ')) {
+                        return <h4 key={idx} className="text-base sm:text-lg font-heading font-semibold text-primary-text mt-5 mb-2 leading-snug">{trimmed.replace(/^###\s+/, '')}</h4>;
+                    }
+                    if (trimmed.startsWith('## ')) {
+                        return <h3 key={idx} className="text-lg sm:text-xl font-heading font-semibold text-primary-text mt-6 mb-2.5 leading-snug tracking-tight">{trimmed.replace(/^##\s+/, '')}</h3>;
+                    }
+                    if (trimmed.startsWith('# ')) {
+                        return <h3 key={idx} className="text-xl sm:text-2xl font-heading font-semibold text-primary-text mt-6 mb-3 leading-snug tracking-tight">{trimmed.replace(/^#\s+/, '')}</h3>;
+                    }
+                    if (trimmed.startsWith('> ')) {
+                        return (
+                            <blockquote key={idx} className="border-l-4 border-accent pl-4 py-2.5 my-4 italic text-primary-text bg-accent/5 rounded-r-lg text-sm sm:text-base leading-relaxed">
+                                {trimmed.replace(/^>\s+/, '')}
+                            </blockquote>
+                        );
+                    }
+                    if (trimmed.startsWith('- ') || trimmed.startsWith('* ') || trimmed.startsWith('• ')) {
+                        return (
+                            <div key={idx} className="flex items-start gap-2 text-secondary-text text-[15px] sm:text-base pl-2">
+                                <span className="text-accent font-bold mt-1 text-xs">•</span>
+                                <span>{trimmed.replace(/^[-*•]\s+/, '')}</span>
+                            </div>
+                        );
+                    }
+                    return (
+                        <p key={idx} className="text-secondary-text leading-relaxed text-[15px] sm:text-base">
+                            {trimmed}
+                        </p>
+                    );
+                })}
+            </div>
+        );
     };
 
     const getImageAlt = (index: number) => `${property.type} à vendre à ${property.location} - Vue ${index + 1} - ${formattedPrice}`;
@@ -487,7 +601,7 @@ const PropertyDetailPage: React.FC = () => {
                                     {Array.isArray(property.description) ? (
                                         <PortableText value={property.description} components={portableTextComponents} />
                                     ) : (
-                                        <p className="whitespace-pre-line text-justify">{property.description}</p>
+                                        renderStringDescription(property.description)
                                     )}
                                 </Section> 
                             </div>
