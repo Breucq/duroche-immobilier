@@ -31,8 +31,10 @@ export default defineConfig({
             // Singleton documents
             singletonListItem(S, 'siteSettings', 'Paramètres du Site'),
             singletonListItem(S, 'homePageSettings', "Page d'Accueil"),
-            singletonListItem(S, 'footerSettings', 'Pied de Page'),
+            singletonListItem(S, 'sellingPageSettings', 'Page Vendre'),
             singletonListItem(S, 'estimationPageSettings', 'Page Estimation'),
+            singletonListItem(S, 'contactPageSettings', 'Page Contact'),
+            singletonListItem(S, 'footerSettings', 'Pied de Page'),
             S.divider(),
             // Regular document types
             S.documentTypeListItem('property').title('Biens Immobiliers'),

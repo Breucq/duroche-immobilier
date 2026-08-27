@@ -26,12 +26,12 @@ const defaultSettings: ContactPageSettings = {
     advisors: [
         {
             name: 'Sylvie Roche',
-            role: 'Expertise Bâtiment & Technique',
+            role: 'Conseillère immobilier',
             email: 'sylvie.roche@duroche.fr',
         },
         {
             name: 'Thomas Dubreucq',
-            role: 'Marketing & Commercialisation',
+            role: 'Conseiller immobilier',
             email: 'thomas.dubreucq@duroche.fr',
         },
     ],
@@ -42,14 +42,14 @@ const defaultSettings: ContactPageSettings = {
             title: 'Vous souhaitez vendre votre bien ?',
             text: 'Vous voulez connaître la valeur réelle de votre maison ou appartement ? Faites une demande d\'évaluation complète en 24h à 48h.',
             linkText: 'Demander une estimation offerte',
-            linkUrl: '/estimer-mon-bien',
+            linkUrl: '/estimation',
             badge: 'Estimation 100% Offerte',
         },
         {
             title: 'Notre Réseau & Vos Garanties',
             text: 'Affiliés au réseau national Expertimo, nous diffusons vos biens sur plus de 300 portails immobiliers et auprès de notre réseau d\'acheteurs qualifiés.',
             linkText: 'Découvrir notre méthode de vente',
-            linkUrl: '/vendre-mon-bien',
+            linkUrl: '/vendre',
             badge: 'Diffusion Maximale',
         },
     ],
@@ -298,13 +298,23 @@ const ContactPage: React.FC = () => {
                                 </div>
                                 {block.linkUrl && (
                                     <div>
-                                        <Link 
-                                            to={block.linkUrl} 
-                                            className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent-dark transition-colors group"
-                                        >
-                                            <span>{block.linkText || 'En savoir plus'}</span>
-                                            <span className="transform transition-transform group-hover:translate-x-1">→</span>
-                                        </Link>
+                                        {block.linkUrl.startsWith('http') ? (
+                                            <a 
+                                                href={block.linkUrl}
+                                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent-dark transition-colors group"
+                                            >
+                                                <span>{block.linkText || 'En savoir plus'}</span>
+                                                <span className="transform transition-transform group-hover:translate-x-1">→</span>
+                                            </a>
+                                        ) : (
+                                            <Link 
+                                                to={block.linkUrl} 
+                                                className="inline-flex items-center gap-1.5 text-sm font-semibold text-accent hover:text-accent-dark transition-colors group"
+                                            >
+                                                <span>{block.linkText || 'En savoir plus'}</span>
+                                                <span className="transform transition-transform group-hover:translate-x-1">→</span>
+                                            </Link>
+                                        )}
                                     </div>
                                 )}
                             </div>
