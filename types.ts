@@ -242,6 +242,34 @@ export interface SellingPageSettings {
 }
 
 /**
+ * Paramètres de contenu de la page Contact tel que retourné par Sanity.
+ */
+export interface ContactPageSettings {
+    metaTitle?: string;
+    metaDescription?: string;
+    title?: string;
+    introText?: string;
+    phone?: string;
+    googleBusinessUrl?: string;
+    advisors?: Array<{
+        name: string;
+        role: string;
+        phone?: string;
+        email?: string;
+    }>;
+    generalEmail?: string;
+    address?: string;
+    reassuranceBlocks?: Array<{
+        title: string;
+        text: string;
+        linkText?: string;
+        linkUrl?: string;
+        badge?: string;
+    }>;
+    interventionZones?: string;
+}
+
+/**
  * Représente un objet image retourné par l'API de Sanity.
  */
 export interface SanityImage {
