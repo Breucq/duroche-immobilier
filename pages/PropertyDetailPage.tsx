@@ -603,6 +603,14 @@ const PropertyDetailPage: React.FC = () => {
                                     ) : (
                                         renderStringDescription(property.description)
                                     )}
+                                    <div className="mt-8 pt-6 border-t border-border-color/80 text-xs text-secondary-text leading-relaxed bg-background-alt/60 p-4 rounded-xl border border-border-color/70 print:border-gray-200 print:bg-transparent print:p-2 print:mt-4 print:pt-2">
+                                        <p className="font-semibold text-primary-text mb-1 text-[11px] uppercase tracking-wider">
+                                            Mentions légales & mandat
+                                        </p>
+                                        <p className="text-secondary-text text-xs leading-relaxed">
+                                            Annonce rédigée et publiée par un Agent Mandataire. Annonce proposée par Sylvie Roche et Thomas Dubreucq, agents commerciaux indépendants immatriculés au RSAC de Avignon sous le n° 750 573 529 et au RSAC de Avignon sous le n° 934 239 732, titulaires de l'attestation de collaborateur pour le compte de la société EXPERTIMO. Réseau EXPERTIMO — Carte professionnelle T n° CPI 8401 2018 000 024 015 délivrée par la CCI de Vaucluse.
+                                        </p>
+                                    </div>
                                 </Section> 
                             </div>
                             <div className="print:col-span-1 space-y-12 print:space-y-4">
