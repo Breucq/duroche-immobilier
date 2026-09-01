@@ -212,9 +212,18 @@ export default async function handler(request, response) {
       const rawRef = cleanPath.split('/')[1] || '';
       const ref = decodeURIComponent(rawRef).trim();
       const property = await client.fetch(
-        `*[_type == "property" && (reference == $ref || _id == $ref || reference == $refUpper || reference == $refLower || string(reference) == $ref || reference match $ref)][0]{
+        `*[_type == "property" && (
+          reference == $ref || 
+          _id == $ref || 
+          $ref in legacyReferences ||
+          reference == $refUpper || 
+          reference == $refLower || 
+          string(reference) == $ref || 
+          reference match $ref
+        )][0]{
           _id,
           reference,
+          legacyReferences,
           type,
           location,
           price,
@@ -230,6 +239,14 @@ export default async function handler(request, response) {
       );
 
       if (property) {
+        // Redirection 301 côté serveur si l'URL demandée est un ancien mandat ou l'ID brut alors qu'une référence propre existe
+        const hasCleanRef = property.reference && /^[a-zA-Z0-9\-_]+$/.test(property.reference);
+        const officialSlug = hasCleanRef ? property.reference : property._id;
+        
+        if (officialSlug && ref !== officialSlug) {
+          console.log(`[SSR 301] Redirection permanente: /properties/${ref} -> /properties/${officialSlug}`);
+          return response.redirect(301, `${baseUrl}/properties/${encodeURIComponent(officialSlug)}`);
+        }
         const city = property.location ? property.location.split(',')[0].trim() : 'Vaucluse';
         const formattedPrice = property.price
           ? new Intl.NumberFormat('fr-FR', {

@@ -18,6 +18,7 @@ export interface Property {
   _createdAt: string;
   publicationDate?: string;
   reference?: string;
+  legacyReferences?: string[];
   image: SanityImage;
   images: SanityImage[];
   type: string;

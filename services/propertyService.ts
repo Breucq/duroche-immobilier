@@ -7,6 +7,7 @@ const propertyFields = `
   _createdAt,
   publicationDate,
   reference,
+  legacyReferences,
   "image": image.asset->,
   "images": images[].asset->,
   type,
@@ -81,12 +82,23 @@ export const propertyService = {
   },
 
   /**
-   * Récupère un bien par sa référence OU son ID.
+   * Récupère un bien par sa référence actuelle, un de ses anciens mandats (legacyReferences) OU son ID.
    */
   async getByReference(refOrId: string): Promise<Property | null> {
     // Garde propertyFields (complet) pour le détail
-    const query = `*[_type == "property" && (reference == $ref || _id == $ref)][0] { ${propertyFields} }`;
-    return client.fetch(query, { ref: refOrId });
+    const clean = refOrId.trim();
+    const query = `*[_type == "property" && (
+      reference == $ref || 
+      _id == $ref || 
+      $ref in legacyReferences ||
+      reference == $refUpper ||
+      reference == $refLower
+    )][0] { ${propertyFields} }`;
+    return client.fetch(query, { 
+      ref: clean,
+      refUpper: clean.toUpperCase(),
+      refLower: clean.toLowerCase()
+    });
   },
 
   async getByIds(ids: string[]): Promise<Property[]> {

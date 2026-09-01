@@ -12,10 +12,20 @@ export default {
     // --- Ligne 1 : Identification rapide ---
     {
       name: 'reference',
-      title: 'Référence',
+      title: 'Référence / Mandat Actuel (URL)',
+      description: 'N° de mandat ou référence actuelle qui sera utilisée dans l\'URL (ex: 111089 ou villa-orange-111089).',
       type: 'string',
       group: 'main',
       validation: (Rule: any) => Rule.required(),
+    },
+    {
+      name: 'legacyReferences',
+      title: 'Anciens Mandats / Redirections 301',
+      description: 'Ajoutez ici vos anciens numéros de mandat ou anciens slugs (ex: 36089). Tout visiteur ou robot arrivant sur ces anciens liens sera automatiquement redirigé en 301 vers le mandat actuel.',
+      type: 'array',
+      of: [{type: 'string'}],
+      options: {layout: 'tags'},
+      group: 'main',
     },
     {
       name: 'status',
