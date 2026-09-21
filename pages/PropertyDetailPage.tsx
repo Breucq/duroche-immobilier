@@ -14,6 +14,7 @@ import { useFavorites } from '../context/FavoritesContext';
 import MortgageSimulator from '../components/MortgageSimulator';
 import ImageWithSkeleton from '../components/ImageWithSkeleton';
 import { slugifyCity } from '../utils/cityHelper';
+import PropertyPrintSheet from '../components/PropertyPrintSheet';
 
 // Icons
 const IconRooms = (props: React.SVGProps<SVGSVGElement>) => ( <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" /></svg> );
@@ -484,7 +485,7 @@ const PropertyDetailPage: React.FC = () => {
 
             <style>{scrollbarHideStyle}</style>
             
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16 print:py-0 print:pt-2">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 pt-24 pb-28 lg:pb-16 print:hidden">
 
                  <nav className="flex mb-6 text-xs sm:text-sm text-secondary-text overflow-x-auto scrollbar-hide py-1 -mx-4 px-4 sm:mx-0 sm:px-0 print:hidden" aria-label="Fil d'ariane">
                     <ol className="inline-flex items-center space-x-1.5 sm:space-x-2 whitespace-nowrap min-w-0">
@@ -656,22 +657,17 @@ const PropertyDetailPage: React.FC = () => {
                         </div> 
                     </div> 
                 </div>
+            </div>
 
-                <div className="hidden print:flex mt-4 pt-4 border-t-2 border-accent items-center justify-between bg-gray-50 p-4 rounded-lg break-inside-avoid">
-                    <div className="flex items-center gap-4">
-                        <div>
-                            <h3 className="font-heading font-bold text-primary-text text-xl">Duroche Immobilier</h3>
-                            <p className="text-xs text-secondary-text uppercase tracking-wide">Expert de l'immobilier - Vaucluse Nord</p>
-                        </div>
-                    </div>
-                    <div className="text-right">
-                        <p className="font-bold text-accent font-heading text-lg">Thomas DUBREUCQ & Sylvie ROCHE</p>
-                        <p className="text-sm font-medium">07 56 87 47 88</p>
-                        <p className="text-sm">contact@duroche.fr</p>
-                        <p className="text-xs text-gray-400 mt-1">www.duroche.fr</p>
-                    </div>
-                </div>
-
+            {/* FICHE D'IMPRESSION A4 HAUTE DÉFINITION (VISIBLE UNIQUEMENT À L'IMPRESSION / PDF) */}
+            <div className="hidden print:block w-full">
+                <PropertyPrintSheet
+                    property={property}
+                    canonicalUrl={canonicalUrl}
+                    formattedPrice={formattedPrice}
+                    formattedPricePerSqM={formattedPricePerSqM}
+                    allImages={allImages}
+                />
             </div>
 
             <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border-color p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-40 lg:hidden flex items-center justify-between gap-3 safe-area-bottom print:hidden">

@@ -2,55 +2,78 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Styles pour l'impression de la fiche bien */
+/* Styles professionnels pour l'impression de la fiche bien sur 1 page A4 */
 @media print {
   @page {
-    margin: 0.5cm; /* Marges très réduites pour maximiser l'espace A4 */
-    size: A4;
+    size: A4 portrait;
+    margin: 8mm 10mm;
   }
   
-  /* Masquer les éléments de navigation et interactifs */
+  /* Masquer les éléments interactifs et le reste du site */
   header, 
   footer, 
-  .fixed, /* Barre mobile */
-  .print-hidden, /* Classe utilitaire pour cacher des éléments spécifiques */
+  nav,
+  .fixed,
+  .print-hidden,
   button,
   .no-print,
+  #mobile-menu,
   nav[aria-label="Fil d'ariane"] {
     display: none !important;
   }
 
-  body {
-    background-color: white !important;
-    color: #1f2937 !important; /* gray-800 pour un bon contraste */
-    font-size: 9pt; /* Taille de police réduite pour tout faire tenir */
-    line-height: 1.3;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+  html, body {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 8.5pt !important;
+    line-height: 1.25 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    width: 100% !important;
+    height: auto !important;
   }
 
-  /* Ajustements de mise en page pour le papier */
+  /* Annuler les marges et paddings des conteneurs web parents */
+  #root,
+  .bg-background,
   .container {
     max-width: 100% !important;
     padding: 0 !important;
     margin: 0 !important;
     width: 100% !important;
+    background: transparent !important;
   }
 
-  /* Forcer l'affichage des images de fond ou couleurs */
+  /* Force la fidélité des couleurs et des graphismes d'arrière-plan */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
   
-  /* Éviter de couper les sections importantes au milieu */
-  section, li, p, h1, h2, h3 {
-    break-inside: avoid;
+  /* Conteneur A4 strict : tient exactement sur 1 page sans saut */
+  .a4-print-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 190mm !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Empêcher les coupures de blocs */
+  .a4-print-container img {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
   /* Masquer les scrollbars */
   ::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
 }
 
